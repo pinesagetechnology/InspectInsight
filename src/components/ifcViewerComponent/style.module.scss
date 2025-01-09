@@ -1,0 +1,59 @@
+.treeViewerContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 26%;
+    max-width: 35%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    padding: 10px;
+    overflow: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.showTreePanel {
+    transform: translateX(0);
+}
+
+.hideTreePanel {
+    transform: translateX(-100%);
+}
+
+.viewerMenuContainer {
+    position: absolute;
+    bottom: 5px;
+    right: 45%;
+    min-width: 10%;
+    max-width: 35%;
+    height: 60px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: none;
+}
+
+.assessmentPanel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 20%;
+    max-width: 30%;
+    height: 30%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    padding: 10px;
+    overflow: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.showAssessmentPanel {
+    // display: block;
+    transform: translateY(0);
+}
+
+.hideAssessmentPanel {
+    transform: translateY(-150%);
+    // display: none;
+}

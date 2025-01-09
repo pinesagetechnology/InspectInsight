@@ -1,0 +1,15 @@
+.structureDetailTitle {
+    padding: 16px;
+    /* 'p: 2' is equivalent to 2 * 8px in Material-UI spacing */
+    color: var(--mui-palette-text-secondary);
+    /* Material-UI uses theme variables for colors */
+}
+
+.structureDetailSectionBox {
+    padding-left: 16px; /* 'px: 2' => 2 * 8px */
+    padding-right: 16px; /* 'px: 2' => 2 * 8px */
+    padding-bottom: 16px; /* 'pb: 2' => 2 * 8px */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scrolling for overflowing content */
+}
+

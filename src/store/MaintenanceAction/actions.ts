@@ -1,0 +1,11 @@
+export const ADD_NEW_ITEM = "sagaAction/AddNewItem";
+export const CANCEL_NEW_ITEM = "sagaAction/CancelNewItem";
+export const EDIT_ITEM = "sagaAction/EditItem";
+export const ADD_MAINTENANCE_ACTION_DATA = "sagaAction/AddMaintenanceActionData";
+export const UPDATE_MAINTENANCE_ACTION_DATA = "sagaAction/UpdateMaintenanceActionData";
+export const DELETE_MAINTENANCE_ACTION_DATA = "sagaAction/DeleteMaintenanceActionData";
+export const SAVE_MAINTENANCE_ACTION_DATA = "sagaAction/SaveMaintenanceActionData";
+export const SET_MAINTENANCE_FORM_DATA = "sagaAction/setMaintenanceFormData";
+export const UPLOAD_MAINTENANCE_IMAGE = "sagaAction/UploadMaintenanceImage";
+export const DELETE_MAINTENANCE_IMAGE = "sagaAction/DeleteMaintenanceImage";
+export const SET_SELECTED_MAINTENANCE_ITEM = "sagaAction/SetSelectedMaintenanceItem";

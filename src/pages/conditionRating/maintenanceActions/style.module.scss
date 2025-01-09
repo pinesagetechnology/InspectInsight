@@ -1,0 +1,21 @@
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+}
+
+.input {
+    width: '100%',
+}
+
+.photoPreview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.datePicker {
+    width: 100%;
+  }
+  

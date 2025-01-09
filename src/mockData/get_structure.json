@@ -1,0 +1,374 @@
+[
+    {
+      "name": "Golden Gate Bridge",
+      "code": "GGB01",
+      "type": "bridge",
+      "overal": "large",
+      "at": "SF",
+      "overalLength": "2737 m",
+      "overalWidth": "27 m",
+      "maxCmy": 15,
+      "maxMd": 18,
+      "lastInspectionDate": "2024-10-15T06:09:51.119Z",
+      "location": {
+        "latitude": -33.8523,
+        "longitude": 151.2108,
+        "region": "Zone 1"
+      },
+      "elementMetadata": [
+        {
+          "id": "1",
+          "code": "BR-100",
+          "description": "Main Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "MB-1",
+          "eciChannel": "1001",
+          "children": [
+            {
+              "id": "2",
+              "code": "BR-101",
+              "description": "Substructure",
+              "quantity": 2,
+              "unit": "piece",
+              "elementCode": "SS-1",
+              "eciChannel": "1002",
+              "children": [
+                {
+                  "id": "3",
+                  "code": "BR-102",
+                  "description": "Pier",
+                  "quantity": 4,
+                  "unit": "piece",
+                  "elementCode": "P-1",
+                  "eciChannel": "1003"
+                },
+                {
+                  "id": "4",
+                  "code": "BR-103",
+                  "description": "Abutment",
+                  "quantity": 2,
+                  "unit": "piece",
+                  "elementCode": "A-1",
+                  "eciChannel": "1004"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "code": "BR-104",
+              "description": "Superstructure",
+              "quantity": 1,
+              "unit": "piece",
+              "elementCode": "SS-2",
+              "eciChannel": "1005",
+              "children": [
+                {
+                  "id": "6",
+                  "code": "BR-105",
+                  "description": "Deck",
+                  "quantity": 1,
+                  "unit": "piece",
+                  "elementCode": "D-1",
+                  "eciChannel": "1006"
+                },
+                {
+                  "id": "7",
+                  "code": "BR-106",
+                  "description": "Bearings",
+                  "quantity": 8,
+                  "unit": "piece",
+                  "elementCode": "B-1",
+                  "eciChannel": "1007"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "8",
+          "code": "BR-200",
+          "description": "Secondary Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "SB-1",
+          "eciChannel": "2001",
+          "children": [
+            {
+              "id": "9",
+              "code": "BR-201",
+              "description": "Foundation",
+              "quantity": 3,
+              "unit": "piece",
+              "elementCode": "F-1",
+              "eciChannel": "2002"
+            },
+            {
+              "id": "10",
+              "code": "BR-202",
+              "description": "Columns",
+              "quantity": 6,
+              "unit": "piece",
+              "elementCode": "C-1",
+              "eciChannel": "2003"
+            }
+          ]
+        },
+        {
+          "id": "11",
+          "code": "BR-300",
+          "description": "Tertiary Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "TB-1",
+          "eciChannel": "3001",
+          "children": [
+            {
+              "id": "12",
+              "code": "BR-301",
+              "description": "Supports",
+              "quantity": 5,
+              "unit": "piece",
+              "elementCode": "S-1",
+              "eciChannel": "3002"
+            },
+            {
+              "id": "13",
+              "code": "BR-302",
+              "description": "Rails",
+              "quantity": 2,
+              "unit": "meters",
+              "elementCode": "R-1",
+              "eciChannel": "3003",
+              "children": [
+                {
+                  "id": "14",
+                  "code": "BR-303",
+                  "description": "Rail Head",
+                  "quantity": 2,
+                  "unit": "meters",
+                  "elementCode": "RH-1",
+                  "eciChannel": "3004"
+                },
+                {
+                  "id": "15",
+                  "code": "BR-304",
+                  "description": "Rail Base",
+                  "quantity": 2,
+                  "unit": "meters",
+                  "elementCode": "RB-1",
+                  "eciChannel": "3005",
+                  "children": [
+                    {
+                      "id": "19",
+                      "code": "BR-201",
+                      "description": "Foundation",
+                      "quantity": 3,
+                      "unit": "piece",
+                      "elementCode": "F-1",
+                      "eciChannel": "2002"
+                    },
+                    {
+                      "id": "110",
+                      "code": "BR-202",
+                      "description": "Columns",
+                      "quantity": 6,
+                      "unit": "piece",
+                      "elementCode": "C-1",
+                      "eciChannel": "2003"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "test Bridge",
+      "code": "GGB02",
+      "type": "bridge",
+      "overal": "large",
+      "at": "SF",
+      "overalLength": "2737 m",
+      "overalWidth": "27 m",
+      "maxCmy": 15,
+      "maxMd": 18,
+      "lastInspectionDate": "2024-10-10T06:09:51.119Z",
+      "location": {
+        "latitude": -33.8691,
+        "longitude": 151.1861,
+        "region": "Zone 1"
+      },
+      "elementMetadata": [
+        {
+          "id": "1",
+          "code": "BR-100",
+          "description": "Main Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "MB-1",
+          "eciChannel": "1001",
+          "children": [
+            {
+              "id": "2",
+              "code": "BR-101",
+              "description": "Substructure",
+              "quantity": 2,
+              "unit": "piece",
+              "elementCode": "SS-1",
+              "eciChannel": "1002",
+              "children": [
+                {
+                  "id": "3",
+                  "code": "BR-102",
+                  "description": "Pier",
+                  "quantity": 4,
+                  "unit": "piece",
+                  "elementCode": "P-1",
+                  "eciChannel": "1003"
+                },
+                {
+                  "id": "4",
+                  "code": "BR-103",
+                  "description": "Abutment",
+                  "quantity": 2,
+                  "unit": "piece",
+                  "elementCode": "A-1",
+                  "eciChannel": "1004"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "code": "BR-104",
+              "description": "Superstructure",
+              "quantity": 1,
+              "unit": "piece",
+              "elementCode": "SS-2",
+              "eciChannel": "1005",
+              "children": [
+                {
+                  "id": "6",
+                  "code": "BR-105",
+                  "description": "Deck",
+                  "quantity": 1,
+                  "unit": "piece",
+                  "elementCode": "D-1",
+                  "eciChannel": "1006"
+                },
+                {
+                  "id": "7",
+                  "code": "BR-106",
+                  "description": "Bearings",
+                  "quantity": 8,
+                  "unit": "piece",
+                  "elementCode": "B-1",
+                  "eciChannel": "1007"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "8",
+          "code": "BR-200",
+          "description": "Secondary Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "SB-1",
+          "eciChannel": "2001",
+          "children": [
+            {
+              "id": "9",
+              "code": "BR-201",
+              "description": "Foundation",
+              "quantity": 3,
+              "unit": "piece",
+              "elementCode": "F-1",
+              "eciChannel": "2002"
+            },
+            {
+              "id": "10",
+              "code": "BR-202",
+              "description": "Columns",
+              "quantity": 6,
+              "unit": "piece",
+              "elementCode": "C-1",
+              "eciChannel": "2003"
+            }
+          ]
+        },
+        {
+          "id": "11",
+          "code": "BR-300",
+          "description": "Tertiary Bridge",
+          "quantity": 1,
+          "unit": "piece",
+          "elementCode": "TB-1",
+          "eciChannel": "3001",
+          "children": [
+            {
+              "id": "12",
+              "code": "BR-301",
+              "description": "Supports",
+              "quantity": 5,
+              "unit": "piece",
+              "elementCode": "S-1",
+              "eciChannel": "3002"
+            },
+            {
+              "id": "13",
+              "code": "BR-302",
+              "description": "Rails",
+              "quantity": 2,
+              "unit": "meters",
+              "elementCode": "R-1",
+              "eciChannel": "3003",
+              "children": [
+                {
+                  "id": "14",
+                  "code": "BR-303",
+                  "description": "Rail Head",
+                  "quantity": 2,
+                  "unit": "meters",
+                  "elementCode": "RH-1",
+                  "eciChannel": "3004"
+                },
+                {
+                  "id": "15",
+                  "code": "BR-304",
+                  "description": "Rail Base",
+                  "quantity": 2,
+                  "unit": "meters",
+                  "elementCode": "RB-1",
+                  "eciChannel": "3005",
+                  "children": [
+                    {
+                      "id": "19",
+                      "code": "BR-201",
+                      "description": "Foundation",
+                      "quantity": 3,
+                      "unit": "piece",
+                      "elementCode": "F-1",
+                      "eciChannel": "2002"
+                    },
+                    {
+                      "id": "110",
+                      "code": "BR-202",
+                      "description": "Columns",
+                      "quantity": 6,
+                      "unit": "piece",
+                      "elementCode": "C-1",
+                      "eciChannel": "2003"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]

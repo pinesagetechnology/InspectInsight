@@ -1,0 +1,18 @@
+.reviewHeaderContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.tableCell {
+    width: 150px; 
+    max-width: 250px;  
+    white-space: 'normal';
+    word-wrap: 'break-word';
+  }
+
+  .papaerContainer {
+    padding: 5px 20px;
+    margin-bottom: 10px;
+  }

@@ -1,0 +1,29 @@
+.treeItemContainer {
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+.treeItem {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.hasChildrenTreeArrow {
+    margin-right: 5px;
+}
+
+.noChildrenTreeArrow {
+    margin-right: 20px;
+}
+
+.searchContainer {
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    width: 400
+}
+
+.treeItemsContainer {
+    margin-top: 10px;
+}
