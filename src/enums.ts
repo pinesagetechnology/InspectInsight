@@ -13,3 +13,9 @@ export enum BrowserStorageKey {
     MaintenanceAction = "maintenanceAction",
     InspectionComment = "inspectionComment",
 }
+
+export enum InspectionStatusEnum {
+    InProgress = 'In Progress',
+    Completed = 'Completed',
+    ToDo = 'ToDo',
+}

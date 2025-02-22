@@ -1,3 +1,4 @@
+import { InspectionStatusEnum } from "../enums";
 import { ConditionRatingEntity, InspectionEntity, MaintenanceActionEntity } from "../entities/inspection";
 import { Structure, StructureElement } from "../entities/structure";
 
@@ -276,5 +277,6 @@ export const mockPreviousInspectionData: InspectionEntity = {
     } as MaintenanceActionEntity,
   ],
   conditionRatings: [...conditionRatings],
+  inspectionStatus: InspectionStatusEnum.Completed,
 };
 

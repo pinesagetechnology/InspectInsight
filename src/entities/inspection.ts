@@ -14,6 +14,7 @@ export interface InspectionEntity {
     comment?: string;
     maintenanceActions: MaintenanceActionEntity[];
     conditionRatings?: ConditionRatingEntity[];
+    inspectionStatus: string;
 }
 
 export interface MaintenanceActionEntity {

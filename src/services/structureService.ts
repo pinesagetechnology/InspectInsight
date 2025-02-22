@@ -5,7 +5,7 @@ import mockStructures from '../mockData/get_structure.json';
 export const getStructureData = async () => {
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    let result = await api.get("api/Structure");
+    let result = await api.get("api/Structure/list");
 
     return result.data as Structure[];
 }

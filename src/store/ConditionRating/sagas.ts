@@ -9,6 +9,7 @@ import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceAction } from '../MaintenanceAction/selectors';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
+import { InspectionStatusEnum } from '../../enums';
 
 export function* conditionRatingRootSaga() {
     yield takeLatest(actions.HANDLE_ROW_CLICK_SAGA, handleRowClickSaga);
@@ -149,7 +150,8 @@ export function* saveConditionRatingAssessmentData() {
         const newInspectionEntity = {
             ...inspectionData,
             maintenanceActions: [...maintenanceActions],
-            conditionRatings: conditionRatings
+            conditionRatings: conditionRatings,
+            inspectionStatus: InspectionStatusEnum.ToDo
         } as InspectionEntity;
 
         yield call(services.updateInspectionlData, newInspectionEntity);
