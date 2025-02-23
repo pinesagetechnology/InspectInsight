@@ -85,7 +85,7 @@ const HomePage = () => {
 
   }
   return (
-    <Container className={styles.homeContainer}>
+    <div className={styles.homeContainer}>
       {!isListView ? (
         <MapContainer
           structures={structureList}
@@ -104,7 +104,7 @@ const HomePage = () => {
           onStartClickHandler={startInspectionHandler}
         />
       )}
-    </Container>
+    </div>
   );
 };
 

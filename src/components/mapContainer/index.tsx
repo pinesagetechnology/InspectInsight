@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import {
     Box,
     Container,
     CssBaseline,
     Fab,
+    InputBase,
     Menu,
     MenuItem,
+    Paper,
+    Stack,
     SwipeableDrawer,
     Typography
 } from '@mui/material';
@@ -20,6 +23,11 @@ import { getCurrentStructure } from '../../store/Structure/selectors';
 import { styled } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { DRAWER_BLEEDING } from '../../constants';
+import {
+    Search as SearchIcon,
+    LocationOn,
+    Explore
+} from '@mui/icons-material';
 import styles from './style.module.scss';
 
 const containerStyle = {
@@ -40,7 +48,6 @@ interface MapComponentProps {
     setIsListView: (flag: boolean) => void;
     onStartClickHandler: () => void;
 }
-
 
 const Root = styled('div')(({ theme }) => ({
     height: '100%',
@@ -70,6 +77,28 @@ const Puller = styled('div')(({ theme }) => ({
     }),
 }));
 
+const SearchBar = styled(Paper)(({ theme }) => ({
+    position: 'absolute',
+    top: 16,
+    right: 150,
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    boxShadow: theme.shadows[2],
+    padding: '8px 16px',
+    width: '30%'
+}));
+
+const SearchInput = styled(InputBase)({
+    flex: 1,
+    marginLeft: 8,
+    '& input::placeholder': {
+        fontSize: '16px'
+    },
+    width: '40px'
+});
+
 const MapContainer: React.FC<MapComponentProps> = (
     {
         structures,
@@ -79,11 +108,18 @@ const MapContainer: React.FC<MapComponentProps> = (
         setIsListView,
         onStartClickHandler
     }) => {
+
+    useEffect(() => {
+        setStructureList(structures || []);
+    }, [structures]);
+
     const selectedStructure = useSelector(getCurrentStructure);
 
     const [map, setMap] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
+
+    const [structureList, setStructureList] = useState<Structure[]>([]);
 
     const toggleDrawer = (newOpen: boolean) => () => {
         setOpen(newOpen);
@@ -129,6 +165,16 @@ const MapContainer: React.FC<MapComponentProps> = (
         setOpen(true);
     }
 
+    const onTxtSearchInput = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const searchValue = event.target.value;
+        if (searchValue) {
+            const filteredList = structureList.filter(structure => structure.name.toLowerCase().includes(searchValue.toLowerCase()));
+            setStructureList(filteredList);
+        } else {
+            setStructureList(structures || []);
+        }
+    }
+
     return (
         <Root>
             <CssBaseline />
@@ -143,7 +189,7 @@ const MapContainer: React.FC<MapComponentProps> = (
                         options={mapOptions}
 
                     >
-                        {structures?.map((structure) => {
+                        {structureList?.map((structure) => {
                             return (
                                 <Marker
                                     key={structure.id}
@@ -185,6 +231,16 @@ const MapContainer: React.FC<MapComponentProps> = (
                 >
                     <ListIcon />
                 </Fab>
+
+                <SearchBar elevation={3}>
+                    <SearchIcon sx={{ color: 'text.secondary' }} />
+                    <SearchInput
+                        placeholder="Search here ..."
+                        fullWidth
+                        onChange={onTxtSearchInput}
+                        id='txtSearchInput'
+                    />
+                </SearchBar>
             </Box>
             {
                 (!selectedStructure.name) ?
@@ -207,7 +263,7 @@ const MapContainer: React.FC<MapComponentProps> = (
                         }}
                         sx={{
                             '& .MuiPaper-root': {
-                                height: `calc(55% - ${DRAWER_BLEEDING}px)`,
+                                // height: `calc(55% - ${DRAWER_BLEEDING}px)`,
                                 overflow: 'visible',
                             },
                         }}
@@ -224,11 +280,6 @@ const MapContainer: React.FC<MapComponentProps> = (
                             }}
                         >
                             <Puller />
-                            <Container>
-
-                                <Typography className={styles.structureDetailTitle} variant='h6'>{selectedStructure.name}</Typography>
-                            </Container>
-
                         </StyledBox>
                         <StyledBox className={styles.structureDetailSectionBox}>
                             <StructureDetailSection
