@@ -9,8 +9,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  styled
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
@@ -20,6 +23,53 @@ import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/Inspection/actions";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+
+// Styled components
+const ReportSection = styled(Accordion)(({ theme }) => ({
+  boxShadow: theme.shadows[1],
+  marginBottom: theme.spacing(3),
+  '&.MuiAccordion-root': {
+    '&:before': {
+      display: 'none',
+    },
+  },
+}));
+
+const SectionHeader = styled(AccordionSummary)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  minHeight: '48px',
+  '& .MuiAccordionSummary-content': {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: theme.spacing(1, 0),
+  },
+}));
+
+const DetailLabel = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: '0.875rem',
+  marginBottom: theme.spacing(0.5),
+}));
+
+const DetailValue = styled(Typography)(({ theme }) => ({
+  fontSize: '0.875rem',
+  fontWeight: 'medium',
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  fontSize: '0.875rem',
+}));
+
+const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
+  backgroundColor: theme.palette.grey[100],
+  fontWeight: 500,
+}));
+
 
 const PreviousInspectionPage: React.FC = () => {
   const { goTo } = useNavigationManager();
@@ -40,126 +90,161 @@ const PreviousInspectionPage: React.FC = () => {
 
   return (
     <FormPageWrapper>
-      <Container maxWidth="md">
-        <Box mt={4}>
-          <Paper elevation={8} className={styles.papaerContainer}>
-
-            <Box mb={2}>
-              <Box className={styles.reviewHeaderContainer}>
-                <Typography variant="h6">1 - Inspection Detail</Typography>
-              </Box>
-              <Grid container spacing={2}>
-                <Grid size={6}>
-                  <Typography variant="body1">Level of Inspection: {previousInspect?.inspectionLevel}</Typography>
-                  <Typography variant="body1">Inspection Type: {previousInspect?.inspectionType}</Typography>
-                  <Typography variant="body1">Temperature (degrees): {previousInspect?.temperature}</Typography>
-                  <Typography variant="body1">Inspector Name: {previousInspect?.inspectorName}</Typography>
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="body1">Inspection date: {previousInspect?.inspectionDate}</Typography>
-                  <Typography variant="body1">Proposed date of next inspection: {previousInspect?.nextInspectionProposedDate}</Typography>
-                  <Typography variant="body1">Weather: {previousInspect?.weather}</Typography>
-                  <Typography variant="body1">Engineer name: {previousInspect?.engineerName}</Typography>
-                </Grid>
+      <Box mt={4}>
+        {/* Inspection Details Section */}
+        <ReportSection defaultExpanded>
+          <SectionHeader
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography variant="subtitle1" fontWeight="medium">
+              1 - Inspection Detail
+            </Typography>
+          </SectionHeader>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid size={6}>
+                <DetailLabel>Level of Inspection</DetailLabel>
+                <DetailValue>{previousInspect?.inspectionLevel}</DetailValue>
               </Grid>
-            </Box>
-          </Paper>
+              <Grid size={6}>
+                <DetailLabel>Inspection Level</DetailLabel>
+                <DetailValue>{previousInspect?.inspectionLevel}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Inspection Type</DetailLabel>
+                <DetailValue>{previousInspect?.inspectionType}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Proposed date of next inspection</DetailLabel>
+                <DetailValue>{previousInspect?.nextInspectionProposedDate}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Temperature (degrees)</DetailLabel>
+                <DetailValue>{previousInspect?.temperature}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Weather</DetailLabel>
+                <DetailValue>{previousInspect?.weather}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Inspector Name</DetailLabel>
+                <DetailValue>{previousInspect?.inspectorName}</DetailValue>
+              </Grid>
+              <Grid size={6}>
+                <DetailLabel>Engineer Name</DetailLabel>
+                <DetailValue>{previousInspect?.engineerName}</DetailValue>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </ReportSection>
 
-          <Paper elevation={8} className={styles.papaerContainer}>
-            <Box mb={2}>
-              <Box className={styles.reviewHeaderContainer}>
-                <Typography variant="h6">2 - Condition Rating</Typography>
-              </Box>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Code</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Total qty</TableCell>
-                      <TableCell>Units</TableCell>
-                      <TableCell>Condition rating (1 2 3 4)</TableCell>
-                      <TableCell>Elem. Cod.</TableCell>
-                      <TableCell>ECI Chan.</TableCell>
-
+        {/* Condition Rating Section */}
+        <ReportSection defaultExpanded>
+          <SectionHeader
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography variant="subtitle1" fontWeight="medium">
+              2 - Condition Rating
+            </Typography>
+          </SectionHeader>
+          <AccordionDetails>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Description</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Total qty</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Units</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Elem.Cod.</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>ECI Chan.</StyledTableHeaderCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {ratedElements?.map((row, index) => (
+                    <TableRow key={index}>
+                      <StyledTableCell>{row.code}</StyledTableCell>
+                      <StyledTableCell>{row.description}</StyledTableCell>
+                      <StyledTableCell>{row.quantity}</StyledTableCell>
+                      <StyledTableCell>{row.unit}</StyledTableCell>
+                      <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                      <StyledTableCell>{row.code}</StyledTableCell>
+                      <StyledTableCell>{row.eciChannel}</StyledTableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {ratedElements?.map((item, index) => {
-                      return (
-                        <TableRow key={`${item.elementId}-${index}`}>
-                          <TableCell className={styles.tableCell}>{item.code}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.description}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.quantity}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.unit}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.condition?.concat()}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.elementCode}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.eciChannel}</TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </ReportSection>
+        {/* 
 
-            </Box>
-          </Paper>
-
-          <Paper elevation={8} className={styles.papaerContainer}>
-            <Box mb={2}>
-              <Box className={styles.reviewHeaderContainer}>
-                <Typography variant="h6">3 - Req’s Maint. Actions</Typography>
-              </Box>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Element</TableCell>
-                      <TableCell>Activity Descrip.</TableCell>
-                      <TableCell>Inspection Comments</TableCell>
-                      <TableCell>Units</TableCell>
-                      <TableCell>Date of completion</TableCell>
-                      <TableCell>Probability</TableCell>
-                      <TableCell>Consequence</TableCell>
-                      <TableCell>Activity</TableCell>
+        {/* Maintenance Actions Section */}
+        <ReportSection defaultExpanded>
+          <SectionHeader
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography variant="subtitle1" fontWeight="medium">
+              3 - Req's Maint. Actions
+            </Typography>
+          </SectionHeader>
+          <AccordionDetails>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableHeaderCell>Element</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>MMS Act.</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Activity Descrip.</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Inspection Comments</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Units</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Date of completion</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Probability</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Consequen.</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Activity</StyledTableHeaderCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {previousInspect?.maintenanceActions?.map((row, index) => (
+                    <TableRow key={index}>
+                      <StyledTableCell>{row.elementCode}</StyledTableCell>
+                      <StyledTableCell>{row.mmsActNo}</StyledTableCell>
+                      <StyledTableCell>{row.activityDescription}</StyledTableCell>
+                      <StyledTableCell>{row.inspectionComment}</StyledTableCell>
+                      <StyledTableCell>{row.units}</StyledTableCell>
+                      <StyledTableCell>{row.dateForCompletion}</StyledTableCell>
+                      <StyledTableCell>{row.probability}</StyledTableCell>
+                      <StyledTableCell>{row.consequenceOfInteraction}</StyledTableCell>
+                      <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {previousInspect?.maintenanceActions?.map((item, index) => {
-                      return (
-                        <TableRow key={`${item.id}-${index}`}>
-                          <TableCell className={styles.tableCell}>{item.elementCode}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.activityDescription}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.inspectionComment}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.units}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.dateForCompletion}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.probability}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.consequenceOfInteraction}</TableCell>
-                          <TableCell className={styles.tableCell}>{item.activityInactionRisk}</TableCell>
-                        </TableRow>
-                      )
-                    })}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </ReportSection>
 
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
-          </Paper>
-
-          <Paper elevation={8} className={styles.papaerContainer}>
-            <Box mb={2}>
-              <Box className={styles.reviewHeaderContainer}>
-                <Typography variant="h6">4 - Inspector Comments</Typography>
-              </Box>
+        {/* Inspector Comments Section */}
+        <ReportSection defaultExpanded>
+          <SectionHeader
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography variant="subtitle1" fontWeight="medium">
+              4 - Inspector Comments
+            </Typography>
+          </SectionHeader>
+          <AccordionDetails>
+            <Box sx={{ py: 1 }}>
               <Typography variant="body1">
                 {previousInspect?.comment}
               </Typography>
             </Box>
-          </Paper>
+          </AccordionDetails>
+        </ReportSection>
 
-        </Box>
+      </Box>
 
-      </Container>
     </FormPageWrapper>
   );
 };

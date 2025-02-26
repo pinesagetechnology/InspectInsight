@@ -178,7 +178,7 @@ const MapContainer: React.FC<MapComponentProps> = (
     return (
         <Root>
             <CssBaseline />
-            <Box sx={{ position: 'relative' }}>
+            <Box sx={{ position: 'relative', minWidth: 520, minHeight: 520 }}>
                 <LoadScript googleMapsApiKey={apiKey}>
                     <GoogleMap
                         mapContainerStyle={containerStyle}
@@ -263,7 +263,6 @@ const MapContainer: React.FC<MapComponentProps> = (
                         }}
                         sx={{
                             '& .MuiPaper-root': {
-                                // height: `calc(55% - ${DRAWER_BLEEDING}px)`,
                                 overflow: 'visible',
                             },
                         }}

@@ -5,6 +5,7 @@ export enum RoutesValueEnum {
     InspectorComments = 'inspectorComments',
     InspectionReview = 'inspectionReview',
     PreviousInspection = 'previousInspection',
+    BridgeInspectionApp = 'BridgeInspectionApp',
 }
 
 export enum BrowserStorageKey {

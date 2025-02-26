@@ -39,6 +39,29 @@ const Item = styled(Paper)(({ theme }) => ({
   width: '60px'
 }));
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  borderBottom: `1px solid ${theme.palette.grey[200]}`,
+  padding: '12px 16px',
+  fontSize: '14px',
+}));
+
+const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
+  backgroundColor: theme.palette.grey[100],
+  fontWeight: 600,
+  color: theme.palette.text.primary,
+}));
+
+const RatingInput = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    width: '60px',
+    height: '40px',
+    '& input': {
+      padding: '4px',
+      textAlign: 'center',
+    }
+  }
+});
+
 const StructureElementGrid: React.FC = () => {
   const displayElements = useSelector(getDisplayElementList);
   const [open, setOpen] = useState<boolean>(false);
@@ -105,7 +128,7 @@ const StructureElementGrid: React.FC = () => {
         type: actions.UPDATE_DISPLAY_LIST_ITEMS
       });
     }
-  };
+  }
 
   const handleSaveButton = (item: StructureElement) => {
     dispatch({
@@ -144,8 +167,7 @@ const StructureElementGrid: React.FC = () => {
       type: actions.HANDLE_ROW_CLICK_SAGA
     } as PayloadAction<StructureElement>);
 
-  };
-
+  }
 
   const handleAddAssesmentOnClick = (element: StructureElement) => {
     dispatch({
@@ -196,47 +218,53 @@ const StructureElementGrid: React.FC = () => {
         <Table aria-label="collapsible table">
           <TableHead>
             <TableRow>
-              <TableCell>Description</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Unit</TableCell>
-              <TableCell>Rating</TableCell>
-              <TableCell>Action</TableCell>
+              <StyledTableHeaderCell>Description</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Action</StyledTableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayElements?.map(element => (
               <TableRow key={element.elementId} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
-                <TableCell>{element.description}</TableCell>
-                <TableCell>{element.code}</TableCell>
-                <TableCell>{element.quantity}</TableCell>
-                <TableCell>{element.unit}</TableCell>
-                <TableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.elementId)}>
+                <StyledTableCell>{element.description}</StyledTableCell>
+                <StyledTableCell>{element.code}</StyledTableCell>
+                <StyledTableCell>{element.quantity}</StyledTableCell>
+                <StyledTableCell>{element.unit}</StyledTableCell>
+                <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.elementId)}>
                   {!element.children?.length && (
                     <Stack direction="row" spacing={1}>
                       {[0, 1, 2, 3].map((_, index) => {
                         const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
                         const focusedKey = `${element.elementId}-${index}`;
                         return (editRowId === element.elementId) ? (
-                          <TextField
+                          <RatingInput
                             key={focusedKey}
-                            size="small"
                             variant="outlined"
-                            margin="none"
                             value={fieldValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                              handleConditionChange(e, element.elementId, index)
-                            }
-                            className={styles.conditionTextBox}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              const newValue = parseInt(e.target.value) || 0;
+                              if (newValue >= 0 && newValue <= 4) {
+                                handleConditionChange(e, element.elementId, index)
+                              }
+                            }}
+                            slotProps={{
+                              input: {
+                                type: 'number'
+                              }
+                            }}
                           />
+
                         ) : (
                           <Item key={focusedKey}>{fieldValue}</Item>
                         );
                       })}
                     </Stack>
                   )}
-                </TableCell>
-                <TableCell>
+                </StyledTableCell>
+                <StyledTableCell>
                   <Stack direction={'row'} spacing={2}>
                     {!element.children?.length && (
                       <React.Fragment>
@@ -282,7 +310,7 @@ const StructureElementGrid: React.FC = () => {
                       </React.Fragment>
                     )}
                   </Stack>
-                </TableCell>
+                </StyledTableCell>
               </TableRow>
             ))}
           </TableBody>

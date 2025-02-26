@@ -140,7 +140,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         const fetchAndLoad = async () => {
             await ifcLoader.setup();
             //"http://localhost:9090/ifcBridgeSample.ifc" https://thatopen.github.io/engine_components/resources/small.ifc
-            const file = await fetch("http://localhost:9090/ifcBridgeSample.ifc");
+            const file = await fetch("https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc");
             const buffer = await file.arrayBuffer();
 
             const typedArray = new Uint8Array(buffer);
@@ -193,16 +193,21 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
 
         return () => {
-            highlighterRef.current = undefined;
-            dimensionsRef.current = undefined;
-            clipperRef.current = undefined;
-            hiderRef.current = undefined;
+            try {
 
-            world.renderer?.dispose();
-            world.scene.dispose();
-            world.camera?.dispose();
-            fragmentsManager.dispose();
-            components.dispose();
+                highlighterRef.current = undefined;
+                dimensionsRef.current = undefined;
+                clipperRef.current = undefined;
+                hiderRef.current = undefined;
+
+                world.renderer?.dispose();
+                world.scene.dispose();
+                world.camera?.dispose();
+                fragmentsManager.dispose();
+                components.dispose();
+            } catch (e) {
+                console.log(e);
+            }
         }
     }, [])
 
@@ -421,7 +426,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <div id="container" ref={containerRef} style={{ width: '100%', height: '90vh' }} />
+            <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
             <ViewerMenu
                 isClipperOn={isClipperOn}
                 isMeasurementMode={isMeasurementMode}
