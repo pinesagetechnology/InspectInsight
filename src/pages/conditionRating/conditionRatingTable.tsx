@@ -67,7 +67,7 @@ const StructureElementGrid: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
 
   const [originalCondition, setOriginalCondition] = useState<number[]>([]);
-  const [editRowId, setEditRowId] = useState<string | null>(null);
+  const [editRowId, setEditRowId] = useState<number | null>(null);
 
   const dispatch = useDispatch();
 
@@ -79,7 +79,7 @@ const StructureElementGrid: React.FC = () => {
 
   const handleConditionChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    elementId: string,
+    elementId: number,
     index: number
   ) => {
     const onlyNums = event.target.value.replace(/[^0-9]/g, '');
@@ -87,7 +87,7 @@ const StructureElementGrid: React.FC = () => {
       const num = parseInt(onlyNums, 10);
       if (num >= 1 && num <= 4) { // Ensure the number is between 1 and 4
         const newData = displayElements.map((item) => {
-          if (item.elementId === elementId) {
+          if (item.data.expressID === elementId) {
             const newConditions: number[] = [0, 0, 0, 0];
             [0, 1, 2, 3].forEach(x => {
               if (index === x) {
@@ -113,7 +113,7 @@ const StructureElementGrid: React.FC = () => {
     } else {
       // Handle the case where the input is cleared or invalid
       const newData = displayElements.map((item) => {
-        if (item.elementId === elementId) {
+        if (item.data.expressID === elementId) {
           const newConditions = [...(item.condition || [])];
 
           newConditions[index] = 0;
@@ -139,17 +139,17 @@ const StructureElementGrid: React.FC = () => {
     setEditRowId(null);
   }
 
-  const handleEditButton = (id: string) => {
+  const handleEditButton = (id: number) => {
     setEditRowId(editRowId === id ? null : id);
-    const selectedElement = displayElements.find(el => el.elementId === id);
+    const selectedElement = displayElements.find(el => el.data.expressID === id);
 
     setOriginalCondition(selectedElement?.condition || []);
   }
 
-  const handleCancelButton = (id: string) => {
+  const handleCancelButton = (id: number) => {
     setEditRowId(null);
     const newData = displayElements.map((item) => {
-      if (item.elementId === id) {
+      if (item.data.expressID === id) {
         return { ...item, condition: originalCondition };
       }
       return item;
@@ -187,12 +187,12 @@ const StructureElementGrid: React.FC = () => {
     handleAddAssesmentOnClick(element);
   }
 
-  const cancelOnClick = (elementId: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+  const cancelOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent row click event
     handleCancelButton(elementId);
   }
 
-  const editOnClick = (elementId: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+  const editOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent row click event
     handleEditButton(elementId)
   }
@@ -202,7 +202,7 @@ const StructureElementGrid: React.FC = () => {
     handleSaveButton(element);
   }
 
-  const onRatingCellDoubleClock = (elementId: string) => () => {
+  const onRatingCellDoubleClock = (elementId: number) => () => {
     if (!(!!editRowId && elementId !== editRowId)) {
       handleEditButton(elementId)
     }
@@ -228,18 +228,18 @@ const StructureElementGrid: React.FC = () => {
           </TableHead>
           <TableBody>
             {displayElements?.map(element => (
-              <TableRow key={element.elementId} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
-                <StyledTableCell>{element.description}</StyledTableCell>
-                <StyledTableCell>{element.code}</StyledTableCell>
-                <StyledTableCell>{element.quantity}</StyledTableCell>
-                <StyledTableCell>{element.unit}</StyledTableCell>
-                <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.elementId)}>
+              <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
+                <StyledTableCell>{element.data.expressID}</StyledTableCell>
+                <StyledTableCell>{element.data.Entity}</StyledTableCell>
+                <StyledTableCell>{element.data.Name}</StyledTableCell>
+                <StyledTableCell>{(element.children?.length || '')}</StyledTableCell>
+                <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}>
                   {!element.children?.length && (
                     <Stack direction="row" spacing={1}>
                       {[0, 1, 2, 3].map((_, index) => {
                         const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                        const focusedKey = `${element.elementId}-${index}`;
-                        return (editRowId === element.elementId) ? (
+                        const focusedKey = `${element.data.expressID}-${index}`;
+                        return (editRowId === element.data.expressID) ? (
                           <RatingInput
                             key={focusedKey}
                             variant="outlined"
@@ -247,7 +247,7 @@ const StructureElementGrid: React.FC = () => {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const newValue = parseInt(e.target.value) || 0;
                               if (newValue >= 0 && newValue <= 4) {
-                                handleConditionChange(e, element.elementId, index)
+                                handleConditionChange(e, element.data.expressID, index)
                               }
                             }}
                             slotProps={{
@@ -268,7 +268,7 @@ const StructureElementGrid: React.FC = () => {
                   <Stack direction={'row'} spacing={2}>
                     {!element.children?.length && (
                       <React.Fragment>
-                        {(editRowId === element.elementId) ?
+                        {(editRowId === element.data.expressID) ?
                           (<React.Fragment>
                             <Tooltip title="Add assessmentg">
                               <IconButton
@@ -289,7 +289,7 @@ const StructureElementGrid: React.FC = () => {
                             <Tooltip title="Cancel condition rating">
                               <IconButton
                                 color="secondary"
-                                onClick={cancelOnClick(element.elementId)}>
+                                onClick={cancelOnClick(element.data.expressID)}>
                                 <CancelIcon />
                               </IconButton>
                             </Tooltip>
@@ -301,8 +301,8 @@ const StructureElementGrid: React.FC = () => {
                               variant="contained"
                               color="secondary"
                               startIcon={<TroubleshootIcon />}
-                              disabled={(!!editRowId && element.elementId !== editRowId)}
-                              onClick={editOnClick(element.elementId)}>
+                              disabled={(!!editRowId && element.data.expressID !== editRowId)}
+                              onClick={editOnClick(element.data.expressID)}>
                               Add rating
                             </Button>
                           )

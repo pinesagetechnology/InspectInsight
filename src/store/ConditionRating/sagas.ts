@@ -78,7 +78,7 @@ function* updateDisplayElementList(updatedItem: StructureElement) {
     const displayItems: StructureElement[] = yield select(getDisplayElementList);
 
     const updateDisplayItems = displayItems.map(item => {
-        if (!item.children?.length && item.elementId === updatedItem.elementId) {
+        if (!item.children?.length && item.data.expressID === updatedItem.data.expressID) {
             return updatedItem;
         }
 
@@ -101,10 +101,10 @@ function* updateHistoryElementList(updatedItem: StructureElement) {
 function* updateRatedElementList(updatedItem: StructureElement) {
     const ratedElements: StructureElement[] = yield select(getRatedElements);
 
-    const existingItem = ratedElements.find(item => item.elementId === updatedItem.elementId);
+    const existingItem = ratedElements.find(item => item.data.expressID === updatedItem.data.expressID);
     if (existingItem) {
         const updatedList = ratedElements.map(item => {
-            if (item.elementId === updatedItem.elementId) {
+            if (item.data.expressID === updatedItem.data.expressID) {
                 return updatedItem;
             } else {
                 return item;

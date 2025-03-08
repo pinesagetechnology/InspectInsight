@@ -20,7 +20,7 @@ interface ConditionRatingComponentProps {
     editModeFlag: boolean
     handleConditionChange: (
         event: React.ChangeEvent<HTMLInputElement>,
-        elementId: string,
+        elementId: number,
         index: number
     ) => void;
 }
@@ -35,7 +35,7 @@ const ConditionRatingComponent: React.FC<ConditionRatingComponentProps> = ({
         <Stack direction="row" spacing={1}>
             {[0, 1, 2, 3].map((_, index) => {
                 const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                const focusedKey = `${element.elementId}-${index}`;
+                const focusedKey = `${element.data.expressID}-${index}`;
                 return (editModeFlag) ? (
                     <TextField
                         key={focusedKey}
@@ -44,7 +44,7 @@ const ConditionRatingComponent: React.FC<ConditionRatingComponentProps> = ({
                         margin="none"
                         value={fieldValue}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleConditionChange(e, element.elementId, index)
+                            handleConditionChange(e, element.data.expressID, index)
                         }
                         className={styles.conditionTextBox}
                     />

@@ -198,25 +198,21 @@ const ReviewInspectionPage: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Total qty</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Units</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Elem.Cod.</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>ECI Chan.</StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {ratedElements?.map((row, index) => (
                     <TableRow key={index}>
-                      <StyledTableCell>{row.code}</StyledTableCell>
-                      <StyledTableCell>{row.description}</StyledTableCell>
-                      <StyledTableCell>{row.quantity}</StyledTableCell>
-                      <StyledTableCell>{row.unit}</StyledTableCell>
+                      <StyledTableCell>{row.data.Entity}</StyledTableCell>
+                      <StyledTableCell>{row.data.Name}</StyledTableCell>
+                      <StyledTableCell>{row.properties?.Name?.value}</StyledTableCell>
+                      <StyledTableCell>{row.children?.length || 0}</StyledTableCell>
                       <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
-                      <StyledTableCell>{row.code}</StyledTableCell>
-                      <StyledTableCell>{row.eciChannel}</StyledTableCell>
                     </TableRow>
                   ))}
                 </TableBody>

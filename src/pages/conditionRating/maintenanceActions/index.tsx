@@ -11,7 +11,7 @@ import { StructureElement } from '../../../entities/structure';
 const AssessmentFrom: React.FC = () => {
   const dispatch = useDispatch();
   const selectedElemment = useSelector(getSelectedStructureElement);
-  const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.code));
+  const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.properties?.Tag?.value || "N/A"));
 
   const handleAddNewAction = () => {
     dispatch({

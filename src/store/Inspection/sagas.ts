@@ -83,7 +83,7 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
                 const updatedChildren: StructureElement[] = setPreviousCondirtionrating(element.children, previousConditionRating);
                 return { ...element, children: updatedChildren }
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.elementId);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
                 if (foundCondition) {
                     return { ...element, condition: [...foundCondition.ratings] }
                 }

@@ -35,7 +35,7 @@ export interface MaintenanceActionEntity {
 
 export interface ConditionRatingEntity {
     conditionRatingId: string;
-    elementId: string;
+    elementId: number;
     ratings: number[];
 }
 

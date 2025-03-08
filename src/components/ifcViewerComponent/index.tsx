@@ -369,7 +369,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     const handleConditionChange = (
         event: React.ChangeEvent<HTMLInputElement>,
-        elementId: string,
+        elementId: number,
         index: number
     ) => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');

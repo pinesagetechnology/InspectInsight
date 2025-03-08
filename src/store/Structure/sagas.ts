@@ -10,6 +10,7 @@ import {
 } from './slice';
 import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
+import * as commonActions from '../Common/actions';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -18,6 +19,8 @@ export function* structureRootSaga() {
 }
 
 export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
+    yield put(commonActions.resetStateAction());
+
     yield put(setCurrentStructure(action.payload));
 }
 
