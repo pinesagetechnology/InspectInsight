@@ -69,16 +69,9 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 
 const PreviousInspectionPage: React.FC = () => {
-  const dispatch = useDispatch();
 
   const previousInspect = useSelector(getPreviousInspection);
   const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
-
-  useEffect(() => {
-    dispatch({
-      type: actions.REVIEW_PREVIOUS_INSPECTION_DATA
-    });
-  }, [])
 
   return (
     <FormPageWrapper>

@@ -5,6 +5,7 @@ import { resetStateAction } from '../Common/actions';
 
 interface StepsState {
     steps: StepModel[];
+    showNextButton?: boolean;
     currentStep: number;
     hasError: boolean;
     error?: any;
@@ -19,6 +20,7 @@ const initialStepsData = [
 
 const initialState = {
     steps: initialStepsData,
+    showNextButton: true,
     currentStep: 0,
     hasError: false,
 } as StepsState
@@ -33,6 +35,9 @@ const StepsSlice = createSlice({
         setSteps: (state, action: PayloadAction<StepModel[]>) => {
             state.steps = action.payload;
         },
+        setNextButtonFlag: (state, action: PayloadAction<boolean>) => {
+            state.showNextButton = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
@@ -44,6 +49,7 @@ const StepsSlice = createSlice({
 
 export const {
     setCurrentStep,
+    setNextButtonFlag,
     setSteps
 } = StepsSlice.actions;
 

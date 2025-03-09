@@ -6,7 +6,7 @@ import { useNavigationManager } from '../../navigation';
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentStructure } from '../../store/Structure/selectors';
-import { getCurrentStep, getStepsState } from '../../store/FormSteps/selectors';
+import { getCurrentStep, getNextButtonFlag, getStepsState } from '../../store/FormSteps/selectors';
 import * as actions from "../../store/FormSteps/actions";
 import * as localStorageActions from "../../store/LocalStorage/actions";
 import { RoutesValueEnum } from "../../enums";
@@ -17,7 +17,7 @@ const PageHeader: React.FC = () => {
   const stepList = useSelector(getStepsState);
   const currentStep = useSelector(getCurrentStep);
   const selectedStructure = useSelector(getCurrentStructure);
-console.log("selectedStructure", currentStep);
+  const nextButtonFlag = useSelector(getNextButtonFlag);
 
   const handleNext = () => {
     if (currentStep < stepList.length - 1) {
@@ -35,6 +35,13 @@ console.log("selectedStructure", currentStep);
   };
 
   const handlePrev = () => {
+    if (!nextButtonFlag) {
+      dispatch({
+        type: actions.SET_NEXT_HEADER_BUTTON,
+        payload: true
+      } as PayloadAction<boolean>);
+    }
+
     if (currentStep > 0) {
       dispatch({
         type: actions.SET_BACK_STEP,
@@ -57,7 +64,9 @@ console.log("selectedStructure", currentStep);
     <Box
       className={styles.pageHeaderContainer}
     >
-      <IconButton onClick={handlePrev} color="primary">
+      <IconButton
+        onClick={handlePrev}
+        color="primary">
         <ArrowBack fontSize="large" />
       </IconButton>
 
@@ -65,7 +74,8 @@ console.log("selectedStructure", currentStep);
         {(selectedStructure) ? selectedStructure.name : "Structure Title"}
       </Typography>
 
-      <IconButton onClick={handleNext} color="primary">
+      <IconButton onClick={handleNext} color="primary"
+        disabled={currentStep === stepList.length - 1 || !nextButtonFlag}>
         <ArrowForward fontSize="large" />
       </IconButton>
 

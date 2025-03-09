@@ -7,3 +7,4 @@ export const isAllStepsCompleted = (state: RootState) => {
     clonedList.pop();
     return clonedList.every(x => x.isCompleted === true);
 }
+export const getNextButtonFlag = (state: RootState) => state.StepsState.showNextButton;

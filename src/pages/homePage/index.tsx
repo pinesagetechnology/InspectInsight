@@ -7,6 +7,7 @@ import { getStructures } from '../../store/Structure/selectors';
 import { useDispatch } from 'react-redux';
 import * as structureActions from "../../store/Structure/actions";
 import * as inspectionActions from "../../store/Inspection/actions";
+import * as stepActions from "../../store/FormSteps/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { FilterModel } from '../../models/map';
 import { addDays } from '../../helper/util';
@@ -25,6 +26,10 @@ const HomePage = () => {
 
   useEffect(() => {
     setStructureList(structures);
+    dispatch({
+      type: stepActions.SET_NEXT_HEADER_BUTTON,
+      payload: true
+    } as PayloadAction<boolean>)
   }, [structures])
 
 

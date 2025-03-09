@@ -1,6 +1,6 @@
 import { takeLatest, call, put, select, takeLeading } from 'redux-saga/effects';
 import * as actions from "./actions";
-import { setCurrentStep, setSteps } from './slice';
+import { setCurrentStep, setNextButtonFlag, setSteps } from './slice';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { StepModel } from '../../models/steps';
 import { getStepsState, isAllStepsCompleted } from './selectors';
@@ -15,6 +15,7 @@ export function* stepsRootSaga() {
     yield takeLatest(actions.SET_BACK_STEP, setBackStepValue);
     yield takeLatest(actions.SET_ACTIVE_STEP, setActiveStep);
     yield takeLatest(actions.SET_REVIEW_COMPLETE, setReviewPageAsComplete);
+    yield takeLeading(actions.SET_NEXT_HEADER_BUTTON, setNextButtonVisibiiity);
 }
 
 export function* setNextStepValue(action: PayloadAction<number>) {
@@ -88,7 +89,7 @@ export function* setReviewPageAsComplete() {
     const stepList: StepModel[] = yield select(getStepsState);
     const lastIndex = stepList.length;
     const flag: boolean = yield select(isAllStepsCompleted);
-    
+
     const updateList = stepList.map(step => {
         if (step.index === (lastIndex - 1)) {
             return { ...step, isCompleted: flag }
@@ -98,4 +99,8 @@ export function* setReviewPageAsComplete() {
     });
 
     yield put(setSteps(updateList));
+}
+
+export function* setNextButtonVisibiiity(action: PayloadAction<boolean>) {
+    yield put(setNextButtonFlag(action.payload));
 }

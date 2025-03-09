@@ -18,6 +18,7 @@ import { getCurrentStructure, getStructureElements } from '../Structure/selector
 import { Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors } from './selectors';
+import { setNextButtonFlag } from '../FormSteps/slice';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
@@ -99,6 +100,8 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
 export function* getReviewPreviousInspection() {
     yield put(setShowLoading(true));
 
+    yield put(setNextButtonFlag(false));
+
     const selectedStructure: Structure = yield select(getCurrentStructure);
     const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
     const inspections: InspectionEntity[] = yield call(services.fetchPreviousInspectionData, selectedStructure.id);
@@ -141,7 +144,7 @@ export function* setInspectionValidation(action: PayloadAction<InspectionFomrVal
         const hasValidated = validationerrors.some(x => x === action.payload.name);
 
         if (!hasValidated) {
-            yield put(setInspectionFormValidationFlag([...validationerrors, action.payload.name])) ;
-        } 
+            yield put(setInspectionFormValidationFlag([...validationerrors, action.payload.name]));
+        }
     }
 }
