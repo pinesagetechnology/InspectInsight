@@ -35,7 +35,7 @@ const ConditionRatingComponent: React.FC<ConditionRatingComponentProps> = ({
         <Stack direction="row" spacing={1}>
             {[0, 1, 2, 3].map((_, index) => {
                 const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                const focusedKey = `${element.data.expressID}-${index}`;
+                const focusedKey = `${element?.data?.expressID}-${index}`;
                 return (editModeFlag) ? (
                     <TextField
                         key={focusedKey}

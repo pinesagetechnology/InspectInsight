@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as OBC from "@thatopen/components";
 import * as OBF from "@thatopen/components-front";
 import * as FRAGS from "@thatopen/fragments";
-import * as BUI from "@thatopen/ui";
+// import * as BUI from "@thatopen/ui";
 import * as THREE from "three";
 import { computeRowData, getRowFragmentIdMap } from "../../helper/ifcTreeManager";
 import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewComponent";
@@ -15,8 +15,10 @@ import { Paper, Typography } from "@mui/material";
 import classNames from 'classnames';
 import Divider from '@mui/material/Divider';
 import ConditionRatingComponent from "../../components/conditionRatingComponent";
-import { StructureElement } from "entities/structure";
+import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
+import { useSelector } from "react-redux";
+import { getStructureElements } from "../../store/Structure/selectors";
 
 
 const selectHighlighterName: string = "select";
@@ -32,6 +34,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     expressID,
 }) => {
     const dispatch = useDispatch();
+    const structureElements: StructureElement[] = useSelector(getStructureElements);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const hiderRef = useRef<OBC.Hider>();
     const highlighterRef = useRef<OBF.Highlighter>();
@@ -44,7 +47,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
 
-    const [treeData, setTreeData] = useState<BUI.TableGroupData[]>([]); // State to store table data
+    // const [treeData, setTreeData] = useState<BUI.TableGroupData[]>([]); 
     const [isShowTree, setIsShowTree] = useState(true);
     const [labels, setLabels] = useState<THREE.Sprite[]>([])
     const [model, setModel] = useState<FRAGS.FragmentsGroup>();
@@ -153,13 +156,14 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
             })
 
-            const data: BUI.TableGroupData[] = await computeRowData(
-                components,
-                [model],
-                inverseAttributes,
-                expressID
-            );
-            setTreeData(data);
+            // const data: BUI.TableGroupData[] = await computeRowData(
+            //     components,
+            //     [model],
+            //     inverseAttributes,
+            //     expressID
+            // );
+            // console.log("data", data);
+            // setTreeData(data);
             setModel(model);
             setFragmentsManager(fragmentsManager);
             setIndexer(indexer);
@@ -245,7 +249,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleClick = (item: BUI.TableGroupData) => {
+    const handleClick = (item: StructureElement) => {
         if (model && model.uuid) {
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
@@ -262,7 +266,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleHideSelectedFragment = (node: TableGroupData, isVisible: boolean) => {
+    const handleHideSelectedFragment = (node: StructureElement, isVisible: boolean) => {
         if (model && fragMgr && indx) {
             const fragmentProperties = model.getLocalProperties();
             if (fragmentProperties) {
@@ -447,7 +451,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 {
                     model?.uuid &&
                     <TreeViewComponent
-                        treeData={treeData}
+                        treeData={structureElements}
                         handleClick={handleClick}
                         handleFragmentVisibilityChange={handleHideSelectedFragment} />
                 }

@@ -1,17 +1,18 @@
 import React, { useCallback, useState } from "react";
-import { TableGroupData } from "@thatopen/ui";
-import { Checkbox, IconButton, InputBase, Paper, Stack, Typography } from "@mui/material";
+// import { TableGroupData } from "@thatopen/ui";
+import { IconButton, InputBase, Paper, Stack, Typography } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import styles from "./style.module.scss";
+import { StructureElement } from "../../entities/structure";
 
 interface TreeViewComponentProps {
-  treeData: TableGroupData[];
-  handleClick: (item: TableGroupData) => void;
-  handleFragmentVisibilityChange: (node: TableGroupData, isCheck: boolean) => void;
+  treeData: StructureElement[];
+  handleClick: (item: StructureElement) => void;
+  handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
 }
 
 const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
@@ -24,7 +25,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [visiblityOffList, setVisiblityOffList] = useState<string[]>([]);
 
-  const filterTree = (nodes: TableGroupData[], query: string): TableGroupData[] => {
+  const filterTree = (nodes: StructureElement[], query: string): StructureElement[] => {
     return nodes
       .map((node) => {
         const children = filterTree(node.children || [], query);
@@ -36,12 +37,12 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
         }
         return null;
       })
-      .filter((node) => node !== null) as TableGroupData[];
+      .filter((node) => node !== null) as StructureElement[];
   };
 
   const filteredTreeData = searchQuery ? filterTree(treeData, searchQuery) : treeData;
 
-  const onVisibilityChangeHandler = (node: TableGroupData) => {
+  const onVisibilityChangeHandler = (node: StructureElement) => {
     const found = visiblityOffList.find(x => x === node.data.expressID?.toString());
     const isVisible = (found) ? true : false;
 
@@ -64,7 +65,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
     );
   }
 
-  const onItemClickhandler = (node: TableGroupData) => {
+  const onItemClickhandler = (node: StructureElement) => {
     const selectionIdentifier = node.data.expressID?.toString() || node.data.Entity?.toString();
 
     if (currntSelection !== selectionIdentifier) {
@@ -76,7 +77,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
     }
   }
 
-  const showVisibleIcon = useCallback((node: TableGroupData): React.ReactNode => {
+  const showVisibleIcon = useCallback((node: StructureElement): React.ReactNode => {
     const found = visiblityOffList?.find(x => x === node.data.expressID?.toString());
     if (found)
       return (< IconButton color="error" onClick={() => onVisibilityChangeHandler(node)}>
@@ -89,7 +90,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
     }
   }, [visiblityOffList])
 
-  const renderTree = (nodes: TableGroupData) => {
+  const renderTree = (nodes: StructureElement) => {
     const nodeId = nodes.data.expressID?.toString() || `${nodes.data.Entity?.toString()}`;
     const isExpanded = expandedNodes.includes(nodeId);
     const hasChildren = !!nodes.children && nodes.children.length > 0;
