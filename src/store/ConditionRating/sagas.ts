@@ -63,7 +63,7 @@ function* updateOrginalElementList(updatedItem: StructureElement) {
 
 const CheckHierarchyRecusrsivly = (items: StructureElement[], updatedItem: StructureElement) => {
     return items.map(item => {
-        if (item.elementId === updatedItem.elementId) {
+        if (item.data.expressID === updatedItem.data.expressID) {
             return updatedItem;
         } else if (item.children && item.children.length > 0) {
             const updatedChildren: StructureElement[] = CheckHierarchyRecusrsivly(item.children, updatedItem);

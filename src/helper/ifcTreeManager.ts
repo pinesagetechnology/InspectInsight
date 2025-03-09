@@ -2,6 +2,7 @@ import * as FRAGS from "@thatopen/fragments";
 import * as OBC from "@thatopen/components";
 import * as BUI from "@thatopen/ui";
 import * as WEBIFC from "web-ifc";
+import { StructureElement } from "../entities/structure";
 
 const getDecompositionTree = async (
     indexer: OBC.IfcRelationsIndexer,
@@ -135,4 +136,16 @@ export const getRowFragmentIdMap = (model: FRAGS.FragmentsGroup,
         ...JSON.parse(relations ?? "[]"),
     ]);
     return fragmentIDMap;
+};
+
+export const addQuantityToElements = (elements: StructureElement[]): StructureElement[] => {
+    return elements.map((element) => {
+        const updatedChildren = addQuantityToElements(element.children);
+        return {
+            ...element,
+            // Set quantity to the number of immediate children
+            quantity: updatedChildren.length,
+            children: updatedChildren,
+        };
+    });
 };

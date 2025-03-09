@@ -276,7 +276,7 @@ export const mockPreviousInspectionData: InspectionEntity = {
       activityDescription: "Repaint rusted areas",
     } as MaintenanceActionEntity,
   ],
-  conditionRatings: [...conditionRatings],
+  // conditionRatings: [...conditionRatings],
   inspectionStatus: InspectionStatusEnum.Completed,
 };
 

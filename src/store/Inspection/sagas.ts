@@ -120,7 +120,7 @@ const getPreviousRatedElement = (selectedStructureElements: StructureElement[], 
             if (element.children && element.children.length > 0) {
                 getPreviousRatedElement(element.children, previousConditionRating, output);
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.elementId);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
                 if (foundCondition) {
                     output.push({ ...element, condition: [...foundCondition.ratings] })
                 }

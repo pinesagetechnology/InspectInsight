@@ -17,6 +17,7 @@ const PageHeader: React.FC = () => {
   const stepList = useSelector(getStepsState);
   const currentStep = useSelector(getCurrentStep);
   const selectedStructure = useSelector(getCurrentStructure);
+console.log("selectedStructure", currentStep);
 
   const handleNext = () => {
     if (currentStep < stepList.length - 1) {

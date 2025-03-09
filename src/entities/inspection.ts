@@ -19,7 +19,7 @@ export interface InspectionEntity {
 
 export interface MaintenanceActionEntity {
     id: string;
-    elementId: string;
+    elementId: number;
     elementCode: string;
     mmsActNo: string;
     activityDescription: string;

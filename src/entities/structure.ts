@@ -57,4 +57,5 @@ export interface StructureElement {
     condition?: number[]
     children: StructureElement[];
     properties?: Property;
+    quantity: number;
 }

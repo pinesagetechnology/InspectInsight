@@ -19,7 +19,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
-import styles from "./style.module.scss";
 import { getInspection } from '../../store/Inspection/selectors';
 import { getMaintenanceAction } from '../../store/MaintenanceAction/selectors';
 import { getInspectionComment } from '../../store/InspectionComment/selectors';
@@ -201,7 +200,6 @@ const ReviewInspectionPage: React.FC = () => {
                     <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
@@ -211,7 +209,6 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.data.Entity}</StyledTableCell>
                       <StyledTableCell>{row.data.Name}</StyledTableCell>
                       <StyledTableCell>{row.properties?.Name?.value}</StyledTableCell>
-                      <StyledTableCell>{row.children?.length || 0}</StyledTableCell>
                       <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
                     </TableRow>
                   ))}

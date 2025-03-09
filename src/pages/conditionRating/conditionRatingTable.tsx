@@ -218,21 +218,21 @@ const StructureElementGrid: React.FC = () => {
         <Table aria-label="collapsible table">
           <TableHead>
             <TableRow>
-              <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+              <StyledTableHeaderCell>ID</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+              <StyledTableHeaderCell>Name</StyledTableHeaderCell>
               <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
               <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
               <StyledTableHeaderCell>Action</StyledTableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayElements?.map(element => (
+            {displayElements?.map((element: StructureElement) => (
               <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
                 <StyledTableCell>{element.data.expressID}</StyledTableCell>
                 <StyledTableCell>{element.data.Entity}</StyledTableCell>
                 <StyledTableCell>{element.data.Name}</StyledTableCell>
-                <StyledTableCell>{(element.children?.length || '')}</StyledTableCell>
+                <StyledTableCell>{(element.quantity)}</StyledTableCell>
                 <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}>
                   {!element.children?.length && (
                     <Stack direction="row" spacing={1}>

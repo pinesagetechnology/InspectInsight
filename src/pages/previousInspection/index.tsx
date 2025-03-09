@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  Container,
   Typography,
   Grid2 as Grid,
   Table,
@@ -17,13 +16,13 @@ import {
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
-import styles from "./style.module.scss";
 import { getPreviousInspection, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/Inspection/actions";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { StructureElement } from '../../entities/structure';
 
 
 // Styled components
@@ -76,17 +75,13 @@ const PreviousInspectionPage: React.FC = () => {
   const dispatch = useDispatch();
 
   const previousInspect = useSelector(getPreviousInspection);
-  const ratedElements = useSelector(getPreviousInspectionRatedElement);
+  const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
 
   useEffect(() => {
     dispatch({
       type: actions.REVIEW_PREVIOUS_INSPECTION_DATA
     });
   }, [])
-
-  const handleSubmitOnclick = () => {
-    goTo(RoutesValueEnum.Home);
-  }
 
   return (
     <FormPageWrapper>
@@ -152,25 +147,21 @@ const PreviousInspectionPage: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <StyledTableHeaderCell>Code</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Total qty</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Units</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>ID</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Name</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Elem.Cod.</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>ECI Chan.</StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {ratedElements?.map((row, index) => (
                     <TableRow key={index}>
-                      <StyledTableCell>{row.code}</StyledTableCell>
-                      <StyledTableCell>{row.description}</StyledTableCell>
+                      <StyledTableCell>{row.data.expressID}</StyledTableCell>
+                      <StyledTableCell>{row.data.Entity}</StyledTableCell>
+                      <StyledTableCell>{row.data.Name}</StyledTableCell>
                       <StyledTableCell>{row.quantity}</StyledTableCell>
-                      <StyledTableCell>{row.unit}</StyledTableCell>
                       <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
-                      <StyledTableCell>{row.code}</StyledTableCell>
-                      <StyledTableCell>{row.eciChannel}</StyledTableCell>
                     </TableRow>
                   ))}
                 </TableBody>

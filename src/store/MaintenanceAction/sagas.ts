@@ -34,8 +34,8 @@ export function* addNewItem(action: PayloadAction<StructureElement>) {
         id: "-1",
         isSectionExpanded: true,
         dateForCompletion: new Date().toISOString(),
-        elementCode: action.payload.code,
-        elementId: action.payload.elementId,
+        elementCode: action.payload.properties?.Tag?.value || action.payload.data.Entity,
+        elementId: action.payload.data.expressID,
         mode: 1
     } as MaintenanceActionModel;
 
