@@ -20,8 +20,7 @@ const AssessmentFrom: React.FC = () => {
     } as PayloadAction<StructureElement>);
   }
   const isNewButtonDisabled = maintenanceActions?.some(x => x.id === "-1");
-  console.log(maintenanceActions);
-  console.log(isNewButtonDisabled);
+  
   return (
     <Grid container>
       <Grid size={12}>

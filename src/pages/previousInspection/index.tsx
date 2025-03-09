@@ -17,8 +17,6 @@ import {
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
 import { getPreviousInspection, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
-import { useNavigationManager } from '../../navigation';
-import { RoutesValueEnum } from '../../enums';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/Inspection/actions";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -71,7 +69,6 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 
 const PreviousInspectionPage: React.FC = () => {
-  const { goTo } = useNavigationManager();
   const dispatch = useDispatch();
 
   const previousInspect = useSelector(getPreviousInspection);
