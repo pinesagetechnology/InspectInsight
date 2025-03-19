@@ -2,28 +2,24 @@ import React, { useEffect, useRef, useState } from "react";
 import * as OBC from "@thatopen/components";
 import * as OBF from "@thatopen/components-front";
 import * as FRAGS from "@thatopen/fragments";
-// import * as BUI from "@thatopen/ui";
 import * as THREE from "three";
-import { computeRowData, getRowFragmentIdMap } from "../../helper/ifcTreeManager";
+import { getRowFragmentIdMap } from "../../helper/ifcTreeManager";
 import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewComponent";
 import { useDispatch } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as WEBIFC from 'web-ifc';
-import styles from "./style.module.scss";
-import { TableGroupData } from "@thatopen/ui";
-import { Paper, Typography } from "@mui/material";
+import { Paper } from "@mui/material";
 import classNames from 'classnames';
-import Divider from '@mui/material/Divider';
-import ConditionRatingComponent from "../../components/conditionRatingComponent";
 import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
 import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
 import AssessmentPanel from "./assessmentPanel";
+import styles from "./style.module.scss";
 
 
 const selectHighlighterName: string = "select";
-const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
+// const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
 const Plan: string = "Plan";
 const Orbit: string = "Orbit";
 
@@ -99,10 +95,12 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         world.camera = cameraComponent;
         cameraComponentRef.current = cameraComponent;
 
-        container.addEventListener("resize", () => {
+        const onResize = () => {
             rendererComponent.resize();
             cameraComponent.updateAspect();
-        });
+        };
+
+        container.addEventListener("resize", onResize);
 
         components.init();
 
@@ -158,7 +156,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 }
             });
 
-            //"http://localhost:9090/ifcBridgeSample.ifc" https://thatopen.github.io/engine_components/resources/small.ifc
             const file = await fetch("https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc");
             const buffer = await file.arrayBuffer();
 
@@ -206,20 +203,79 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
         return () => {
             try {
+                if (container) {
+                    container.removeEventListener("resize", onResize);
+                    container.ondblclick = null;
+                    container.onclick = null;
+                }
+                window.onkeydown = null;
+
+                if (model) {
+                    model.traverse((child: any) => {
+                        if (child instanceof THREE.Mesh) {
+                            child.geometry?.dispose();
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach((material: THREE.Material) => {
+                                        material.dispose();
+                                    })
+                                } else {
+                                    child.material.dispose();
+                                }
+                            }
+                        }
+                    });
+                }
+
+                if (dimensionsRef.current) {
+                    dimensionsRef.current.deleteAll();
+                    dimensionsRef.current.enabled = false;
+                }
+
+                if (clipperRef.current) {
+                    try {
+                        clipperRef.current.deleteAll();
+                        clipperRef.current.enabled = false;
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+
+                if (highlighterRef.current) {
+                    try {
+                        highlighterRef.current.clear();
+                        highlighterRef.current.enabled = false;
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+
+                if (worldRef.current) {
+                    if (worldRef.current.renderer) {
+                        const renderer = worldRef.current.renderer;
+
+                        if (renderer.three) {
+                            renderer.three.dispose();
+                        }
+                    }
+                }
 
                 highlighterRef.current = undefined;
                 dimensionsRef.current = undefined;
                 clipperRef.current = undefined;
                 hiderRef.current = undefined;
+                worldRef.current = undefined;
+                cameraComponentRef.current = undefined;
 
-                world.renderer?.dispose();
-                world.scene.dispose();
-                world.camera?.dispose();
-                fragmentsManager.dispose();
-                components.dispose();
-
+                try {
+                    if (components) {
+                        components.dispose();
+                    }
+                } catch (e) {
+                    console.log("Error disposing components:", e);
+                }
             } catch (e) {
-                console.log(e);
+                console.log("Error during cleanup:", e);
             }
         }
     }, [])

@@ -17,9 +17,11 @@ const ConditionRating: React.FC = () => {
     const [checked, setChecked] = useState<boolean>(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch({
-            type: commonActions.SHOW_LOADING_OVERLAY
-        });
+        if (event.target.checked) {
+            dispatch({
+                type: commonActions.SHOW_LOADING_OVERLAY
+            });
+        }
         setChecked(event.target.checked);
     };
 
