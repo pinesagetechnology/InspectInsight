@@ -19,6 +19,7 @@ import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
 import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
+import AssessmentPanel from "./assessmentPanel";
 
 
 const selectHighlighterName: string = "select";
@@ -41,11 +42,14 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const dimensionsRef = useRef<OBF.LengthMeasurement>();
     const worldRef = useRef<OBC.SimpleWorld<OBC.BaseScene, OBC.OrthoPerspectiveCamera, OBC.BaseRenderer>>()
     const clipperRef = useRef<OBC.Clipper>();
+    const cameraComponentRef = useRef<OBC.OrthoPerspectiveCamera>();
 
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [isMeasurementMode, setIsMeasurementMode] = useState(false);
     const [isClipperOn, setIsClipperOn] = useState(false);
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
+    const selectedItemsRef = useRef<string[]>([]);
 
     // const [treeData, setTreeData] = useState<BUI.TableGroupData[]>([]); 
     const [isShowTree, setIsShowTree] = useState(true);
@@ -58,6 +62,10 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const [showConditionPanel, setShowConditionPanel] = useState(false);
 
     const components = new OBC.Components();
+
+    useEffect(() => {
+        selectedItemsRef.current = selectedItems;
+    }, [selectedItems]);
 
     useEffect(() => {
         isMeasurementModeRef.current = isMeasurementMode;
@@ -89,6 +97,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
         const cameraComponent = new OBC.OrthoPerspectiveCamera(components);
         world.camera = cameraComponent;
+        cameraComponentRef.current = cameraComponent;
 
         container.addEventListener("resize", () => {
             rendererComponent.resize();
@@ -141,7 +150,14 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         });
 
         const fetchAndLoad = async () => {
-            await ifcLoader.setup();
+            await ifcLoader.setup({
+                autoSetWasm: false,
+                wasm: {
+                    path: "/",
+                    absolute: false
+                }
+            });
+
             //"http://localhost:9090/ifcBridgeSample.ifc" https://thatopen.github.io/engine_components/resources/small.ifc
             const file = await fetch("https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc");
             const buffer = await file.arrayBuffer();
@@ -156,14 +172,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
             })
 
-            // const data: BUI.TableGroupData[] = await computeRowData(
-            //     components,
-            //     [model],
-            //     inverseAttributes,
-            //     expressID
-            // );
-            // console.log("data", data);
-            // setTreeData(data);
             setModel(model);
             setFragmentsManager(fragmentsManager);
             setIndexer(indexer);
@@ -209,6 +217,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 world.camera?.dispose();
                 fragmentsManager.dispose();
                 components.dispose();
+
             } catch (e) {
                 console.log(e);
             }
@@ -216,17 +225,32 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }, [])
 
     const onContainerClick = (event: MouseEvent) => {
-
-        if (highlighterRef.current && highlighterRef.current.enabled) {
-            console.log(highlighterRef.current?.selection);
-        }
-
         setShowConditionPanel((prev) => {
             if (prev === false) {
                 return true;
             }
             return prev
         });
+        if (!isClipperOnRef.current && !isMeasurementModeRef.current) {
+            const rect = containerRef.current?.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((event.clientX - (rect?.left || 0)) / (rect?.width || 0)) * 2 - 1,
+                -((event.clientY - (rect?.top || 0)) / (rect?.height || 0)) * 2 + 1
+            );
+            const raycaster = new THREE.Raycaster();
+            // Use the Three.js camera from the camera component.
+            if (!cameraComponentRef.current) return;
+
+            raycaster.setFromCamera(mouse, cameraComponentRef.current.three);
+            // Check for intersections in the scene.
+            if (!worldRef.current) return;
+            const intersects = raycaster.intersectObjects(worldRef.current.scene.three.children, true);
+            if (intersects.length > 0) {
+                const selectedMesh = intersects[0].object;
+                // Toggle disabled state; here we always set it to disabled for demonstration.
+                toggleDisabled(selectedMesh);
+            }
+        }
     }
 
     const processMeasurement = () => {
@@ -428,6 +452,41 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         setShowConditionPanel(prev => !prev);
     }
 
+    // Define a function to toggle the mesh's material.
+    const toggleDisabled = (mesh: THREE.Object3D) => {
+        let isDisabled: boolean = false;
+
+        if (selectedItemsRef.current.includes(mesh.uuid)) {
+            isDisabled = false;
+        } else {
+            isDisabled = true;
+        }
+
+        mesh.traverse((child: any) => {
+            if (child.isMesh) {
+                if (isDisabled) {
+                    // Save the original material if it hasn't been saved yet.
+                    if (!child.userData.originalMaterial) {
+                        child.userData.originalMaterial = child.material;
+                    }
+                    // Set a wireframe material to simulate a "disabled" state.
+                    child.material = new THREE.MeshBasicMaterial({
+                        color: 0xcccccc,
+                        wireframe: true,
+                    });
+
+                    setSelectedItems((prevData) => [...prevData, child.uuid]);
+                } else {
+                    // Restore the original material if it exists.
+                    if (child.userData.originalMaterial) {
+                        setSelectedItems((prevData) => prevData.filter((item) => item !== child.uuid));
+                        child.material = child.userData.originalMaterial;
+                    }
+                }
+            }
+        });
+    }
+
     return (
         <div style={{ position: 'relative', width: '100%' }}>
             <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
@@ -456,19 +515,11 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         handleFragmentVisibilityChange={handleHideSelectedFragment} />
                 }
             </Paper>
-            <Paper elevation={0} className={classNames(styles.assessmentPanel, (showConditionPanel) ? styles.showAssessmentPanel : styles.hideAssessmentPanel)} >
-                <Typography variant="h6">Assessment Panel</Typography>
-                <Divider orientation="horizontal" flexItem />
-                <Typography variant="subtitle2">Condition Rating</Typography>
 
-                <ConditionRatingComponent
-                    editModeFlag={false}
-                    element={{} as StructureElement}
-                    handleConditionChange={handleConditionChange} />
-
-                <Divider orientation="horizontal" flexItem />
-
-            </Paper>
+            <AssessmentPanel
+                showConditionPanel={showConditionPanel}
+                element={{} as StructureElement}
+                handleConditionChange={handleConditionChange} />
         </div>
     );
 

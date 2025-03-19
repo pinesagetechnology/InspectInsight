@@ -10,11 +10,13 @@ module.exports = {
     entry: './src/index.tsx',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'main.js'  // Explicitly define the output file name
+        filename: 'main.js',  // Explicitly define the output file name
+        publicPath: '/'  // Ensure this is set if you're referencing assets or chunks in HTML
     },
+    experiments: { asyncWebAssembly: true },
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        modules: ['node_modules']
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm'],
+        modules: [__dirname, "node_modules"],
     },
     module: {
         rules: [
@@ -23,10 +25,14 @@ module.exports = {
                 type: 'asset/resource'
             },
             {
-                test: /\.(ts|tsx)$/,
+                test: /\.(js|jsx|ts|tsx)$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            }
+            },
+            {
+                test: /\.wasm$/,
+                type: "asset/resource",
+            },
         ]
     },
     plugins: [

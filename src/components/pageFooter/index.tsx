@@ -67,7 +67,7 @@ const PageFooter: React.FC = () => {
   return (
     <div className={styles.footer}>
       <Grid container>
-        <Grid size={1}>
+        <Grid size={1} sx={{ textAlign: 'right' }}>
           <Button
             onClick={handleBack}
             variant="contained"

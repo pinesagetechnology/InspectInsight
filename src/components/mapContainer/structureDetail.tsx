@@ -85,7 +85,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
             }}
         >
             {/* Header with location info */}
-            <CardContent sx={{ pb: 1 }}>
+            <CardContent sx={{ pb: 1, margin: '0px 24px' }}>
                 <Stack direction="row" alignItems="flex-start" spacing={2} mb={2}>
                     <LocationOn color="action" />
                     <Box>

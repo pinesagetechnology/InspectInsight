@@ -116,7 +116,7 @@ const ReviewInspectionPage: React.FC = () => {
 
   return (
     <FormPageWrapper>
-      <Box mt={4}>
+      <Box mt={4} sx={{ margin: '0px 32px' }} >
 
         {/* Inspection Details Section */}
         <ReportSection defaultExpanded>
