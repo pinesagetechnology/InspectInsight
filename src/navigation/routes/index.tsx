@@ -8,7 +8,7 @@ const ConditionRatingPage = React.lazy(() => import('../../pages/conditionRating
 const InspectionComment = React.lazy(() => import('../../pages/inspectorComments/index'));
 const InspectionReview = React.lazy(() => import('../../pages/reviewAndSubmit/index'));
 const PreviousInspectionPage = React.lazy(() => import('../../pages/previousInspection/index'));
-const Viewer = React.lazy(() => import('../../pages/viewer/index'));
+// const Viewer = React.lazy(() => import('../../pages/viewer/index'));
 
 export const AppRouter: React.FunctionComponent = () => {
     return (

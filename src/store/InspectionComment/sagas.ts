@@ -9,6 +9,7 @@ import { getMaintenanceAction } from '../MaintenanceAction/selectors';
 import { getConditionRating } from '../ConditionRating/selectors';
 import { getInspectionComment } from './selectors';
 import * as services from "../../services/inspectionService";
+import { InspectionStatusEnum } from '../../enums';
 
 export function* inspectionCommentRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_COMMENT_DATA, setInspectionCommentValue);
@@ -35,7 +36,8 @@ function* saveInspectionCommentData() {
             ...inspectionData,
             maintenanceActions: [...maintenanceActions],
             conditionRatings: conditionRatings,
-            comment: inspectionComment
+            comment: inspectionComment,
+            inspectionStatus: InspectionStatusEnum.ToDo
         } as InspectionEntity;
 
         yield call(services.updateInspectionlData, newInspectionEntity);

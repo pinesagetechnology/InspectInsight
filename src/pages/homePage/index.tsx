@@ -7,7 +7,7 @@ import { getStructures } from '../../store/Structure/selectors';
 import { useDispatch } from 'react-redux';
 import * as structureActions from "../../store/Structure/actions";
 import * as inspectionActions from "../../store/Inspection/actions";
-import * as sharedActions from "../../store/Common/actions";
+import * as stepActions from "../../store/FormSteps/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { FilterModel } from '../../models/map';
 import { addDays } from '../../helper/util';
@@ -26,14 +26,14 @@ const HomePage = () => {
 
   useEffect(() => {
     setStructureList(structures);
+    dispatch({
+      type: stepActions.SET_NEXT_HEADER_BUTTON,
+      payload: true
+    } as PayloadAction<boolean>)
   }, [structures])
 
 
   const onSelectStructureHandler = (structure: Structure) => {
-    dispatch({
-      type: sharedActions.RESET_STATE_SAGA_ACTION
-    } as PayloadAction);
-
     dispatch({
       payload: structure,
       type: structureActions.SET_SLECTED_STRUCTURE_DATA
@@ -85,7 +85,7 @@ const HomePage = () => {
 
   }
   return (
-    <Container className={styles.homeContainer}>
+    <div className={styles.homeContainer}>
       {!isListView ? (
         <MapContainer
           structures={structureList}
@@ -104,7 +104,7 @@ const HomePage = () => {
           onStartClickHandler={startInspectionHandler}
         />
       )}
-    </Container>
+    </div>
   );
 };
 

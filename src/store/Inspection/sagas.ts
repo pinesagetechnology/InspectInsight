@@ -18,6 +18,7 @@ import { getCurrentStructure, getStructureElements } from '../Structure/selector
 import { Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors } from './selectors';
+import { setNextButtonFlag } from '../FormSteps/slice';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
@@ -83,7 +84,7 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
                 const updatedChildren: StructureElement[] = setPreviousCondirtionrating(element.children, previousConditionRating);
                 return { ...element, children: updatedChildren }
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.elementId);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
                 if (foundCondition) {
                     return { ...element, condition: [...foundCondition.ratings] }
                 }
@@ -98,6 +99,8 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
 
 export function* getReviewPreviousInspection() {
     yield put(setShowLoading(true));
+
+    yield put(setNextButtonFlag(false));
 
     const selectedStructure: Structure = yield select(getCurrentStructure);
     const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
@@ -120,7 +123,7 @@ const getPreviousRatedElement = (selectedStructureElements: StructureElement[], 
             if (element.children && element.children.length > 0) {
                 getPreviousRatedElement(element.children, previousConditionRating, output);
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.elementId);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
                 if (foundCondition) {
                     output.push({ ...element, condition: [...foundCondition.ratings] })
                 }
@@ -141,7 +144,7 @@ export function* setInspectionValidation(action: PayloadAction<InspectionFomrVal
         const hasValidated = validationerrors.some(x => x === action.payload.name);
 
         if (!hasValidated) {
-            yield put(setInspectionFormValidationFlag([...validationerrors, action.payload.name])) ;
-        } 
+            yield put(setInspectionFormValidationFlag([...validationerrors, action.payload.name]));
+        }
     }
 }

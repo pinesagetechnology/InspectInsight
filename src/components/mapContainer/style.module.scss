@@ -1,8 +1,13 @@
+.structureDetailTitleBox {
+    margin-top: 16px;
+    margin-bottom: 2px;
+    margin-left: 16px; 
+}
+
+
 .structureDetailTitle {
-    padding: 16px;
-    /* 'p: 2' is equivalent to 2 * 8px in Material-UI spacing */
     color: var(--mui-palette-text-secondary);
-    /* Material-UI uses theme variables for colors */
+    font-weight: 600;
 }
 
 .structureDetailSectionBox {

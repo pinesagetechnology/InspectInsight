@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigationManager } from '../../navigation';
 import { useSelector } from 'react-redux';
-import { getCurrentStep, getStepsState } from '../../store/FormSteps/selectors';
+import { getCurrentStep, getNextButtonFlag, getStepsState } from '../../store/FormSteps/selectors';
 import * as actions from "../../store/FormSteps/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Check as CheckIcon } from '@mui/icons-material';
@@ -23,6 +23,7 @@ const PageFooter: React.FC = () => {
   const { goTo } = useNavigationManager();
   const stepList = useSelector(getStepsState);
   const currentStep = useSelector(getCurrentStep);
+  const nextButtonFlag = useSelector(getNextButtonFlag);
 
   const handleNext = () => {
     if (currentStep < stepList.length - 1) {
@@ -40,6 +41,13 @@ const PageFooter: React.FC = () => {
   };
 
   const handleBack = () => {
+    if (!nextButtonFlag) {
+      dispatch({
+        type: actions.SET_NEXT_HEADER_BUTTON,
+        payload: true
+      } as PayloadAction<boolean>);
+    }
+
     if (currentStep > 0) {
       dispatch({
         type: actions.SET_BACK_STEP,
@@ -59,7 +67,7 @@ const PageFooter: React.FC = () => {
   return (
     <div className={styles.footer}>
       <Grid container>
-        <Grid size={1}>
+        <Grid size={1} sx={{ textAlign: 'right' }}>
           <Button
             onClick={handleBack}
             variant="contained"
@@ -90,11 +98,11 @@ const PageFooter: React.FC = () => {
         <Grid size={1}>
           <Button
             onClick={handleNext}
-            disabled={currentStep === stepList.length - 1}
+            disabled={currentStep === stepList.length - 1 || !nextButtonFlag}
             variant="contained"
             color="primary"
           >
-            {currentStep === stepList.length - 1 ? 'Finish' : 'Next'}
+            Next
           </Button>
         </Grid>
       </Grid>

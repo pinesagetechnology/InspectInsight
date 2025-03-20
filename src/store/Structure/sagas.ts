@@ -10,6 +10,8 @@ import {
 } from './slice';
 import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
+import * as commonActions from '../Common/actions';
+import { addQuantityToElements } from '../../helper/ifcTreeManager';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -18,7 +20,15 @@ export function* structureRootSaga() {
 }
 
 export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
-    yield put(setCurrentStructure(action.payload));
+    yield put(commonActions.resetStateAction());
+
+    const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
+
+    // action.payload.elementMetadata.forEach((element) => {
+    //     element.quantity = addQuantityToElements(element.children);
+    // });
+
+    yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
 }
 
 export function* getStructursData() {
@@ -44,3 +54,4 @@ export function* getStructursData() {
         yield put(setShowLoading(false));
     }
 }
+

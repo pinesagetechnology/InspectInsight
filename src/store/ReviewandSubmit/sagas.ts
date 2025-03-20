@@ -34,7 +34,7 @@ export function* saveData() {
         const conditionRatingEntity = ratedElements?.map(item => {
             return {
                 conditionRatingId: uuidv4(),
-                elementId: item.elementId,
+                elementId: item.data.expressID,
                 ratings: item.condition
             } as ConditionRatingEntity
         });

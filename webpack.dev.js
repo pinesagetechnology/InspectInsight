@@ -4,7 +4,7 @@ const common = require("./webpack.common");
 
 module.exports = merge(common, {
     mode: "development",
-    devtool:"inline-source-map",
+    devtool: "inline-source-map",
     module: {
         rules: [
             {
@@ -24,9 +24,14 @@ module.exports = merge(common, {
         ]
     },
     devServer: {
-        static: {
-            directory: path.join(__dirname, 'dist'),
-        },
+        static: [
+            {
+                directory: path.join(__dirname, 'dist'),
+            },
+            {
+                directory: path.join(__dirname, 'public'),
+            },
+        ],
         compress: true,
         port: 8080,
         open: true, // Automatically open the browser

@@ -30,7 +30,7 @@ export interface DeleteImagePayload {
 
 export interface MaintenanceActionModel {
     id: string;
-    elementId: string;
+    elementId: number;
     elementCode: string;
     mmsActNo: string;
     activityDescription: string;

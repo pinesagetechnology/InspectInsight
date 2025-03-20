@@ -11,7 +11,7 @@ import { StructureElement } from '../../../entities/structure';
 const AssessmentFrom: React.FC = () => {
   const dispatch = useDispatch();
   const selectedElemment = useSelector(getSelectedStructureElement);
-  const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.code));
+  const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.properties?.Tag?.value || selectedElemment.data.Entity));
 
   const handleAddNewAction = () => {
     dispatch({
@@ -19,8 +19,8 @@ const AssessmentFrom: React.FC = () => {
       payload: selectedElemment
     } as PayloadAction<StructureElement>);
   }
-
   const isNewButtonDisabled = maintenanceActions?.some(x => x.id === "-1");
+  
   return (
     <Grid container>
       <Grid size={12}>
@@ -30,7 +30,7 @@ const AssessmentFrom: React.FC = () => {
             onClick={handleAddNewAction}
             disabled={isNewButtonDisabled}
           >
-            Add another maintenance action
+            Add maintenance action
           </Button>
         </Container>
       </Grid>

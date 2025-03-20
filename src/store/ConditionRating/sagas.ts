@@ -9,6 +9,7 @@ import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceAction } from '../MaintenanceAction/selectors';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
+import { InspectionStatusEnum } from '../../enums';
 
 export function* conditionRatingRootSaga() {
     yield takeLatest(actions.HANDLE_ROW_CLICK_SAGA, handleRowClickSaga);
@@ -62,7 +63,7 @@ function* updateOrginalElementList(updatedItem: StructureElement) {
 
 const CheckHierarchyRecusrsivly = (items: StructureElement[], updatedItem: StructureElement) => {
     return items.map(item => {
-        if (item.elementId === updatedItem.elementId) {
+        if (item.data.expressID === updatedItem.data.expressID) {
             return updatedItem;
         } else if (item.children && item.children.length > 0) {
             const updatedChildren: StructureElement[] = CheckHierarchyRecusrsivly(item.children, updatedItem);
@@ -77,7 +78,7 @@ function* updateDisplayElementList(updatedItem: StructureElement) {
     const displayItems: StructureElement[] = yield select(getDisplayElementList);
 
     const updateDisplayItems = displayItems.map(item => {
-        if (!item.children?.length && item.elementId === updatedItem.elementId) {
+        if (!item.children?.length && item.data.expressID === updatedItem.data.expressID) {
             return updatedItem;
         }
 
@@ -100,10 +101,10 @@ function* updateHistoryElementList(updatedItem: StructureElement) {
 function* updateRatedElementList(updatedItem: StructureElement) {
     const ratedElements: StructureElement[] = yield select(getRatedElements);
 
-    const existingItem = ratedElements.find(item => item.elementId === updatedItem.elementId);
+    const existingItem = ratedElements.find(item => item.data.expressID === updatedItem.data.expressID);
     if (existingItem) {
         const updatedList = ratedElements.map(item => {
-            if (item.elementId === updatedItem.elementId) {
+            if (item.data.expressID === updatedItem.data.expressID) {
                 return updatedItem;
             } else {
                 return item;
@@ -149,7 +150,8 @@ export function* saveConditionRatingAssessmentData() {
         const newInspectionEntity = {
             ...inspectionData,
             maintenanceActions: [...maintenanceActions],
-            conditionRatings: conditionRatings
+            conditionRatings: conditionRatings,
+            inspectionStatus: InspectionStatusEnum.ToDo
         } as InspectionEntity;
 
         yield call(services.updateInspectionlData, newInspectionEntity);

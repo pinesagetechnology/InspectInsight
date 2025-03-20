@@ -5,6 +5,7 @@ export enum RoutesValueEnum {
     InspectorComments = 'inspectorComments',
     InspectionReview = 'inspectionReview',
     PreviousInspection = 'previousInspection',
+    BridgeInspectionApp = 'BridgeInspectionApp',
 }
 
 export enum BrowserStorageKey {
@@ -12,4 +13,10 @@ export enum BrowserStorageKey {
     ConditionRating = "conditionRating",
     MaintenanceAction = "maintenanceAction",
     InspectionComment = "inspectionComment",
+}
+
+export enum InspectionStatusEnum {
+    InProgress = 'In Progress',
+    Completed = 'Completed',
+    ToDo = 'ToDo',
 }

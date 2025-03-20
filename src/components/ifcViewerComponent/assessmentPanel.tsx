@@ -9,7 +9,7 @@ interface AssessmentPanelProps {
     showConditionPanel: boolean;
     element: StructureElement;
     handleConditionChange: (event: React.ChangeEvent<HTMLInputElement>,
-        elementId: string,
+        elementId: number,
         index: number) => void;
 }
 const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
