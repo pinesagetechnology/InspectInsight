@@ -5,6 +5,7 @@ export enum RoutesValueEnum {
     InspectorComments = 'inspectorComments',
     InspectionReview = 'inspectionReview',
     PreviousInspection = 'previousInspection',
+    PreviousInspectionDetail = 'previousInspectionDetal',
     BridgeInspectionApp = 'BridgeInspectionApp',
 }
 

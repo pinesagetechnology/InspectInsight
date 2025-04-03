@@ -115,7 +115,7 @@ const ReviewInspectionPage: React.FC = () => {
   }
 
   return (
-    <FormPageWrapper>
+    <FormPageWrapper isFooterVisible={true}>
       <Box mt={4} sx={{ margin: '0px 32px' }} >
 
         {/* Inspection Details Section */}

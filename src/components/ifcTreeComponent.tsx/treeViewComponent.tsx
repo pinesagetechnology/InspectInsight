@@ -11,13 +11,13 @@ import { StructureElement } from "../../entities/structure";
 
 interface TreeViewComponentProps {
   treeData: StructureElement[];
-  handleClick: (item: StructureElement) => void;
+  handleTreeItemClick: (item: StructureElement) => void;
   handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
 }
 
 const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
   treeData,
-  handleClick,
+  handleTreeItemClick,
   handleFragmentVisibilityChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -72,7 +72,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
       setCurrentSelection(selectionIdentifier);
 
       if (node.children?.length === 0) {
-        handleClick(node);
+        handleTreeItemClick(node);
       }
     }
   }

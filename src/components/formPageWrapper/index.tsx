@@ -5,16 +5,19 @@ import styles from "./style.module.scss";
 
 interface FormPageWrapperProps {
     children: ReactNode;
+    isFooterVisible: boolean;
 }
 
-const FormWrapper: React.FunctionComponent<FormPageWrapperProps> = ({ children }) => {
+const FormWrapper: React.FunctionComponent<FormPageWrapperProps> = ({ children, isFooterVisible }) => {
     return (
         <React.Fragment>
             <div className={styles.pageContent}>
                 <PageHeader />
                 {children}
             </div>
-            <PageFooter />
+            {isFooterVisible &&
+                <PageFooter />
+            }
         </React.Fragment>
     )
 }

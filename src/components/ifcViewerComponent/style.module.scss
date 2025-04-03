@@ -22,15 +22,9 @@
 }
 
 .viewerMenuContainer {
-    position: absolute;
-    bottom: 5px;
-    right: 45%;
-    min-width: 10%;
-    max-width: 35%;
-    height: 60px;
-    padding: 10px;
-    box-sizing: border-box;
-    overflow: none;
+    justify-self: center;
+    display: grid;
+    grid-area: toolbar;
 }
 
 .assessmentPanel {

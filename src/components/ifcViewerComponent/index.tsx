@@ -8,7 +8,7 @@ import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewCom
 import { useDispatch } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as WEBIFC from 'web-ifc';
-import { Paper } from "@mui/material";
+import { Paper, Grid2 as Grid } from "@mui/material";
 import classNames from 'classnames';
 import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
@@ -16,7 +16,6 @@ import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
 import AssessmentPanel from "./assessmentPanel";
 import styles from "./style.module.scss";
-
 
 const selectHighlighterName: string = "select";
 // const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
@@ -47,7 +46,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const isClipperOnRef = useRef(isClipperOn);
     const selectedItemsRef = useRef<string[]>([]);
 
-    // const [treeData, setTreeData] = useState<BUI.TableGroupData[]>([]); 
     const [isShowTree, setIsShowTree] = useState(true);
     const [labels, setLabels] = useState<THREE.Sprite[]>([])
     const [model, setModel] = useState<FRAGS.FragmentsGroup>();
@@ -329,7 +327,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleClick = (item: StructureElement) => {
+    const handleTreeItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
@@ -545,37 +543,45 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
-            <ViewerMenu
-                isClipperOn={isClipperOn}
-                isMeasurementMode={isMeasurementMode}
-                isPanSelected={isPanSelected}
-                isOrbitSelected={isOrbitSelected}
-                onClipperClick={onClipperClick}
-                onMeasurementClick={onMeasurementClick}
-                onFitScreenClick={onFitScreenClick}
-                onOrbitCameraClick={onOrbitCameraClick}
-                onPanCameraClick={onPanCameraClick}
-                removeAllLineMeasurement={removeAllLineMeasurement}
-                removeClipper={removeClipper}
-                showConditionPanelHandler={onShowConditionPanelClickHandler}
-                showstructureDetail={showstructureDetail}
-            />
+            <Grid container spacing={2}>
+                <Grid size={12}>
+                    <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
 
-            <Paper elevation={0} className={classNames(styles.treeViewerContainer, (isShowTree) ? styles.showTreePanel : styles.hideTreePanel)}>
-                {
-                    model?.uuid &&
-                    <TreeViewComponent
-                        treeData={structureElements}
-                        handleClick={handleClick}
-                        handleFragmentVisibilityChange={handleHideSelectedFragment} />
-                }
-            </Paper>
+                    <Paper elevation={0} className={classNames(styles.treeViewerContainer, (isShowTree) ? styles.showTreePanel : styles.hideTreePanel)}>
+                        {
+                            model?.uuid &&
+                            <TreeViewComponent
+                                treeData={structureElements}
+                                handleTreeItemClick={handleTreeItemClick}
+                                handleFragmentVisibilityChange={handleHideSelectedFragment} />
+                        }
+                    </Paper>
 
-            <AssessmentPanel
-                showConditionPanel={showConditionPanel}
-                element={{} as StructureElement}
-                handleConditionChange={handleConditionChange} />
+                    <AssessmentPanel
+                        showConditionPanel={showConditionPanel}
+                        element={{} as StructureElement}
+                        handleConditionChange={handleConditionChange} />
+                </Grid>
+                <Grid size={12}>
+                    <ViewerMenu
+                        isClipperOn={isClipperOn}
+                        isMeasurementMode={isMeasurementMode}
+                        isPanSelected={isPanSelected}
+                        isOrbitSelected={isOrbitSelected}
+                        onClipperClick={onClipperClick}
+                        onMeasurementClick={onMeasurementClick}
+                        onFitScreenClick={onFitScreenClick}
+                        onOrbitCameraClick={onOrbitCameraClick}
+                        onPanCameraClick={onPanCameraClick}
+                        removeAllLineMeasurement={removeAllLineMeasurement}
+                        removeClipper={removeClipper}
+                        showConditionPanelHandler={onShowConditionPanelClickHandler}
+                        showstructureDetail={showstructureDetail}
+                    />
+                </Grid>
+
+            </Grid>
+
         </div>
     );
 

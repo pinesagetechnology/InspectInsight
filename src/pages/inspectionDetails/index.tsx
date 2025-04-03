@@ -94,7 +94,7 @@ const InspectionDetailForm: React.FC = () => {
     }
 
     return (
-        <FormPageWrapper>
+        <FormPageWrapper isFooterVisible={true}>
             <Container maxWidth="md">
                 <Box mt={5}>
                     <Typography variant="h5" gutterBottom>

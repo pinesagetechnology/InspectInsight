@@ -32,7 +32,7 @@ const InspectorCommentForm: React.FC = () => {
   };
 
   return (
-    <FormPageWrapper>
+    <FormPageWrapper isFooterVisible={true}>
       <Container maxWidth="md">
         <Box mt={4}>
           <Grid container spacing={3} alignItems="center">

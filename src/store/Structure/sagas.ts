@@ -24,11 +24,9 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
 
     const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
 
-    // action.payload.elementMetadata.forEach((element) => {
-    //     element.quantity = addQuantityToElements(element.children);
-    // });
-
     yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
+
+    
 }
 
 export function* getStructursData() {

@@ -9,6 +9,13 @@ export const fetchPreviousInspectionData = async (structureId: string) => {
     return result.data as InspectionEntity;
 };
 
+export const fetchListOfPreviousInspections = async (structureId: string) => {
+    await setAuthorize();
+    const result = await api.get(`api/Inspection/list/${structureId}?count=10`);
+
+    return result.data as InspectionEntity;
+};
+
 export const createInspectionlData = async (data: InspectionEntity) => {
     await setAuthorize();
 

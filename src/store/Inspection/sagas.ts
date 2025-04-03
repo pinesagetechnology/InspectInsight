@@ -6,7 +6,8 @@ import {
     setCurrentInspection,
     fetchPreviousInspectionData,
     setInspectionProcessLoading,
-    fetchPreviousInspectionDataSuccessful,
+    fetchPreviousInspectionsListSuccessful,
+    setPreviousInspectionData,
     setInspectionDataFailure,
     setPreviousRatedElements,
     setInspectionFormValidationFlag
@@ -17,13 +18,14 @@ import { setOriginalConditionRating, setDisplayConditionRatingElements } from '.
 import { getCurrentStructure, getStructureElements } from '../Structure/selectors';
 import { Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
-import { getFormValidationErrors } from './selectors';
+import { getFormValidationErrors, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
     yield takeLatest(actions.START_INSPECTION_PROCESS, startInspectionProcess);
-    yield takeLatest(actions.REVIEW_PREVIOUS_INSPECTION_DATA, getReviewPreviousInspection);
+    yield takeLatest(actions.GET_LIST_INSPECTIONS_DATA, getPreviousInspectionsList);
+    yield takeLatest(actions.GET_PREVIOUS_INSPECTION_DATA, getPreviousInspection);
     yield takeLatest(actions.SET_INSPECTION_VALIDATION_FLAG, setInspectionValidation);
 }
 
@@ -63,8 +65,6 @@ function* getPreviousInspectionValue(id: string) {
 
             yield put(setDisplayConditionRatingElements(selectedStructureElements));
         }
-
-        yield put(fetchPreviousInspectionDataSuccessful(previousInspection));
     }
     catch (error: any) {
         if (error instanceof Error) {
@@ -97,24 +97,35 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
     return selectedStructureElements;
 }
 
-export function* getReviewPreviousInspection() {
+export function* getPreviousInspectionsList() {
     yield put(setShowLoading(true));
 
     yield put(setNextButtonFlag(false));
 
     const selectedStructure: Structure = yield select(getCurrentStructure);
+
+    const inspections: InspectionEntity[] = yield call(services.fetchListOfPreviousInspections, selectedStructure.id);
+
+    yield put(fetchPreviousInspectionsListSuccessful(inspections));
+    
+    yield put(setShowLoading(false));
+}
+
+export function* getPreviousInspection(action: PayloadAction<string>) {
+    const inspectionId = action.payload;
+
+    var listofInspections: InspectionEntity[] = yield select(getPreviousInspectionList); 
+
+    const selectedInspection = listofInspections.find(x => x.id === inspectionId) || {} as InspectionEntity;
+
     const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
-    const inspections: InspectionEntity[] = yield call(services.fetchPreviousInspectionData, selectedStructure.id);
-    const previousInspection = (inspections && inspections.length > 0) ? inspections[0] : {} as InspectionEntity;
     const result = [] as StructureElement[];
 
-    yield call(getPreviousRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
+    yield call(getPreviousRatedElement, selectedStructureElements, (selectedInspection.conditionRatings || []), result);
 
     yield put(setPreviousRatedElements(result));
 
-    yield put(fetchPreviousInspectionDataSuccessful(previousInspection));
-
-    yield put(setShowLoading(false));
+    yield put(setPreviousInspectionData(selectedInspection));
 }
 
 const getPreviousRatedElement = (selectedStructureElements: StructureElement[], previousConditionRating: ConditionRatingEntity[], output: StructureElement[]) => {

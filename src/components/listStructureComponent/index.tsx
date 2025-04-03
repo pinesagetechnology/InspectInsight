@@ -40,9 +40,9 @@ const ListModeStructure: React.FC<ListModeProps> = ({
         }
     };
 
-    const handleViewPreviousInspection = () => {
+    const handleViewPreviousInspections = () => {
         dispatch({
-            type: actions.REVIEW_PREVIOUS_INSPECTION_DATA
+            type: actions.GET_LIST_INSPECTIONS_DATA
         } as PayloadAction);
         
         goTo(RoutesValueEnum.PreviousInspection);
@@ -97,7 +97,7 @@ const ListModeStructure: React.FC<ListModeProps> = ({
                             variant="contained"
                             color="secondary"
                             startIcon={<HistoryIcon />}
-                            onClick={() => handleViewPreviousInspection()}>
+                            onClick={() => handleViewPreviousInspections()}>
                                 History
                         </Button>
                         <Button

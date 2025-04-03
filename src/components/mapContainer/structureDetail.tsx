@@ -62,9 +62,9 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
         }
     };
 
-    const handleViewPreviousInspection = () => {
+    const handleViewPreviousInspections = () => {
         dispatch({
-            type: actions.REVIEW_PREVIOUS_INSPECTION_DATA
+            type: actions.GET_LIST_INSPECTIONS_DATA
         } as PayloadAction);
 
         goTo(RoutesValueEnum.PreviousInspection);
@@ -157,7 +157,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                             variant="outlined"
                             startIcon={<History />}
                             endIcon={<ChevronRight />}
-                            onClick={() => handleViewPreviousInspection()}
+                            onClick={() => handleViewPreviousInspections()}
                         >
                             Previous
                         </ActionButton>

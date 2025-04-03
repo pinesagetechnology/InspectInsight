@@ -7,6 +7,7 @@ import { StructureElement } from '../../entities/structure';
 export interface InspectionState {
     currentInspection: InspectionModel;
     previoustInspection: InspectionEntity;
+    previoustInspectionsList: InspectionEntity[];
     previousInspectionRatedElement: StructureElement[];
     isLoading: boolean;
     error: any;
@@ -33,7 +34,10 @@ const InspectionSlice = createSlice({
         fetchPreviousInspectionData: (state) => {
             state.error = undefined;
         },
-        fetchPreviousInspectionDataSuccessful: (state, action: PayloadAction<InspectionEntity>) => {
+        fetchPreviousInspectionsListSuccessful: (state, action: PayloadAction<InspectionEntity[]>) => {
+            state.previoustInspectionsList = action.payload;
+        },
+        setPreviousInspectionData: (state, action: PayloadAction<InspectionEntity>) => {
             state.previoustInspection = action.payload;
         },
         setInspectionDataFailure: (state, action: PayloadAction<any>) => {
@@ -75,7 +79,8 @@ const InspectionSlice = createSlice({
 export const {
     setCurrentInspection,
     fetchPreviousInspectionData,
-    fetchPreviousInspectionDataSuccessful,
+    fetchPreviousInspectionsListSuccessful,
+    setPreviousInspectionData,
     setInspectionDataFailure,
     setInspectionProcessLoading,
     setInspectionStateFromStorage,

@@ -33,7 +33,7 @@ const ConditionRating: React.FC = () => {
 
 
     return (
-        <FormPageWrapper>
+        <FormPageWrapper isFooterVisible={true}>
             <div style={{ width: '100%' }}>
                 <Stack direction={'row'} spacing={2}>
                     {elementHistory.length > 0 && (

@@ -7,7 +7,9 @@ const InspectionDetailPage = React.lazy(() => import('../../pages/inspectionDeta
 const ConditionRatingPage = React.lazy(() => import('../../pages/conditionRating/index'));
 const InspectionComment = React.lazy(() => import('../../pages/inspectorComments/index'));
 const InspectionReview = React.lazy(() => import('../../pages/reviewAndSubmit/index'));
-const PreviousInspectionPage = React.lazy(() => import('../../pages/previousInspection/index'));
+const PreviousInspectionListPage = React.lazy(() => import('../../pages/previousInspectionList/index'));
+const PreviousInspectionDetailPage = React.lazy(() => import('../../pages/previousInspection/index'));
+
 // const Viewer = React.lazy(() => import('../../pages/viewer/index'));
 
 export const AppRouter: React.FunctionComponent = () => {
@@ -20,7 +22,8 @@ export const AppRouter: React.FunctionComponent = () => {
                 <Route path={`/${RoutesValueEnum.ConditionRating}`} element={<ConditionRatingPage />} />
                 <Route path={`/${RoutesValueEnum.InspectorComments}`} element={<InspectionComment />} />
                 <Route path={`/${RoutesValueEnum.InspectionReview}`} element={<InspectionReview />} />
-                <Route path={`/${RoutesValueEnum.PreviousInspection}`} element={<PreviousInspectionPage />} />
+                <Route path={`/${RoutesValueEnum.PreviousInspection}`} element={<PreviousInspectionListPage />} />
+                <Route path={`/${RoutesValueEnum.PreviousInspectionDetail}`} element={<PreviousInspectionDetailPage />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
