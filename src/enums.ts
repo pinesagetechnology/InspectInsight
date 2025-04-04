@@ -10,6 +10,7 @@ export enum RoutesValueEnum {
 }
 
 export enum BrowserStorageKey {
+    StructureData = "structureData",
     InspectionDetail = "inspectionDetail",
     ConditionRating = "conditionRating",
     MaintenanceAction = "maintenanceAction",
