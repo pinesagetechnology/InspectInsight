@@ -10,6 +10,8 @@ import { setReatedElement } from '../ConditionRating/slice';
 import { setMaintenanceActionList } from '../MaintenanceAction/slice';
 import { db, ReduxApplicationState } from '../../helper/db';
 import { StructureElement } from '../../entities/structure';
+import { getInspectionComment } from '../InspectionComment/selectors';
+import { setInspectionComment } from '../InspectionComment/slice';
 
 export function* locaStorageRootSaga() {
     yield takeLatest(actions.SAVE_IN_LOCAL_STORAGE, saveStateInLocalStorage);
@@ -25,6 +27,7 @@ export function* saveStateInLocalStorage() {
         const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
         const ratedElements: StructureElement[] = yield select(getRatedElements);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
+        const inspectionComment: string  = yield select(getInspectionComment);
 
         const stateToSave = {
             id: 'appState', // fixed key
@@ -39,6 +42,7 @@ export function* saveStateInLocalStorage() {
             maintenanceAction: {
                 maintenanceActions: maintenanceActions,
             },
+            inspectionComment: inspectionComment,
         } as ReduxApplicationState;
 
         yield call([db.reduxApplicationState, db.reduxApplicationState.put], stateToSave);
@@ -61,9 +65,8 @@ export function* mapLocalStorageToState() {
     try {
         // Get the saved state from Dexie using the fixed key
         const savedState: ReduxApplicationState = yield call(() =>
-            db.reduxApplicationState.get('reduxState')
+            db.reduxApplicationState.get('appState')
         );
-        console.log("savedState", savedState);
 
         if (savedState) {
             // mapp inspection
@@ -77,6 +80,9 @@ export function* mapLocalStorageToState() {
             // mapp maintenance action
             yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
 
+            // map inspection comment
+            yield put(setInspectionComment(savedState.inspectionComment));
+
         } else {
             console.log('No state found in IndexedDB');
         }
@@ -88,7 +94,7 @@ export function* mapLocalStorageToState() {
 export function* checkIfLocalStorageHasValue() {
     try {
         const exists: number = yield db.reduxApplicationState.count();
-
+        
         yield put(setLocalStorageFlag(exists > 0));
     } catch (error: any) {
         if (error instanceof Error) {

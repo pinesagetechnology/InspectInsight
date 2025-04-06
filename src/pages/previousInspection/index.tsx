@@ -65,9 +65,8 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 }));
 
 const PreviousInspectionPage: React.FC = () => {
-
   const previousInspect = useSelector(selectedPreviousInspectionData);
-  console.log('Previous Inspection Data:', previousInspect);
+  
   const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
 
   return (

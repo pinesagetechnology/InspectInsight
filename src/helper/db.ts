@@ -15,7 +15,8 @@ export interface ReduxApplicationState {
     },
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];
-    }
+    },
+    inspectionComment: string;
 }
 
 export interface StructureState {
@@ -28,9 +29,6 @@ export class AppDatabase extends Dexie {
     public structureState!: Table<StructureState, string>;
     constructor() {
         super('AppDatabase');
-        // this.version(1).stores({
-        //     reduxApplicationState: 'id', // define the primary key for the reduxApplicationState table
-        // });
 
         this.version(2).stores({
             reduxApplicationState: 'id', // define the primary key for the reduxApplicationState table
