@@ -2,8 +2,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    min-width: 26%;
-    max-width: 35%;
+    min-width: 20%;
+    max-width: 30%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.9);
     border: 1px solid #ccc;
@@ -22,9 +22,11 @@
 }
 
 .viewerMenuContainer {
-    justify-self: center;
-    display: grid;
-    grid-area: toolbar;
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
 }
 
 .assessmentPanel {
@@ -48,6 +50,15 @@
 }
 
 .hideAssessmentPanel {
-    transform: translateY(-200%);
+    transform: translateY(-210%);
     // display: none;
+}
+
+.conditionTextBox {
+    width: 70px;
+    margin: 0 5px;
+}
+
+.radingConditionCell {
+    width: 20%;
 }

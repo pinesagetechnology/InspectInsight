@@ -16,6 +16,8 @@ import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
 import AssessmentPanel from "./assessmentPanel";
 import styles from "./style.module.scss";
+import { PayloadAction } from "@reduxjs/toolkit";
+import * as ratingActions from "../../store/ConditionRating/actions";
 
 const selectHighlighterName: string = "select";
 // const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
@@ -115,6 +117,20 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         } else {
             console.error("Highlighter could not be initialized.");
         }
+
+        highlighter.events.select.onHighlight.add((fragmentIdMap) => {
+            console.log("fragmentIdMap", fragmentIdMap);
+            const fragmentId = Object.keys(fragmentIdMap)[0];
+            const fragmentExpressId = fragmentIdMap[fragmentId].values().next().value;
+
+            dispatch({
+                type: ratingActions.SET_SELECTED_ELEMENT,
+                payload: fragmentExpressId
+            } as PayloadAction<number>);
+            console.log("setShowConditionPanel");
+            setShowConditionPanel(prev => !prev);
+
+        });
 
         const dimensions = components.get(OBF.LengthMeasurement);
         if (dimensions) {
@@ -279,12 +295,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }, [])
 
     const onContainerClick = (event: MouseEvent) => {
-        setShowConditionPanel((prev) => {
-            if (prev === false) {
-                return true;
-            }
-            return prev
-        });
         if (!isClipperOnRef.current && !isMeasurementModeRef.current) {
             const rect = containerRef.current?.getBoundingClientRect();
             const mouse = new THREE.Vector2(
@@ -301,6 +311,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             const intersects = raycaster.intersectObjects(worldRef.current.scene.three.children, true);
             if (intersects.length > 0) {
                 const selectedMesh = intersects[0].object;
+                console.log("selectedMesh", selectedMesh);
                 // Toggle disabled state; here we always set it to disabled for demonstration.
                 toggleDisabled(selectedMesh);
             }
@@ -334,13 +345,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             if (fragmentIDMap && !isMeasurementMode) {
                 highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
             }
-
-            setShowConditionPanel((prev) => {
-                if (prev === false) {
-                    return true;
-                }
-                return prev
-            });
         }
     }
 
@@ -449,64 +453,10 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        elementId: number,
-        index: number
-    ) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        // if (onlyNums) {
-        //     const num = parseInt(onlyNums, 10);
-        //     if (num >= 1 && num <= 4) { // Ensure the number is between 1 and 4
-        //         const newData = displayElements.map((item) => {
-        //             if (item.elementId === elementId) {
-        //                 const newConditions: number[] = [0, 0, 0, 0];
-        //                 [0, 1, 2, 3].forEach(x => {
-        //                     if (index === x) {
-        //                         newConditions[x] = num;
-        //                     } else if (item.condition && item.condition![x]) {
-        //                         newConditions[x] = item.condition![x];
-        //                     } else {
-        //                         newConditions[x] = 0;
-        //                     }
-
-        //                 });
-
-        //                 return { ...item, condition: newConditions };
-        //             }
-        //             return item;
-        //         });
-
-        //         dispatch({
-        //             payload: newData,
-        //             type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        //         });
-        //     }
-        // } else {
-        //     // Handle the case where the input is cleared or invalid
-        //     const newData = displayElements.map((item) => {
-        //         if (item.elementId === elementId) {
-        //             const newConditions = [...(item.condition || [])];
-
-        //             newConditions[index] = 0;
-
-        //             return { ...item, condition: newConditions };
-        //         }
-        //         return item;
-        //     });
-
-        //     dispatch({
-        //         payload: newData,
-        //         type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        //     });
-        // }
-    };
-
     const onShowConditionPanelClickHandler = () => {
         setShowConditionPanel(prev => !prev);
     }
 
-    // Define a function to toggle the mesh's material.
     const toggleDisabled = (mesh: THREE.Object3D) => {
         let isDisabled: boolean = false;
 
@@ -559,10 +509,9 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
                     <AssessmentPanel
                         showConditionPanel={showConditionPanel}
-                        element={{} as StructureElement}
-                        handleConditionChange={handleConditionChange} />
-                </Grid>
-                <Grid size={12}>
+                        closePanel={() => setShowConditionPanel(false)}
+                    />
+
                     <ViewerMenu
                         isClipperOn={isClipperOn}
                         isMeasurementMode={isMeasurementMode}

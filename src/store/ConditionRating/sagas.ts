@@ -19,6 +19,7 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.SET_SELECTED_STRUCTURE_ELEMENT, setSelectedElement);
     yield takeLatest(actions.SAVE_CONDITION_RATING_ASSESSMENT_DATA, saveConditionRatingAssessmentData);
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
+    yield takeLatest(actions.SET_SELECTED_ELEMENT, setSelectedElementIdSaga);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -165,7 +166,6 @@ export function* saveConditionRatingAssessmentData() {
 
         }
     }
-
 }
 
 export function* resetConditionRatingDisplayTableSaga() {
@@ -178,3 +178,33 @@ export function* resetConditionRatingDisplayTableSaga() {
         yield put(setElementHistory([] as StructureElement[][]));
     }
 }
+
+const findElement = (elements: StructureElement[], id: number): StructureElement | undefined => {
+    for (const item of elements) {
+        if (item.data.expressID === id) {
+            console.log("findElement", item.data.expressID);
+            return item;
+        }
+
+        if (item.children && item.children.length > 0) {
+            const foundInChildren = findElement(item.children, id);
+            if (foundInChildren) {
+                return foundInChildren;
+            }
+        }
+    }
+    return undefined;
+}
+
+export function* setSelectedElementIdSaga(action: PayloadAction<number | undefined>) {
+    const ratedElements: StructureElement[] = yield select(getRatedElements);
+    let selectedElement = findElement(ratedElements, action.payload!);
+
+    if (!selectedElement) {
+        const originalConditionRating: StructureElement[] = yield select(getConditionRating);
+        selectedElement = findElement(originalConditionRating, action.payload!);
+    }
+
+    yield put(setSelectedStructureElement(selectedElement || ({} as StructureElement)));
+}
+
