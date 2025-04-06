@@ -40,14 +40,6 @@ const ConditionRatingSlice = createSlice({
         },
         setReatedElement: (state, action: PayloadAction<StructureElement[]>) => {
             state.ratedElements = action.payload;
-        },
-        setConditionRatingStateFromStorage: (state, action: PayloadAction<ConditionRatingState>) =>{
-            state.displayConditionRatingElements = action.payload.displayConditionRatingElements;
-            state.elementHistory = action.payload.elementHistory;
-            state.error = action.payload.error;
-            state.originalConditionRating = action.payload.originalConditionRating;
-            state.ratedElements = action.payload.ratedElements;
-            state.selectedStructureElement = action.payload.selectedStructureElement;
         }
     },
     extraReducers: (builder) => {
@@ -65,7 +57,6 @@ export const {
     setSelectedStructureElement,
     setConditionRatingError,
     setReatedElement,
-    setConditionRatingStateFromStorage
 } = ConditionRatingSlice.actions;
 
 export default ConditionRatingSlice.reducer;

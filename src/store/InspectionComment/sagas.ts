@@ -5,7 +5,7 @@ import { setInspectionComment, setInspectionCommentError, setValidationErrorFlag
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
 import { getInspection } from '../Inspection/selectors';
-import { getMaintenanceAction } from '../MaintenanceAction/selectors';
+import { getMaintenanceActions } from '../MaintenanceAction/selectors';
 import { getConditionRating } from '../ConditionRating/selectors';
 import { getInspectionComment } from './selectors';
 import * as services from "../../services/inspectionService";
@@ -28,7 +28,7 @@ export function* setInspectionCommentValue(action: PayloadAction<string>) {
 function* saveInspectionCommentData() {
     try {
         const inspectionData: InspectionModel = yield select(getInspection);
-        const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+        const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
         const conditionRatings: ConditionRatingEntity[] = yield select(getConditionRating);
         const inspectionComment: string = yield select(getInspectionComment);
 

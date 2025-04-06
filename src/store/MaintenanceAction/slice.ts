@@ -19,7 +19,7 @@ const MaintenanceActionSlice = createSlice({
     name: "MaintenanceActionDataState",
     initialState: initialState,
     reducers: {
-        setMaintenanceActionToList: (state, action: PayloadAction<MaintenanceActionModel[]>) => {
+        setMaintenanceActionList: (state, action: PayloadAction<MaintenanceActionModel[]>) => {
             state.maintenanceActions = action.payload;
         },
         setCurrentMaintenanceFormData: (state, action: PayloadAction<MaintenanceActionModel>) => {
@@ -30,12 +30,6 @@ const MaintenanceActionSlice = createSlice({
         },
         setMaintenanceAcctionError: (state, action: PayloadAction<any>) => {
             state.error = action.payload;
-        },
-        setMaintenanceActionStateFromStorage: (state, action: PayloadAction<MaintenanceActionState>) => {
-            state.error = action.payload.error;
-            state.maintenanceActions = action.payload.maintenanceActions;
-            state.maintenanceFormData = action.payload.maintenanceFormData;
-            state.isUploading = false;
         }
     },
     extraReducers: (builder) => {
@@ -52,8 +46,7 @@ export const {
     setUploadFlag,
     setCurrentMaintenanceFormData,
     setMaintenanceAcctionError,
-    setMaintenanceActionToList,
-    setMaintenanceActionStateFromStorage,
+    setMaintenanceActionList,
 } = MaintenanceActionSlice.actions;
 
 export default MaintenanceActionSlice.reducer;

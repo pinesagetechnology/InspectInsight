@@ -21,6 +21,9 @@ const StructureSlice = createSlice({
         setCurrentStructure: (state, action: PayloadAction<Structure>) => {
             state.currentStructure = action.payload;
         },
+        setSavedStructures: (state, action: PayloadAction<Structure[]>) => {
+            state.structures = action.payload;
+        },
         fetchStructuresData: (state) => {
             state.isLoading = true;
             state.error = undefined;
@@ -43,6 +46,7 @@ const StructureSlice = createSlice({
 
 export const {
     setCurrentStructure,
+    setSavedStructures,
     fetchStructuresData,
     fetchStructuresDataSuccessful,
     structuresDataFailed,

@@ -31,6 +31,12 @@ const InspectionSlice = createSlice({
         setCurrentInspection: (state, action: PayloadAction<InspectionModel>) => {
             state.currentInspection = action.payload;
         },
+        setPreviousInspectionFromSavedState: (state, action: PayloadAction<InspectionEntity>) => {
+            state.previoustInspection = action.payload;
+        },
+        setPreviousInspectionListFromSavedState: (state, action: PayloadAction<InspectionEntity[]>) => {
+            state.previoustInspectionsList = action.payload;
+        },
         fetchPreviousInspectionData: (state) => {
             state.error = undefined;
         },
@@ -51,13 +57,6 @@ const InspectionSlice = createSlice({
         },
         setInspectionFormValidationFlag: (state, action: PayloadAction<string[]>) => {
             state.validationErrors = action.payload;
-        },
-        setInspectionStateFromStorage: (state, action: PayloadAction<InspectionState>) => {
-            state.currentInspection = action.payload.currentInspection;
-            state.error = action.payload.error
-            state.previoustInspection = action.payload.previoustInspection;
-            state.isLoading = action.payload.isLoading;
-            state.validationErrors = action.payload.validationErrors;
         }
     },
     extraReducers: (builder) => {
@@ -78,12 +77,13 @@ const InspectionSlice = createSlice({
 
 export const {
     setCurrentInspection,
+    setPreviousInspectionFromSavedState,
+    setPreviousInspectionListFromSavedState,
     fetchPreviousInspectionData,
     fetchPreviousInspectionsListSuccessful,
     setPreviousInspectionData,
     setInspectionDataFailure,
     setInspectionProcessLoading,
-    setInspectionStateFromStorage,
     setPreviousRatedElements,
     setInspectionFormValidationFlag
 } = InspectionSlice.actions;

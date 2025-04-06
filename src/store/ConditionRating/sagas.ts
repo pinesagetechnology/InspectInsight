@@ -6,7 +6,7 @@ import { getConditionRating, getDisplayElementList, getElementHistory, getRatedE
 import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement } from './slice';
 import { InspectionModel, MaintenanceActionModel } from 'models/inspectionModel';
 import { getInspection } from '../Inspection/selectors';
-import { getMaintenanceAction } from '../MaintenanceAction/selectors';
+import { getMaintenanceActions } from '../MaintenanceAction/selectors';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
 import { InspectionStatusEnum } from '../../enums';
@@ -144,7 +144,7 @@ export function* setSelectedElement(action: PayloadAction<StructureElement>) {
 export function* saveConditionRatingAssessmentData() {
     try {
         const inspectionData: InspectionModel = yield select(getInspection);
-        const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+        const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
         const conditionRatings: ConditionRatingEntity[] = yield select(getConditionRating);
 
         const newInspectionEntity = {

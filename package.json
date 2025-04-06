@@ -28,7 +28,7 @@
     "camera-controls": "2.7.3",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
-    "dexie": "^4.0.4",
+    "dexie": "^4.0.11",
     "dotenv": "^16.4.5",
     "earcut": "^2.2.4",
     "n8ao": "1.5.1",

@@ -12,9 +12,8 @@ import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
 import * as commonActions from '../Common/actions';
 import { addQuantityToElements } from '../../helper/ifcTreeManager';
-import * as utils from '../../helper/util';
-import { BrowserStorageKey } from '../../enums';
 import { isOnlineSelector } from '../SystemAvailability/selectors';
+import { db, StructureState } from '../../helper/db';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -39,17 +38,26 @@ export function* getStructursData() {
         yield put(fetchStructuresData());
 
         const isOnline: boolean = yield select(isOnlineSelector);
-        
+
         if (isOnline) {
             const structureData: Structure[] = yield call(services.getStructureData);
 
             yield put(fetchStructuresDataSuccessful(structureData));
-    
-            yield call(utils.saveToStorage, BrowserStorageKey.InspectionDetail, structureData);
+
+            const stateToSave = {
+                id: 'structureState', // fixed key
+                structures: structureData,
+            } as StructureState;
+
+            yield call([db.structureState, db.structureState.put], stateToSave);
+            console.log('Redux state saved to IndexedDB');
         } else {
-            const structureData: Structure[] = yield call(utils.getLocalStorage, BrowserStorageKey.StructureData);
-            if (structureData) {
-                yield put(fetchStructuresDataSuccessful(structureData));
+            const savedStructureData: StructureState = yield call(() =>
+                db.reduxApplicationState.get('structureState')
+            );
+
+            if (savedStructureData) {
+                yield put(fetchStructuresDataSuccessful(savedStructureData.structures));
             } else {
                 yield put(structuresDataFailed("No data found in local storage."));
 

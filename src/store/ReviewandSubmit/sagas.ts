@@ -7,7 +7,7 @@ import * as inspectionServices from "../../services/inspectionService";
 import { getInspection } from '../Inspection/selectors';
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
 import { setInspectionPayload, setReviewAndSubmitResult, setReviewError } from './slice';
-import { getMaintenanceAction } from '../MaintenanceAction/selectors';
+import { getMaintenanceActions } from '../MaintenanceAction/selectors';
 import { getRatedElements } from '../ConditionRating/selectors';
 import { v4 as uuidv4 } from 'uuid';
 import { getInspectionComment } from '../InspectionComment/selectors';
@@ -23,7 +23,7 @@ export function* saveData() {
         yield put(setShowLoading(true));
 
         const selectedStructure: Structure = yield select(getCurrentStructure);
-        const maintenanceActionsModel: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+        const maintenanceActionsModel: MaintenanceActionModel[] = yield select(getMaintenanceActions);
         const maintenanceActionsEntity = maintenanceActionsModel?.map(action => {
             return {
                 ...action,

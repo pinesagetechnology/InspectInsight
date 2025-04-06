@@ -23,11 +23,6 @@ const InspectionCommentSlice = createSlice({
         },
         setValidationErrorFlag: (state, action: PayloadAction<boolean>) => {
             state.validationErrorsFlag = action.payload;
-        },
-        setInspectionCommentStateFromStorage: (state, action: PayloadAction<InspectionCommentState>) => {
-            state.error = action.payload.error;
-            state.validationErrorsFlag = action.payload.validationErrorsFlag;
-            state.inspectionComment = action.payload.inspectionComment;
         }
     },
     extraReducers: (builder) => {
@@ -43,7 +38,6 @@ export const {
     setInspectionComment,
     setValidationErrorFlag,
     setInspectionCommentError,
-    setInspectionCommentStateFromStorage
 } = InspectionCommentSlice.actions;
 
 export default InspectionCommentSlice.reducer;

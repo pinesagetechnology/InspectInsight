@@ -2,13 +2,13 @@ import { takeLatest, put, select, call } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
-    setMaintenanceActionToList,
+    setMaintenanceActionList,
     setMaintenanceAcctionError,
     setCurrentMaintenanceFormData,
     setUploadFlag
 } from './slice';
 import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile, UploadAPIResponse } from '../../models/inspectionModel';
-import { getMaintenanceAction, getMaintenanceFormData } from './selectors';
+import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
 import { v4 as uuidv4 } from 'uuid';
 import { Structure, StructureElement } from '../../entities/structure';
 import * as service from "../../services/assetManagementService";
@@ -28,7 +28,7 @@ export function* maintenanceActionRootSaga() {
 }
 
 export function* addNewItem(action: PayloadAction<StructureElement>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const newMaintenanceAction = {
         id: "-1",
@@ -39,7 +39,7 @@ export function* addNewItem(action: PayloadAction<StructureElement>) {
         mode: 1
     } as MaintenanceActionModel;
 
-    yield put(setMaintenanceActionToList([
+    yield put(setMaintenanceActionList([
         newMaintenanceAction,
         ...(maintenancActions || [])]
     ));
@@ -48,14 +48,14 @@ export function* addNewItem(action: PayloadAction<StructureElement>) {
 }
 
 export function* cancelNewItem() {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedList = (maintenancActions?.filter(item => item.id !== "-1") || [])
         .map(item => {
             return { ...item, isSectionExpanded: false, mode: 0 };
         });
 
-    yield put(setMaintenanceActionToList(updatedList || []));
+    yield put(setMaintenanceActionList(updatedList || []));
 
     yield put(setCurrentMaintenanceFormData(
         {} as MaintenanceActionModel
@@ -63,7 +63,7 @@ export function* cancelNewItem() {
 }
 
 export function* editItem(action: PayloadAction<string>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const selectedIndex = maintenancActions?.findIndex(x => x.id === action.payload);
 
@@ -81,12 +81,12 @@ export function* editItem(action: PayloadAction<string>) {
             return { ...item, isSectionExpanded: false, mode: 0 };
     });
 
-    yield put(setMaintenanceActionToList(updatedList || []));
+    yield put(setMaintenanceActionList(updatedList || []));
 
 }
 
 export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActionModel>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const newMaintenanceActionItem = {
         ...action.payload,
@@ -104,11 +104,11 @@ export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActi
 
     yield put(setCurrentMaintenanceFormData(newMaintenanceActionItem));
 
-    yield put(setMaintenanceActionToList(updatedList));
+    yield put(setMaintenanceActionList(updatedList));
 }
 
 export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceActionModel>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedMaintenanceActionItem = {
         ...action.payload,
@@ -125,11 +125,11 @@ export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceA
 
     yield put(setCurrentMaintenanceFormData(updatedMaintenanceActionItem));
 
-    yield put(setMaintenanceActionToList([...(updatedList || [])]));
+    yield put(setMaintenanceActionList([...(updatedList || [])]));
 }
 
 export function* deleteMaintenanceActionValue(action: PayloadAction<string>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedList = maintenancActions?.filter(item => item.id !== action.payload);
 
@@ -137,7 +137,7 @@ export function* deleteMaintenanceActionValue(action: PayloadAction<string>) {
         {} as MaintenanceActionModel
     ));
 
-    yield put(setMaintenanceActionToList([...(updatedList || [])]));
+    yield put(setMaintenanceActionList([...(updatedList || [])]));
 }
 
 export function* setMaintenanceActionFormData(action: PayloadAction<MaintenanceActionModel>) {
@@ -200,7 +200,7 @@ export function* deleteMaintenanceImageData(action: PayloadAction<DeleteImagePay
 }
 
 export function* setSelectedMaintenanceItem(action: PayloadAction<string>) {
-    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceAction);
+    const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const selectedIndex = maintenancActions?.findIndex(x => x.id === action.payload);
 
@@ -222,5 +222,5 @@ export function* setSelectedMaintenanceItem(action: PayloadAction<string>) {
             return { ...item, isSectionExpanded: false, mode: 0 };
     });
 
-    yield put(setMaintenanceActionToList(updatedList || []));
+    yield put(setMaintenanceActionList(updatedList || []));
 }

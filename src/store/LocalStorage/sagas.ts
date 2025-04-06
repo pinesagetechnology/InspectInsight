@@ -1,20 +1,15 @@
 import { takeLatest, put, select, call } from 'redux-saga/effects';
 import * as actions from "./actions";
-import { BrowserStorageKey } from '../../enums';
-import { getAllInspectionState } from '../Inspection/selectors';
-import { InspectionModel } from '../../models/inspectionModel';
-import * as utils from '../../helper/util';
-import { getAllConditionRatingState } from '../ConditionRating/selectors';
-import { getAllMaintenanceActionState } from '../MaintenanceAction/selectors';
-import { getAllInspectionCommentState } from '../InspectionComment/selectors';
-import {
-    setLocalStorageFlag,
-    setLocaStorageError,
-} from './slice';
-import { setInspectionStateFromStorage } from '../Inspection/slice';
-import { setConditionRatingStateFromStorage } from '../ConditionRating/slice';
-import { setMaintenanceActionStateFromStorage } from '../MaintenanceAction/slice';
-import { setInspectionCommentStateFromStorage } from '../InspectionComment/slice';
+import { getInspection, getPreviousInspectionList, selectedPreviousInspectionData } from '../Inspection/selectors';
+import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
+import { getRatedElements } from '../ConditionRating/selectors';
+import { getMaintenanceActions } from '../MaintenanceAction/selectors';
+import { setLocalStorageFlag, setLocaStorageError } from './slice';
+import { setCurrentInspection, setPreviousInspectionFromSavedState, setPreviousInspectionListFromSavedState } from '../Inspection/slice';
+import { setReatedElement } from '../ConditionRating/slice';
+import { setMaintenanceActionList } from '../MaintenanceAction/slice';
+import { db, ReduxApplicationState } from '../../helper/db';
+import { StructureElement } from '../../entities/structure';
 
 export function* locaStorageRootSaga() {
     yield takeLatest(actions.SAVE_IN_LOCAL_STORAGE, saveStateInLocalStorage);
@@ -25,48 +20,33 @@ export function* locaStorageRootSaga() {
 
 export function* saveStateInLocalStorage() {
     try {
-        const inspectionState: InspectionModel = yield select(getAllInspectionState);
-        yield call(utils.saveToStorage, BrowserStorageKey.InspectionDetail, inspectionState);
+        const inspectionState: InspectionModel = yield select(getInspection);
+        const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
+        const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
+        const ratedElements: StructureElement[] = yield select(getRatedElements);
+        const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
-        const allConditionRating: InspectionModel = yield select(getAllConditionRatingState);
-        yield call(utils.saveToStorage, BrowserStorageKey.ConditionRating, allConditionRating);
+        const stateToSave = {
+            id: 'appState', // fixed key
+            inspectionData: {
+                currentInspection: inspectionState,
+                previoustInspection: previousInspection,
+                previoustInspectionsList: previousInspectionList,
+            },
+            conditionRating: {
+                ratedElements: ratedElements,
+            },
+            maintenanceAction: {
+                maintenanceActions: maintenanceActions,
+            },
+        } as ReduxApplicationState;
 
-        const allMaintenanceAction: InspectionModel = yield select(getAllMaintenanceActionState);
-        yield call(utils.saveToStorage, BrowserStorageKey.MaintenanceAction, allMaintenanceAction);
+        yield call([db.reduxApplicationState, db.reduxApplicationState.put], stateToSave);
 
-        const allInspectionCommentState: InspectionModel = yield select(getAllInspectionCommentState);
-        yield call(utils.saveToStorage, BrowserStorageKey.InspectionComment, allInspectionCommentState);
+        console.log('Redux state saved to IndexedDB');
     } catch (error: any) {
-        if (error instanceof Error) {
-            yield put(setLocaStorageError(error.message));
+        console.error('Error saving state to IndexedDB:', error);
 
-        } else {
-            yield put(setLocaStorageError(error));
-
-        }
-    }
-}
-
-export function* checkIfLocalStorageHasValue() {
-    try {
-        let flag: boolean = false;
-
-        const storageKeys = [
-            BrowserStorageKey.InspectionDetail,
-            BrowserStorageKey.ConditionRating,
-            BrowserStorageKey.MaintenanceAction,
-            BrowserStorageKey.InspectionComment,
-        ];
-
-        storageKeys.forEach((item => {
-            const data = localStorage.getItem(item);
-            if (data) {
-                flag = true;
-            }
-        }));
-
-        yield put(setLocalStorageFlag(flag));
-    } catch (error: any) {
         if (error instanceof Error) {
             yield put(setLocaStorageError(error.message));
 
@@ -79,57 +59,58 @@ export function* checkIfLocalStorageHasValue() {
 
 export function* mapLocalStorageToState() {
     try {
-        const storageKeys = [
-            BrowserStorageKey.InspectionDetail,
-            BrowserStorageKey.ConditionRating,
-            BrowserStorageKey.MaintenanceAction,
-            BrowserStorageKey.InspectionComment,
-        ];
+        // Get the saved state from Dexie using the fixed key
+        const savedState: ReduxApplicationState = yield call(() =>
+            db.reduxApplicationState.get('reduxState')
+        );
+        console.log("savedState", savedState);
 
-        for (const key of storageKeys) {
-            const data = localStorage.getItem(key);
-            if (data) {
-                switch (key) {
-                    case BrowserStorageKey.InspectionDetail:
-                        yield put(setInspectionStateFromStorage(JSON.parse(data)));
-                        break;
-                    case BrowserStorageKey.ConditionRating:
-                        yield put(setConditionRatingStateFromStorage(JSON.parse(data)))
-                        break;
-                    case BrowserStorageKey.MaintenanceAction:
-                        yield put(setMaintenanceActionStateFromStorage(JSON.parse(data)))
-                        break;
-                    case BrowserStorageKey.InspectionComment:
-                        yield put(setInspectionCommentStateFromStorage(JSON.parse(data)))
-                        break;
-                    default:
-                        break;
-                }
-            }
+        if (savedState) {
+            // mapp inspection
+            yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
+            yield put(setPreviousInspectionFromSavedState(savedState.inspectionData.previoustInspection));
+            yield put(setPreviousInspectionListFromSavedState(savedState.inspectionData.previoustInspectionsList));
+
+            // mapp condition rating
+            yield put(setReatedElement(savedState.conditionRating.ratedElements));
+
+            // mapp maintenance action
+            yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
+
+        } else {
+            console.log('No state found in IndexedDB');
         }
+    } catch (error) {
+        console.error('Error loading state from IndexedDB:', error);
+    }
+}
+
+export function* checkIfLocalStorageHasValue() {
+    try {
+        const exists: number = yield db.reduxApplicationState.count();
+
+        yield put(setLocalStorageFlag(exists > 0));
     } catch (error: any) {
         if (error instanceof Error) {
             yield put(setLocaStorageError(error.message));
 
         } else {
             yield put(setLocaStorageError(error));
+
         }
     }
 }
 
 export function* removeStateFromLocalStorage() {
     try {
-        yield call(utils.removeToStorage, BrowserStorageKey.InspectionDetail);
-        yield call(utils.removeToStorage, BrowserStorageKey.ConditionRating);
-        yield call(utils.removeToStorage, BrowserStorageKey.MaintenanceAction);
-        yield call(utils.removeToStorage, BrowserStorageKey.InspectionComment);
-    } catch (error: any) {
+        yield db.reduxApplicationState.clear();
+        console.log('All data cleared from IndexedDB');
+    } catch (error) {
         if (error instanceof Error) {
             yield put(setLocaStorageError(error.message));
-
         } else {
             yield put(setLocaStorageError(error));
-
         }
     }
 }
+
