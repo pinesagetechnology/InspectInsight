@@ -35,7 +35,7 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
                 open={modalState}
                 sx={{
                     '& .MuiDialog-paper': {
-                        width: '350px',
+                        minWidth: '350px',
                     },
                 }}
             >
