@@ -39,7 +39,6 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const structureElement = useSelector(getSelectedStructureElement);
 
     useEffect(() => {
-        console.log("structureElement", structureElement);
         setOriginalCondition(structureElement?.condition || []);
         setCurrentStructureElement(structureElement)
     }, [structureElement])
@@ -67,7 +66,6 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
         index: number
     ) => {
         const { value } = event.target;
-        console.log("handleConditionChange", value, index);
 
         // Remove non-digit characters
         const onlyNums = value.replace(/[^0-9]/g, "");
@@ -129,10 +127,6 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
                 {[0, 1, 2, 3].map((_, index) => {
                     const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;
                     const focusedKey = `${currentStructureElelement?.data?.expressID}-${index}`;
-                    // return (editModeFlag) ? (
-                    // ) : (
-                    //     <Item key={focusedKey}>{fieldValue}</Item>
-                    // );
                     return (<TextField
                         key={focusedKey}
                         size="small"

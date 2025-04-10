@@ -138,8 +138,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     // Apply highlighting when rated elements change
     useEffect(() => {
-        console.log("Rated elements changed:", ratedElements);
-
         if (model && highlighterRef.current) {
             highlightRatedElements();
         }
@@ -193,7 +191,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
 
         highlighter.events.select.onHighlight.add((fragmentIdMap) => {
-            console.log("fragmentIdMap", fragmentIdMap);
             const fragmentId = Object.keys(fragmentIdMap)[0];
             const fragmentExpressId = fragmentIdMap[fragmentId].values().next().value;
 
@@ -201,9 +198,8 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 type: ratingActions.SET_SELECTED_ELEMENT,
                 payload: fragmentExpressId
             } as PayloadAction<number>);
-            console.log("setShowConditionPanel");
+            
             setShowConditionPanel(prev => !prev);
-
         });
 
         const dimensions = components.get(OBF.LengthMeasurement);
@@ -280,7 +276,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
         container.ondblclick = onContainerDoubleClick;
 
-        container.onclick = onContainerClick;
+        // container.onclick = onContainerClick;
 
         window.onkeydown = (event: KeyboardEvent) => {
             if (event.code === "Delete") {
@@ -372,6 +368,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }, [])
 
     const onContainerClick = (event: MouseEvent) => {
+        console.log("onContainerClick", "the event is not being used - To be removed later");
         if (!isClipperOnRef.current && !isMeasurementModeRef.current) {
             const rect = containerRef.current?.getBoundingClientRect();
             const mouse = new THREE.Vector2(
@@ -533,6 +530,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }
 
     const toggleDisabled = (mesh: THREE.Object3D) => {
+        console.log("toggleDisabled", "toggle function is being called - to be removed later");
         let isDisabled: boolean = false;
 
         if (selectedItemsRef.current.includes(mesh.uuid)) {
@@ -598,7 +596,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         onFitScreenClick={onFitScreenClick}
                         onOrbitCameraClick={onOrbitCameraClick}
                         onPanCameraClick={onPanCameraClick}
-                        onToggleRatings={toggleRatings}
+                        // onToggleRatings={toggleRatings}
                         removeAllLineMeasurement={removeAllLineMeasurement}
                         removeClipper={removeClipper}
                         showConditionPanelHandler={onShowConditionPanelClickHandler}

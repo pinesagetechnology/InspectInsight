@@ -182,7 +182,6 @@ export function* resetConditionRatingDisplayTableSaga() {
 const findElement = (elements: StructureElement[], id: number): StructureElement | undefined => {
     for (const item of elements) {
         if (item.data.expressID === id) {
-            console.log("findElement", item.data.expressID);
             return item;
         }
 
