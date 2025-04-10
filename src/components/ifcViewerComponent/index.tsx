@@ -14,13 +14,13 @@ import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
 import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
+import { getRatedElements } from "../../store/ConditionRating/selectors";
 import AssessmentPanel from "./assessmentPanel";
 import styles from "./style.module.scss";
 import { PayloadAction } from "@reduxjs/toolkit";
 import * as ratingActions from "../../store/ConditionRating/actions";
 
 const selectHighlighterName: string = "select";
-// const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
 const Plan: string = "Plan";
 const Orbit: string = "Orbit";
 
@@ -33,6 +33,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 }) => {
     const dispatch = useDispatch();
     const structureElements: StructureElement[] = useSelector(getStructureElements);
+    const ratedElements: StructureElement[] = useSelector(getRatedElements);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const hiderRef = useRef<OBC.Hider>();
     const highlighterRef = useRef<OBF.Highlighter>();
@@ -44,6 +45,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [isMeasurementMode, setIsMeasurementMode] = useState(false);
     const [isClipperOn, setIsClipperOn] = useState(false);
+    const [showRatings, setShowRatings] = useState(true);
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
     const selectedItemsRef = useRef<string[]>([]);
@@ -59,6 +61,69 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     const components = new OBC.Components();
 
+    // Utility function to determine color based on rating
+    const getColorForRating = (rating: number): THREE.Color => {
+        // Map rating to a color (green for good, yellow for medium, red for poor)
+        if (rating <= 1.5) return new THREE.Color(0x00ff00); // Good - Green
+        if (rating <= 2.5) return new THREE.Color(0xffff00); // Medium - Yellow
+        if (rating <= 3.5) return new THREE.Color(0xff9900); // Poor - Orange
+        return new THREE.Color(0xff0000); // Very Poor - Red
+    };
+
+    // Function to highlight rated elements
+    const highlightRatedElements = () => {
+        if (model && ratedElements && ratedElements.length > 0 && highlighterRef.current) {
+            if (!showRatings) return;
+            ratedElements.forEach((item) => {
+                if (item.condition && item.condition.length > 0) {
+                    // Calculate average rating
+                    let sum = 0;
+                    let count = 0;
+                    for (let i = 0; i < item.condition.length; i++) {
+                        if (item.condition[i] > 0) {
+                            sum += item.condition[i];
+                            count++;
+                        }
+                    }
+
+                    if (count > 0) {
+                        const avgRating = sum / count;
+                        const color = getColorForRating(avgRating);
+                        const fragmentIDMap = getRowFragmentIdMap(model, item.data);
+                        
+                        if (fragmentIDMap) {
+                            const fragments = fragMgr?.list;
+                            if (fragments) {
+                                Object.keys(fragmentIDMap).forEach(fragmentId => {
+
+                                    const fragment = fragments.get(fragmentId);
+                                    if (fragment) {
+
+                                        fragment.mesh.material[0] = new THREE.MeshBasicMaterial({
+                                            color: color,
+                                            transparent: true,
+                                            opacity: 0.5,
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    // Toggle showing ratings
+    const toggleRatings = () => {
+        setShowRatings(!showRatings);
+        if (!showRatings) {
+            highlightRatedElements();
+        } else{
+            //undo coloring
+        }
+    };
+
     useEffect(() => {
         selectedItemsRef.current = selectedItems;
     }, [selectedItems]);
@@ -70,6 +135,15 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     useEffect(() => {
         isClipperOnRef.current = isClipperOn;
     }, [isClipperOn]);
+
+    // Apply highlighting when rated elements change
+    useEffect(() => {
+        console.log("Rated elements changed:", ratedElements);
+
+        if (model && highlighterRef.current) {
+            highlightRatedElements();
+        }
+    }, [ratedElements, model, showRatings]);
 
     useEffect(() => {
         if (!containerRef.current) {
@@ -153,6 +227,9 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         world.meshes.add(child);
                     }
                 }
+
+                // Apply rating highlights after model is loaded
+                highlightRatedElements();
             }
         });
 
@@ -311,9 +388,8 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             const intersects = raycaster.intersectObjects(worldRef.current.scene.three.children, true);
             if (intersects.length > 0) {
                 const selectedMesh = intersects[0].object;
-                console.log("selectedMesh", selectedMesh);
                 // Toggle disabled state; here we always set it to disabled for demonstration.
-                toggleDisabled(selectedMesh);
+                // toggleDisabled(selectedMesh);
             }
         }
     }
@@ -364,7 +440,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                     hiderRef.current.set(isVisible, fragmentMap);
                 }
             }
-
         }
     }
 
@@ -517,11 +592,13 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         isMeasurementMode={isMeasurementMode}
                         isPanSelected={isPanSelected}
                         isOrbitSelected={isOrbitSelected}
+                        showRatings={showRatings}
                         onClipperClick={onClipperClick}
                         onMeasurementClick={onMeasurementClick}
                         onFitScreenClick={onFitScreenClick}
                         onOrbitCameraClick={onOrbitCameraClick}
                         onPanCameraClick={onPanCameraClick}
+                        onToggleRatings={toggleRatings}
                         removeAllLineMeasurement={removeAllLineMeasurement}
                         removeClipper={removeClipper}
                         showConditionPanelHandler={onShowConditionPanelClickHandler}

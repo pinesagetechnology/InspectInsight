@@ -14,7 +14,7 @@ import {
 } from './slice';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from "../../entities/inspection";
-import { setOriginalConditionRating, setDisplayConditionRatingElements } from '../ConditionRating/slice';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement } from '../ConditionRating/slice';
 import { getCurrentStructure, getStructureElements } from '../Structure/selectors';
 import { Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
@@ -60,6 +60,12 @@ function* getPreviousInspectionValue(id: string) {
             yield put(setOriginalConditionRating(elementsWithCondition));
 
             yield put(setDisplayConditionRatingElements(elementsWithCondition));
+
+            const result = [] as StructureElement[];
+
+            yield call(getPreviousRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
+
+            yield put(setReatedElement(result));
         } else {
             yield put(setOriginalConditionRating(selectedStructureElements));
 

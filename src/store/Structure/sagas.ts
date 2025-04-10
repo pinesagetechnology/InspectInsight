@@ -27,8 +27,6 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
     const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
 
     yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
-
-
 }
 
 export function* getStructursData() {
@@ -64,8 +62,6 @@ export function* getStructursData() {
                 yield put(structuresDataFailed([]));
             }
         }
-
-
     }
     catch (error: any) {
         if (error instanceof Error) {
