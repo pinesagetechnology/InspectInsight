@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, InputBase, IconButton } from "@mui/material";
+import { Paper, InputBase, IconButton, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import styles from "./style.module.scss";
 
@@ -8,18 +8,32 @@ interface SearchBarProps {
   onSearchChange: (query: string) => void;
 }
 
+const SearchInput = styled(InputBase)({
+  flex: 1,
+  marginLeft: 8,
+  '& input::placeholder': {
+    fontSize: '16px'
+  },
+  width: '30px'
+});
+
 const SearchBarComponent: React.FC<SearchBarProps> = ({ searchQuery, onSearchChange }) => {
+
+  const onTxtSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    onSearchChange(value);
+  };
+
   return (
-    <Paper component="form" className={styles.searchContainer}>
-      <InputBase
-        sx={{ ml: 1, flex: 1 }}
-        placeholder="Search..."
+    <Paper className={styles.searchContainer}>
+      <SearchIcon sx={{ color: 'text.secondary' }} />
+      <SearchInput
+        placeholder="Search here ..."
+        fullWidth
+        onChange={onTxtSearchInput}
         value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
+        id='txtSearchInput'
       />
-      <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
-        <SearchIcon />
-      </IconButton>
     </Paper>
   );
 };

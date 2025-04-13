@@ -149,3 +149,18 @@ export const addQuantityToElements = (elements: StructureElement[]): StructureEl
         };
     });
 };
+
+export const filterTree = (nodes: StructureElement[], query: string): StructureElement[] => {
+    return nodes
+        .map((node) => {
+            const children = filterTree(node.children || [], query);
+            const isMatch =
+                node.data.Entity?.toString().toLowerCase().includes(query.toLowerCase()) ||
+                node.data.Name?.toString().toLowerCase().includes(query.toLowerCase());
+            if (isMatch || children.length > 0) {
+                return { ...node, children };
+            }
+            return null;
+        })
+        .filter((node) => node !== null) as StructureElement[];
+}

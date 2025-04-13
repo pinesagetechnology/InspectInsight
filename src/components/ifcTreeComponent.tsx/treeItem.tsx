@@ -12,7 +12,6 @@ import { getVisibilityOffIcons } from "../../store/IFCViewer/selectors";
 interface TreeItemProps {
     node: StructureElement;
     expandedNodes: string[];
-    currentSelection?: string;
     toggleExpand: (id: string) => void;
     onItemClick: (node: StructureElement) => void;
     onVisibilityChange: (node: StructureElement) => void;
@@ -22,7 +21,6 @@ interface TreeItemProps {
 const TreeItemComponent: React.FC<TreeItemProps> = ({
     node,
     expandedNodes,
-    currentSelection,
     toggleExpand,
     onItemClick,
     onVisibilityChange,
@@ -89,7 +87,6 @@ const TreeItemComponent: React.FC<TreeItemProps> = ({
                         key={child.data.expressID?.toString() || child.data.Entity?.toString()}
                         node={child}
                         expandedNodes={expandedNodes}
-                        currentSelection={currentSelection}
                         toggleExpand={toggleExpand}
                         onItemClick={onItemClick}
                         onVisibilityChange={onVisibilityChange}

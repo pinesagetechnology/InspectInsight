@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getVisibilityOffIcons } from "../../store/IFCViewer/selectors";
 import * as actions from "../../store/IFCViewer/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
+import { filterTree } from "../../helper/ifcTreeManager";
 
 interface TreeViewComponentProps {
   treeData: StructureElement[];
@@ -26,28 +27,13 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
   const [currentSelection, setCurrentSelection] = useState<string>();
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
-  const filterTree = (nodes: StructureElement[], query: string): StructureElement[] => {
-    return nodes
-      .map((node) => {
-        const children = filterTree(node.children || [], query);
-        const isMatch =
-          node.data.Entity?.toString().toLowerCase().includes(query.toLowerCase()) ||
-          node.data.Name?.toString().toLowerCase().includes(query.toLowerCase());
-        if (isMatch || children.length > 0) {
-          return { ...node, children };
-        }
-        return null;
-      })
-      .filter((node) => node !== null) as StructureElement[];
-  };
-
   const filteredTreeData = searchQuery ? filterTree(treeData, searchQuery) : treeData;
 
   const toggleExpand = (id: string) => {
     setExpandedNodes((prev) =>
       prev.includes(id) ? prev.filter((nodeId) => nodeId !== id) : [...prev, id]
     );
-  };
+  }
 
   const onItemClickHandler = (node: StructureElement) => {
     const selectionIdentifier = node.data.expressID?.toString() || node.data.Entity?.toString();
@@ -57,7 +43,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
         handleTreeItemClick(node);
       }
     }
-  };
+  }
 
   const updateTreeItemVisibilityOff = (node: StructureElement): boolean => {
     const nodeId = node.data.expressID?.toString() || "";
@@ -74,17 +60,17 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
       } as PayloadAction<string>);
     }
     return found;
-  };
+  }
 
   const onVisibilityChangeHandler = (node: StructureElement) => {
     const isVisible = updateTreeItemVisibilityOff(node);
     handleFragmentVisibilityChange(node, isVisible);
-  };
+  }
 
   const onHideAll = (node: StructureElement) => {
     const isVisible = updateTreeItemVisibilityOff(node);
     updateChildItemVisbilityOffRecusrsivly(node, isVisible);
-  };
+  }
 
   const updateChildItemVisbilityOffRecusrsivly = (node: StructureElement, isVisible: boolean) => {
     node.children?.forEach((child) => {
@@ -119,7 +105,6 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
             key={node.data.expressID?.toString() || node.data.Entity?.toString()}
             node={node}
             expandedNodes={expandedNodes}
-            currentSelection={currentSelection}
             toggleExpand={toggleExpand}
             onItemClick={onItemClickHandler}
             onVisibilityChange={onVisibilityChangeHandler}
