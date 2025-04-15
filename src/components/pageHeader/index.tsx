@@ -13,7 +13,7 @@ import { RoutesValueEnum } from "../../enums";
 
 const PageHeader: React.FC = () => {
   const dispatch = useDispatch();
-  const { goTo } = useNavigationManager();
+  const { goTo, getCurrentPageName } = useNavigationManager();
   const stepList = useSelector(getStepsState);
   const currentStep = useSelector(getCurrentStep);
   const selectedStructure = useSelector(getCurrentStructure);
@@ -55,7 +55,11 @@ const PageHeader: React.FC = () => {
       goTo(stepList[currentStep - 1].path);
     }
     else {
-      goTo(RoutesValueEnum.Home);
+      if (getCurrentPageName() === RoutesValueEnum.PreviousInspectionDetail) {
+        goTo(RoutesValueEnum.PreviousInspection);
+      } else {
+        goTo(RoutesValueEnum.Home);
+      }
     }
 
   };
