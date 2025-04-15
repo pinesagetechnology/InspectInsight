@@ -8,6 +8,7 @@ import InspectionCommentState from "./InspectionComment/slice";
 import SystemAvailabilitySlice from "./SystemAvailability/slice";
 import LoadingOverlayState from "./Common/slice";
 import ReviewAndSubmitState from "./ReviewandSubmit/slice";
+import IFCViewerState from "./IFCViewer/slice";
 import LocalStorageSlice from "./LocalStorage/slice";
 
 const rootReducer = combineReducers({
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
     SystemAvailabilitySlice,
     LoadingOverlayState,
     ReviewAndSubmitState,
-    LocalStorageSlice
+    LocalStorageSlice,
+    IFCViewerState,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -14,6 +14,7 @@ import {
   styled,
   IconButton,
   Tooltip,
+  Grid2 as Grid
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -26,6 +27,10 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
+import SearchBarComponent from '../../components/ifcTreeComponent.tsx/searchBar';
+import { getElementHistory } from '../../store/ConditionRating/selectors';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import { filterTree } from '../../helper/ifcTreeManager';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: '#fff',
@@ -64,10 +69,15 @@ const RatingInput = styled(TextField)({
 
 const StructureElementGrid: React.FC = () => {
   const displayElements = useSelector(getDisplayElementList);
+  const elementHistory: StructureElement[][] = useSelector(getElementHistory);
   const [open, setOpen] = useState<boolean>(false);
 
   const [originalCondition, setOriginalCondition] = useState<number[]>([]);
   const [editRowId, setEditRowId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [goBackLabel, setGoBackLabel] = useState<string>('');
+
+  const filteredTreeData = searchQuery ? filterTree(displayElements, searchQuery) : displayElements;
 
   const dispatch = useDispatch();
 
@@ -76,6 +86,10 @@ const StructureElementGrid: React.FC = () => {
       type: actions.RESET_CONDITION_RATING_DISPLAY_TABLE
     } as PayloadAction)
   }, [])
+
+  useEffect(() => {
+    setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
+  }, [elementHistory])
 
   const handleConditionChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -208,114 +222,140 @@ const StructureElementGrid: React.FC = () => {
     }
   }
 
+  const handleBack = () => {
+    dispatch({
+      type: actions.HANDLE_BACK_CLICK_SAGA
+    } as PayloadAction);
+  }
+
+
   return (
     <React.Fragment>
       <RMADialog
         handleClose={handleClose}
         modalState={open}
       />
-      <TableContainer component={Paper}>
-        <Table aria-label="collapsible table">
-          <TableHead>
-            <TableRow>
-              <StyledTableHeaderCell>ID</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Name</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
-              <StyledTableHeaderCell>Action</StyledTableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayElements?.map((element: StructureElement) => (
-              <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
-                <StyledTableCell>{element.data.expressID}</StyledTableCell>
-                <StyledTableCell>{element.data.Entity}</StyledTableCell>
-                <StyledTableCell>{element.data.Name}</StyledTableCell>
-                <StyledTableCell>{(element.quantity)}</StyledTableCell>
-                <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}>
-                  {!element.children?.length && (
-                    <Stack direction="row" spacing={1}>
-                      {[0, 1, 2, 3].map((_, index) => {
-                        const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                        const focusedKey = `${element.data.expressID}-${index}`;
-                        return (editRowId === element.data.expressID) ? (
-                          <RatingInput
-                            key={focusedKey}
-                            variant="outlined"
-                            value={fieldValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              const newValue = parseInt(e.target.value) || 0;
-                              if (newValue >= 0 && newValue <= 4) {
-                                handleConditionChange(e, element.data.expressID, index)
-                              }
-                            }}
-                            slotProps={{
-                              input: {
-                                type: 'number'
-                              }
-                            }}
-                          />
+      <Stack direction={'column'}>
+        <Grid container sx={{ margin: '10px 5px' }} spacing={2}>
+          <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}>
+            <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
 
-                        ) : (
-                          <Item key={focusedKey}>{fieldValue}</Item>
-                        );
-                      })}
-                    </Stack>
-                  )}
-                </StyledTableCell>
-                <StyledTableCell>
-                  <Stack direction={'row'} spacing={2}>
-                    {!element.children?.length && (
-                      <React.Fragment>
-                        {(editRowId === element.data.expressID) ?
-                          (<React.Fragment>
-                            <Tooltip title="Add assessmentg">
-                              <IconButton
-                                color="primary"
-                                onClick={addAssessmentOnClick(element)}>
-                                <PostAddIcon />
-                              </IconButton>
-                            </Tooltip>
+          </Grid>
+          <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}>
+            {elementHistory.length > 0 && (
+              <Button onClick={handleBack} startIcon={<KeyboardReturnIcon />} color="primary">
+                {`Go Back to ${goBackLabel}`}
+              </Button>
+            )}
+          </Grid>
+          <Grid size={4}>
 
-                            <Tooltip title="Save condition rating">
-                              <IconButton
-                                color="success"
-                                onClick={saveOnClick(element)}>
-                                <SaveIcon />
-                              </IconButton>
-                            </Tooltip>
+          </Grid>
+        </Grid>
 
-                            <Tooltip title="Cancel condition rating">
-                              <IconButton
-                                color="secondary"
-                                onClick={cancelOnClick(element.data.expressID)}>
-                                <CancelIcon />
-                              </IconButton>
-                            </Tooltip>
-
-                          </React.Fragment>)
-                          :
-                          (
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              startIcon={<TroubleshootIcon />}
-                              disabled={(!!editRowId && element.data.expressID !== editRowId)}
-                              onClick={editOnClick(element.data.expressID)}>
-                              Add rating
-                            </Button>
-                          )
-                        }
-                      </React.Fragment>
-                    )}
-                  </Stack>
-                </StyledTableCell>
+        <TableContainer component={Paper}>
+          <Table aria-label="collapsible table">
+            <TableHead>
+              <TableRow>
+                <StyledTableHeaderCell>ID</StyledTableHeaderCell>
+                <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                <StyledTableHeaderCell>Name</StyledTableHeaderCell>
+                <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
+                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
+                <StyledTableHeaderCell>Action</StyledTableHeaderCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredTreeData?.map((element: StructureElement) => (
+                <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
+                  <StyledTableCell>{element.data.expressID}</StyledTableCell>
+                  <StyledTableCell>{element.data.Entity}</StyledTableCell>
+                  <StyledTableCell>{element.data.Name}</StyledTableCell>
+                  <StyledTableCell>{(element.quantity)}</StyledTableCell>
+                  <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}>
+                    {!element.children?.length && (
+                      <Stack direction="row" spacing={1}>
+                        {[0, 1, 2, 3].map((_, index) => {
+                          const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
+                          const focusedKey = `${element.data.expressID}-${index}`;
+                          return (editRowId === element.data.expressID) ? (
+                            <RatingInput
+                              key={focusedKey}
+                              variant="outlined"
+                              value={fieldValue}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newValue = parseInt(e.target.value) || 0;
+                                if (newValue >= 0 && newValue <= 4) {
+                                  handleConditionChange(e, element.data.expressID, index)
+                                }
+                              }}
+                              slotProps={{
+                                input: {
+                                  type: 'number'
+                                }
+                              }}
+                            />
+
+                          ) : (
+                            <Item key={focusedKey}>{fieldValue}</Item>
+                          );
+                        })}
+                      </Stack>
+                    )}
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <Stack direction={'row'} spacing={2}>
+                      {!element.children?.length && (
+                        <React.Fragment>
+                          {(editRowId === element.data.expressID) ?
+                            (<React.Fragment>
+                              <Tooltip title="Add assessmentg">
+                                <IconButton
+                                  color="primary"
+                                  onClick={addAssessmentOnClick(element)}>
+                                  <PostAddIcon />
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Save condition rating">
+                                <IconButton
+                                  color="success"
+                                  onClick={saveOnClick(element)}>
+                                  <SaveIcon />
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Cancel condition rating">
+                                <IconButton
+                                  color="secondary"
+                                  onClick={cancelOnClick(element.data.expressID)}>
+                                  <CancelIcon />
+                                </IconButton>
+                              </Tooltip>
+
+                            </React.Fragment>)
+                            :
+                            (
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                startIcon={<TroubleshootIcon />}
+                                disabled={(!!editRowId && element.data.expressID !== editRowId)}
+                                onClick={editOnClick(element.data.expressID)}>
+                                Add rating
+                              </Button>
+                            )
+                          }
+                        </React.Fragment>
+                      )}
+                    </Stack>
+                  </StyledTableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Stack>
     </React.Fragment>
   );
 };

@@ -5,10 +5,12 @@ export enum RoutesValueEnum {
     InspectorComments = 'inspectorComments',
     InspectionReview = 'inspectionReview',
     PreviousInspection = 'previousInspection',
+    PreviousInspectionDetail = 'previousInspectionDetal',
     BridgeInspectionApp = 'BridgeInspectionApp',
 }
 
 export enum BrowserStorageKey {
+    StructureData = "structureData",
     InspectionDetail = "inspectionDetail",
     ConditionRating = "conditionRating",
     MaintenanceAction = "maintenanceAction",

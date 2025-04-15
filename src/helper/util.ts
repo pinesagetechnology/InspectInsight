@@ -1,35 +1,17 @@
-import { BrowserStorageKey } from "../enums";
-
-
 export const addDays = (date: Date, days: number) => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
 };
 
-export const saveToStorage = (key: BrowserStorageKey, state: any) => {
-  try {
-    const serializedState = JSON.stringify(state);
-    localStorage.setItem(key, serializedState); // Or use sessionStorage
-  } catch (e) {
-    throw (`Could not store form data ${key}`);
+export const getColorForRating = (rating: number): number => {
+  if (rating >= 1 || rating < 4) {
+    return 0xff0000; // red
+  } else if (rating >= 4 || rating < 7) {
+    return 0xffa500; // orange
+  } else if (rating >= 7 || rating < 9) {
+    return 0x7fff00; // yellow-green
+  } else {
+    return 0x00ff00; // green
   }
-}
-
-export const removeToStorage = (key: BrowserStorageKey) => {
-  try {
-    localStorage.removeItem(key);
-  } catch (e) {
-    throw (`Could not remove item form store: ${key}`);
-  }
-}
-
-export const getLocalStorage = (key: BrowserStorageKey) => {
-  const savedState = localStorage.getItem(key);
-  if (savedState) {
-    const initialValue = JSON.parse(savedState);
-
-    return initialValue || "";
-
-  }
-}
+};

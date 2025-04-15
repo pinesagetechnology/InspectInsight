@@ -16,12 +16,9 @@ import {
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
-import { getPreviousInspection, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
-import { useDispatch } from 'react-redux';
-import * as actions from "../../store/Inspection/actions";
+import { selectedPreviousInspectionData, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { StructureElement } from '../../entities/structure';
-
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -67,14 +64,13 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
   fontWeight: 500,
 }));
 
-
 const PreviousInspectionPage: React.FC = () => {
-
-  const previousInspect = useSelector(getPreviousInspection);
+  const previousInspect = useSelector(selectedPreviousInspectionData);
+  
   const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
 
   return (
-    <FormPageWrapper>
+    <FormPageWrapper isFooterVisible={false}>
       <Box mt={4}>
         {/* Inspection Details Section */}
         <ReportSection defaultExpanded>

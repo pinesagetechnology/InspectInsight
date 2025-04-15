@@ -1,63 +1,33 @@
-import React, { useCallback, useState } from "react";
-// import { TableGroupData } from "@thatopen/ui";
-import { IconButton, InputBase, Paper, Stack, Typography } from "@mui/material";
-import SearchIcon from '@mui/icons-material/Search';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import styles from "./style.module.scss";
+import React, { useState } from "react";
+import TreeItem from "./treeItem";
+import SearchBar from "./searchBar";
 import { StructureElement } from "../../entities/structure";
+import styles from "./style.module.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { getVisibilityOffIcons } from "../../store/IFCViewer/selectors";
+import * as actions from "../../store/IFCViewer/actions";
+import { PayloadAction } from "@reduxjs/toolkit";
+import { filterTree } from "../../helper/ifcTreeManager";
 
 interface TreeViewComponentProps {
   treeData: StructureElement[];
-  handleClick: (item: StructureElement) => void;
+  handleTreeItemClick: (item: StructureElement) => void;
   handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
 }
 
 const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
   treeData,
-  handleClick,
-  handleFragmentVisibilityChange
+  handleTreeItemClick,
+  handleFragmentVisibilityChange,
 }) => {
+  const dispatch = useDispatch();
+  const visibilityOffList: string[] = useSelector(getVisibilityOffIcons);
+
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [currntSelection, setCurrentSelection] = useState<string>();
+  const [currentSelection, setCurrentSelection] = useState<string>();
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
-  const [visiblityOffList, setVisiblityOffList] = useState<string[]>([]);
-
-  const filterTree = (nodes: StructureElement[], query: string): StructureElement[] => {
-    return nodes
-      .map((node) => {
-        const children = filterTree(node.children || [], query);
-        const isMatch = node?.data?.Entity?.toString().toLowerCase().includes(query.toLowerCase()) ||
-          node?.data?.Name?.toString().toLowerCase().includes(query.toLowerCase());
-
-        if (isMatch || children.length > 0) {
-          return { ...node, children };
-        }
-        return null;
-      })
-      .filter((node) => node !== null) as StructureElement[];
-  };
 
   const filteredTreeData = searchQuery ? filterTree(treeData, searchQuery) : treeData;
-
-  const onVisibilityChangeHandler = (node: StructureElement) => {
-    const found = visiblityOffList.find(x => x === node.data.expressID?.toString());
-    const isVisible = (found) ? true : false;
-
-    if (found) {
-      setVisiblityOffList(prev => {
-        return prev.filter(x => x !== found)
-      })
-    } else {
-      setVisiblityOffList(prev => {
-        return [...prev, node.data.expressID?.toString()!];
-      })
-    }
-
-    handleFragmentVisibilityChange(node, isVisible);
-  };
 
   const toggleExpand = (id: string) => {
     setExpandedNodes((prev) =>
@@ -65,99 +35,83 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
     );
   }
 
-  const onItemClickhandler = (node: StructureElement) => {
+  const onItemClickHandler = (node: StructureElement) => {
     const selectionIdentifier = node.data.expressID?.toString() || node.data.Entity?.toString();
-
-    if (currntSelection !== selectionIdentifier) {
+    if (currentSelection !== selectionIdentifier) {
       setCurrentSelection(selectionIdentifier);
-
-      if (node.children?.length === 0) {
-        handleClick(node);
+      if (!node.children || node.children.length === 0) {
+        handleTreeItemClick(node);
       }
     }
   }
 
-  const showVisibleIcon = useCallback((node: StructureElement): React.ReactNode => {
-    const found = visiblityOffList?.find(x => x === node.data.expressID?.toString());
-    if (found)
-      return (< IconButton color="error" onClick={() => onVisibilityChangeHandler(node)}>
-        <VisibilityOffIcon />
-      </IconButton >)
-    else {
-      return (< IconButton color="success" onClick={() => onVisibilityChangeHandler(node)}>
-        <VisibilityIcon />
-      </IconButton >)
+  const updateTreeItemVisibilityOff = (node: StructureElement): boolean => {
+    const nodeId = node.data.expressID?.toString() || "";
+    const found = visibilityOffList.includes(nodeId);
+    if (found) {
+      dispatch({
+        type: actions.REMOVE_VISIBILITY_ICON,
+        payload: nodeId,
+      } as PayloadAction<string>);
+    } else {
+      dispatch({
+        type: actions.ADD_VISIBILITY_ICON,
+        payload: nodeId,
+      } as PayloadAction<string>);
     }
-  }, [visiblityOffList])
+    return found;
+  }
 
-  const renderTree = (nodes: StructureElement) => {
-    const nodeId = nodes.data.expressID?.toString() || `${nodes.data.Entity?.toString()}`;
-    const isExpanded = expandedNodes.includes(nodeId);
-    const hasChildren = !!nodes.children && nodes.children.length > 0;
+  const onVisibilityChangeHandler = (node: StructureElement) => {
+    const isVisible = updateTreeItemVisibilityOff(node);
+    handleFragmentVisibilityChange(node, isVisible);
+  }
 
-    return (
-      <div id="treeItemContainer"
-        className={styles.treeItemContainer}
-        key={nodeId}>
-        <div
-          id="treeItem"
-          className={styles.treeItem}
-          onClick={() => hasChildren && toggleExpand(nodeId)}
-        >
-          {hasChildren ? (
-            <span className={styles.hasChildrenTreeArrow}>
-              {isExpanded ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
-            </span>
-          ) : (
-            <span className={styles.noChildrenTreeArrow} />
-          )}
-          {
-            !hasChildren && (
-              showVisibleIcon(nodes)
-            )
-          }
-          <span onClick={() => onItemClickhandler(nodes)}>
-            <Stack direction={"column"}>
-              <Typography variant="subtitle2" gutterBottom>
-                {nodes?.data?.Entity?.toString()}
-              </Typography>
-              <Typography variant="caption" gutterBottom sx={{ display: 'block' }}>
-                {nodes?.data?.Name?.toString()}
-              </Typography>
-            </Stack>
-          </span>
-        </div>
+  const onHideAll = (node: StructureElement) => {
+    const isVisible = updateTreeItemVisibilityOff(node);
+    updateChildItemVisbilityOffRecusrsivly(node, isVisible);
+  }
 
-        {isExpanded &&
-          hasChildren &&
-          nodes.children?.map((child) => renderTree(child))}
-      </div>
-    );
+  const updateChildItemVisbilityOffRecusrsivly = (node: StructureElement, isVisible: boolean) => {
+    node.children?.forEach((child) => {
+      if (isVisible) {
+        dispatch({
+          type: actions.REMOVE_VISIBILITY_ICON,
+          payload: child.data.expressID?.toString() || "",
+        } as PayloadAction<string>);
+      } else {
+        dispatch({
+          type: actions.ADD_VISIBILITY_ICON,
+          payload: child.data.expressID?.toString() || "",
+        } as PayloadAction<string>);
+      }
+
+      if (child.children && child.children.length > 0) {
+        updateChildItemVisbilityOffRecusrsivly(child, isVisible);
+      } else {
+        handleFragmentVisibilityChange(child, isVisible);
+      }
+    });
   }
 
   return (
     <React.Fragment>
       <div>
-        <Paper
-          component="form"
-          className={styles.searchContainer}
-        >
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="Search..."
-            onChange={(e) => setSearchQuery(e.target.value)}
-            value={searchQuery}
-          />
-          <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-            <SearchIcon />
-          </IconButton>
-        </Paper>
+        <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       </div>
-
       <div className={styles.treeItemsContainer}>
-        {filteredTreeData.map((node) => renderTree(node))}
+        {filteredTreeData.map((node) => (
+          <TreeItem
+            key={node.data.expressID?.toString() || node.data.Entity?.toString()}
+            node={node}
+            expandedNodes={expandedNodes}
+            toggleExpand={toggleExpand}
+            onItemClick={onItemClickHandler}
+            onVisibilityChange={onVisibilityChangeHandler}
+            onHideAll={onHideAll}
+          />
+        ))}
       </div>
-
     </React.Fragment>
   );
 };

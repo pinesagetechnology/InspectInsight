@@ -1,22 +1,24 @@
-import React from 'react'
+import React, { useCallback } from 'react';
 import {
-    Card,
-    CardContent,
-    Typography,
-    Grid2 as Grid,
-    Divider,
-    Stack,
     Button,
-    Box,
+    Grid2 as Grid,
+    Typography,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    AccordionActions,
     styled
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Structure } from '../../entities/structure';
+import { ChevronRight, Navigation, History, DirectionsOutlined } from '@mui/icons-material';
 import { useNavigationManager } from '../../navigation';
 import { useDispatch } from 'react-redux';
-import { RoutesValueEnum } from '../../enums';
 import * as actions from "../../store/Inspection/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { ChevronRight, LocationOn, Navigation, History, DirectionsOutlined } from '@mui/icons-material';
+import { RoutesValueEnum } from '../../enums';
+import { useSelector } from 'react-redux';
+import { getCurrentStructure } from '../../store/Structure/selectors';
 import { defaultDateValue } from '../../constants';
 
 const DetailLabel = styled(Typography)(({ theme }) => ({
@@ -43,25 +45,24 @@ const ActionButton = styled(Button)(({ theme, variant }) => ({
     borderRadius: theme.shape.borderRadius
 }));
 
-interface StructureDetailSectionProps {
-    selectedStructure: Structure;
+interface RowComponentProps {
+    structure: Structure;
+    onSelectStructure: (structure: Structure) => void;
     onStartClickHandler: () => void;
 }
 
-const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProps> = ({
-    selectedStructure,
-    onStartClickHandler
+const RowComponent: React.FC<RowComponentProps> = ({
+    structure,
+    onSelectStructure,
+    onStartClickHandler,
 }) => {
     const { goTo } = useNavigationManager();
     const dispatch = useDispatch();
+    const selectedStructure = useSelector(getCurrentStructure);
 
-    const handleGetDirections = () => {
-        if (selectedStructure) {
-            // Open Google Maps directions
-            const { latitude, longitude } = selectedStructure.location;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`);
-        }
-    };
+    const onRowSelectionhandler = useCallback(() => {
+        onSelectStructure(structure);
+    }, [structure, onSelectStructure]);
 
     const handleViewPreviousInspections = () => {
         dispatch({
@@ -71,43 +72,44 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
         goTo(RoutesValueEnum.PreviousInspection);
     }
 
-    return (
-        <Card
-            elevation={3}
-            sx={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                borderTopLeftRadius: 16,
-                borderTopRightRadius: 16,
-                maxHeight: '70vh',
-                overflow: 'auto'
-            }}
-        >
-            {/* Header with location info */}
-            <CardContent sx={{ pb: 1, margin: '0px 24px' }}>
-                <Stack direction="row" alignItems="flex-start" spacing={2} mb={2}>
-                    <LocationOn color="action" />
-                    <Box>
-                        <Typography variant="h6" gutterBottom>
-                            {selectedStructure.name}
-                        </Typography>
-                        <Typography color="text.secondary" fontSize="0.875rem">
-                            {`${selectedStructure.location.latitude}, ${selectedStructure.location.longitude}`}
-                        </Typography>
-                    </Box>
-                </Stack>
+    const handleGetDirections = () => {
+        if (selectedStructure) {
+            // Open Google Maps directions
+            const { latitude, longitude } = selectedStructure.location;
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`);
+        }
+    }
 
-                {/* Details Grid */}
+    return (
+        <Accordion
+            onChange={() => onRowSelectionhandler()}
+        >
+            <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="structureItemRow"
+                id="structureItemRowDetail"
+            >
+                <Grid container spacing={1} sx={{ width: '100%' }}>
+                    <Grid size={4}>
+                        <DetailLabel>Code</DetailLabel>
+                        <DetailValue>{structure.code}</DetailValue>
+                    </Grid>
+                    <Grid size={4}>
+                        <DetailLabel>Structure Name</DetailLabel>
+                        <DetailValue>{structure.name}</DetailValue>
+                    </Grid>
+
+                    <Grid size={4}>
+                        <DetailLabel>Over</DetailLabel>
+                        <DetailValue>{structure.over}</DetailValue>
+                    </Grid>
+                </Grid>
+            </AccordionSummary>
+            <AccordionDetails>
                 <Grid container spacing={3} mb={3}>
                     <Grid size={4}>
                         <DetailLabel>Next Inspection Date</DetailLabel>
                         <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : ""}</DetailValue>
-                    </Grid>
-                    <Grid size={4}>
-                        <DetailLabel>Code</DetailLabel>
-                        <DetailValue>{selectedStructure.code}</DetailValue>
                     </Grid>
                     <Grid size={4}>
                         <DetailLabel>Type</DetailLabel>
@@ -117,10 +119,6 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                     <Grid size={4}>
                         <DetailLabel>Last Inspection Date</DetailLabel>
                         <DetailValue>{selectedStructure.lastInspectionDate}</DetailValue>
-                    </Grid>
-                    <Grid size={4}>
-                        <DetailLabel>Over</DetailLabel>
-                        <DetailValue>{selectedStructure.over}</DetailValue>
                     </Grid>
                     <Grid size={4}>
                         <DetailLabel>Overall Length</DetailLabel>
@@ -149,11 +147,10 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                         <DetailValue>{selectedStructure.minVert}</DetailValue>
                     </Grid>
                 </Grid>
-
-                <Divider sx={{ my: 2 }} />
-
+            </AccordionDetails>
+            <AccordionActions>
                 {/* Action Buttons */}
-                <Grid container spacing={2}>
+                <Grid container spacing={2} sx={{width: '100%'}}>
                     <Grid size={4}>
                         <ActionButton
                             variant="contained"
@@ -185,9 +182,9 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                         </ActionButton>
                     </Grid>
                 </Grid>
-            </CardContent>
-        </Card>
-    )
-}
+            </AccordionActions>
+        </Accordion>
+    );
+};
 
-export default StructureDetailSection;
+export default RowComponent;

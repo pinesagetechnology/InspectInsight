@@ -8,18 +8,19 @@ import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewCom
 import { useDispatch } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as WEBIFC from 'web-ifc';
-import { Paper } from "@mui/material";
+import { Paper, Grid2 as Grid } from "@mui/material";
 import classNames from 'classnames';
 import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
 import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
+import { getRatedElements } from "../../store/ConditionRating/selectors";
 import AssessmentPanel from "./assessmentPanel";
 import styles from "./style.module.scss";
-
+import { PayloadAction } from "@reduxjs/toolkit";
+import * as ratingActions from "../../store/ConditionRating/actions";
 
 const selectHighlighterName: string = "select";
-// const inverseAttributes: OBC.InverseAttribute[] = ["IsDecomposedBy", "ContainsElements"];
 const Plan: string = "Plan";
 const Orbit: string = "Orbit";
 
@@ -32,6 +33,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 }) => {
     const dispatch = useDispatch();
     const structureElements: StructureElement[] = useSelector(getStructureElements);
+    const ratedElements: StructureElement[] = useSelector(getRatedElements);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const hiderRef = useRef<OBC.Hider>();
     const highlighterRef = useRef<OBF.Highlighter>();
@@ -43,11 +45,11 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [isMeasurementMode, setIsMeasurementMode] = useState(false);
     const [isClipperOn, setIsClipperOn] = useState(false);
+    const [showRatings, setShowRatings] = useState(true);
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
     const selectedItemsRef = useRef<string[]>([]);
 
-    // const [treeData, setTreeData] = useState<BUI.TableGroupData[]>([]); 
     const [isShowTree, setIsShowTree] = useState(true);
     const [labels, setLabels] = useState<THREE.Sprite[]>([])
     const [model, setModel] = useState<FRAGS.FragmentsGroup>();
@@ -58,6 +60,69 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const [showConditionPanel, setShowConditionPanel] = useState(false);
 
     const components = new OBC.Components();
+
+    // Utility function to determine color based on rating
+    const getColorForRating = (rating: number): THREE.Color => {
+        // Map rating to a color (green for good, yellow for medium, red for poor)
+        if (rating <= 1.5) return new THREE.Color(0x00ff00); // Good - Green
+        if (rating <= 2.5) return new THREE.Color(0xffff00); // Medium - Yellow
+        if (rating <= 3.5) return new THREE.Color(0xff9900); // Poor - Orange
+        return new THREE.Color(0xff0000); // Very Poor - Red
+    };
+
+    // Function to highlight rated elements
+    const highlightRatedElements = () => {
+        if (model && ratedElements && ratedElements.length > 0 && highlighterRef.current) {
+            if (!showRatings) return;
+            ratedElements.forEach((item) => {
+                if (item.condition && item.condition.length > 0) {
+                    // Calculate average rating
+                    let sum = 0;
+                    let count = 0;
+                    for (let i = 0; i < item.condition.length; i++) {
+                        if (item.condition[i] > 0) {
+                            sum += item.condition[i];
+                            count++;
+                        }
+                    }
+
+                    if (count > 0) {
+                        const avgRating = sum / count;
+                        const color = getColorForRating(avgRating);
+                        const fragmentIDMap = getRowFragmentIdMap(model, item.data);
+                        
+                        if (fragmentIDMap) {
+                            const fragments = fragMgr?.list;
+                            if (fragments) {
+                                Object.keys(fragmentIDMap).forEach(fragmentId => {
+
+                                    const fragment = fragments.get(fragmentId);
+                                    if (fragment) {
+
+                                        fragment.mesh.material[0] = new THREE.MeshBasicMaterial({
+                                            color: color,
+                                            transparent: true,
+                                            opacity: 0.5,
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    // Toggle showing ratings
+    const toggleRatings = () => {
+        setShowRatings(!showRatings);
+        if (!showRatings) {
+            highlightRatedElements();
+        } else{
+            //undo coloring
+        }
+    };
 
     useEffect(() => {
         selectedItemsRef.current = selectedItems;
@@ -70,6 +135,13 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     useEffect(() => {
         isClipperOnRef.current = isClipperOn;
     }, [isClipperOn]);
+
+    // Apply highlighting when rated elements change
+    useEffect(() => {
+        if (model && highlighterRef.current) {
+            highlightRatedElements();
+        }
+    }, [ratedElements, model, showRatings]);
 
     useEffect(() => {
         if (!containerRef.current) {
@@ -118,6 +190,18 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             console.error("Highlighter could not be initialized.");
         }
 
+        highlighter.events.select.onHighlight.add((fragmentIdMap) => {
+            const fragmentId = Object.keys(fragmentIdMap)[0];
+            const fragmentExpressId = fragmentIdMap[fragmentId].values().next().value;
+
+            dispatch({
+                type: ratingActions.SET_SELECTED_ELEMENT,
+                payload: fragmentExpressId
+            } as PayloadAction<number>);
+            
+            setShowConditionPanel(prev => !prev);
+        });
+
         const dimensions = components.get(OBF.LengthMeasurement);
         if (dimensions) {
             dimensions.world = world;
@@ -139,6 +223,9 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         world.meshes.add(child);
                     }
                 }
+
+                // Apply rating highlights after model is loaded
+                highlightRatedElements();
             }
         });
 
@@ -189,7 +276,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
         container.ondblclick = onContainerDoubleClick;
 
-        container.onclick = onContainerClick;
+        // container.onclick = onContainerClick;
 
         window.onkeydown = (event: KeyboardEvent) => {
             if (event.code === "Delete") {
@@ -281,12 +368,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }, [])
 
     const onContainerClick = (event: MouseEvent) => {
-        setShowConditionPanel((prev) => {
-            if (prev === false) {
-                return true;
-            }
-            return prev
-        });
+        console.log("onContainerClick", "the event is not being used - To be removed later");
         if (!isClipperOnRef.current && !isMeasurementModeRef.current) {
             const rect = containerRef.current?.getBoundingClientRect();
             const mouse = new THREE.Vector2(
@@ -304,7 +386,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             if (intersects.length > 0) {
                 const selectedMesh = intersects[0].object;
                 // Toggle disabled state; here we always set it to disabled for demonstration.
-                toggleDisabled(selectedMesh);
+                // toggleDisabled(selectedMesh);
             }
         }
     }
@@ -329,20 +411,13 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleClick = (item: StructureElement) => {
+    const handleTreeItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
             if (fragmentIDMap && !isMeasurementMode) {
                 highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
             }
-
-            setShowConditionPanel((prev) => {
-                if (prev === false) {
-                    return true;
-                }
-                return prev
-            });
         }
     }
 
@@ -362,7 +437,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                     hiderRef.current.set(isVisible, fragmentMap);
                 }
             }
-
         }
     }
 
@@ -451,65 +525,12 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     }
 
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        elementId: number,
-        index: number
-    ) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        // if (onlyNums) {
-        //     const num = parseInt(onlyNums, 10);
-        //     if (num >= 1 && num <= 4) { // Ensure the number is between 1 and 4
-        //         const newData = displayElements.map((item) => {
-        //             if (item.elementId === elementId) {
-        //                 const newConditions: number[] = [0, 0, 0, 0];
-        //                 [0, 1, 2, 3].forEach(x => {
-        //                     if (index === x) {
-        //                         newConditions[x] = num;
-        //                     } else if (item.condition && item.condition![x]) {
-        //                         newConditions[x] = item.condition![x];
-        //                     } else {
-        //                         newConditions[x] = 0;
-        //                     }
-
-        //                 });
-
-        //                 return { ...item, condition: newConditions };
-        //             }
-        //             return item;
-        //         });
-
-        //         dispatch({
-        //             payload: newData,
-        //             type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        //         });
-        //     }
-        // } else {
-        //     // Handle the case where the input is cleared or invalid
-        //     const newData = displayElements.map((item) => {
-        //         if (item.elementId === elementId) {
-        //             const newConditions = [...(item.condition || [])];
-
-        //             newConditions[index] = 0;
-
-        //             return { ...item, condition: newConditions };
-        //         }
-        //         return item;
-        //     });
-
-        //     dispatch({
-        //         payload: newData,
-        //         type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        //     });
-        // }
-    };
-
     const onShowConditionPanelClickHandler = () => {
         setShowConditionPanel(prev => !prev);
     }
 
-    // Define a function to toggle the mesh's material.
     const toggleDisabled = (mesh: THREE.Object3D) => {
+        console.log("toggleDisabled", "toggle function is being called - to be removed later");
         let isDisabled: boolean = false;
 
         if (selectedItemsRef.current.includes(mesh.uuid)) {
@@ -545,37 +566,46 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
-            <ViewerMenu
-                isClipperOn={isClipperOn}
-                isMeasurementMode={isMeasurementMode}
-                isPanSelected={isPanSelected}
-                isOrbitSelected={isOrbitSelected}
-                onClipperClick={onClipperClick}
-                onMeasurementClick={onMeasurementClick}
-                onFitScreenClick={onFitScreenClick}
-                onOrbitCameraClick={onOrbitCameraClick}
-                onPanCameraClick={onPanCameraClick}
-                removeAllLineMeasurement={removeAllLineMeasurement}
-                removeClipper={removeClipper}
-                showConditionPanelHandler={onShowConditionPanelClickHandler}
-                showstructureDetail={showstructureDetail}
-            />
+            <Grid container spacing={2}>
+                <Grid size={12}>
+                    <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
 
-            <Paper elevation={0} className={classNames(styles.treeViewerContainer, (isShowTree) ? styles.showTreePanel : styles.hideTreePanel)}>
-                {
-                    model?.uuid &&
-                    <TreeViewComponent
-                        treeData={structureElements}
-                        handleClick={handleClick}
-                        handleFragmentVisibilityChange={handleHideSelectedFragment} />
-                }
-            </Paper>
+                    <Paper elevation={0} className={classNames(styles.treeViewerContainer, (isShowTree) ? styles.showTreePanel : styles.hideTreePanel)}>
+                        {
+                            model?.uuid &&
+                            <TreeViewComponent
+                                treeData={structureElements}
+                                handleTreeItemClick={handleTreeItemClick}
+                                handleFragmentVisibilityChange={handleHideSelectedFragment} />
+                        }
+                    </Paper>
 
-            <AssessmentPanel
-                showConditionPanel={showConditionPanel}
-                element={{} as StructureElement}
-                handleConditionChange={handleConditionChange} />
+                    <AssessmentPanel
+                        showConditionPanel={showConditionPanel}
+                        closePanel={() => setShowConditionPanel(false)}
+                    />
+
+                    <ViewerMenu
+                        isClipperOn={isClipperOn}
+                        isMeasurementMode={isMeasurementMode}
+                        isPanSelected={isPanSelected}
+                        isOrbitSelected={isOrbitSelected}
+                        showRatings={showRatings}
+                        onClipperClick={onClipperClick}
+                        onMeasurementClick={onMeasurementClick}
+                        onFitScreenClick={onFitScreenClick}
+                        onOrbitCameraClick={onOrbitCameraClick}
+                        onPanCameraClick={onPanCameraClick}
+                        // onToggleRatings={toggleRatings}
+                        removeAllLineMeasurement={removeAllLineMeasurement}
+                        removeClipper={removeClipper}
+                        showConditionPanelHandler={onShowConditionPanelClickHandler}
+                        showstructureDetail={showstructureDetail}
+                    />
+                </Grid>
+
+            </Grid>
+
         </div>
     );
 

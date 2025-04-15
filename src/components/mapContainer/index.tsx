@@ -23,11 +23,7 @@ import { getCurrentStructure } from '../../store/Structure/selectors';
 import { styled } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { DRAWER_BLEEDING } from '../../constants';
-import {
-    Search as SearchIcon,
-    LocationOn,
-    Explore
-} from '@mui/icons-material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import styles from './style.module.scss';
 
 const containerStyle = {
@@ -183,7 +179,7 @@ const MapContainer: React.FC<MapComponentProps> = (
                     <GoogleMap
                         mapContainerStyle={containerStyle}
                         center={deafaultCenter}
-                        zoom={13}
+                        zoom={8}
                         onLoad={onLoad}
                         onUnmount={onUnmount}
                         options={mapOptions}

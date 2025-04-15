@@ -20,7 +20,7 @@ import * as localStorageActions from "../../store/LocalStorage/actions";
 
 const PageFooter: React.FC = () => {
   const dispatch = useDispatch();
-  const { goTo } = useNavigationManager();
+  const { goTo, getCurrentPageName } = useNavigationManager();
   const stepList = useSelector(getStepsState);
   const currentStep = useSelector(getCurrentStep);
   const nextButtonFlag = useSelector(getNextButtonFlag);
@@ -60,7 +60,11 @@ const PageFooter: React.FC = () => {
 
       goTo(stepList[currentStep - 1].path);
     } else {
-      goTo(RoutesValueEnum.Home);
+      if (getCurrentPageName() === RoutesValueEnum.PreviousInspectionDetail) {
+        goTo(RoutesValueEnum.PreviousInspection);
+      } else {
+        goTo(RoutesValueEnum.Home);
+      }
     }
   };
 

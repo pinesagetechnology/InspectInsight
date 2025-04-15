@@ -20,7 +20,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
 import { getInspection } from '../../store/Inspection/selectors';
-import { getMaintenanceAction } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { getInspectionComment } from '../../store/InspectionComment/selectors';
 import { getRatedElements } from '../../store/ConditionRating/selectors';
 import { useNavigationManager } from '../../navigation';
@@ -88,7 +88,7 @@ const ReviewInspectionPage: React.FC = () => {
 
   const inspection = useSelector(getInspection);
   const ratedElements = useSelector(getRatedElements);
-  const maintenanceActions = useSelector(getMaintenanceAction);
+  const maintenanceActions = useSelector(getMaintenanceActions);
   const comments = useSelector(getInspectionComment);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ const ReviewInspectionPage: React.FC = () => {
   }
 
   return (
-    <FormPageWrapper>
+    <FormPageWrapper isFooterVisible={true}>
       <Box mt={4} sx={{ margin: '0px 32px' }} >
 
         {/* Inspection Details Section */}
@@ -140,35 +140,35 @@ const ReviewInspectionPage: React.FC = () => {
             <Grid container spacing={3}>
               <Grid size={6}>
                 <DetailLabel>Level of Inspection</DetailLabel>
-                <DetailValue>{inspection.inspectionLevel}</DetailValue>
+                <DetailValue>{inspection?.inspectionLevel}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Inspection Level</DetailLabel>
-                <DetailValue>{inspection.inspectionLevel}</DetailValue>
+                <DetailValue>{inspection?.inspectionLevel}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Inspection Type</DetailLabel>
-                <DetailValue>{inspection.inspectionType}</DetailValue>
+                <DetailValue>{inspection?.inspectionType}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Proposed date of next inspection</DetailLabel>
-                <DetailValue>{inspection.nextInspectionProposedDate}</DetailValue>
+                <DetailValue>{inspection?.nextInspectionProposedDate}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Temperature (degrees)</DetailLabel>
-                <DetailValue>{inspection.temperature}</DetailValue>
+                <DetailValue>{inspection?.temperature}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Weather</DetailLabel>
-                <DetailValue>{inspection.weather}</DetailValue>
+                <DetailValue>{inspection?.weather}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Inspector Name</DetailLabel>
-                <DetailValue>{inspection.inspectorName}</DetailValue>
+                <DetailValue>{inspection?.inspectorName}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Engineer Name</DetailLabel>
-                <DetailValue>{inspection.engineerName}</DetailValue>
+                <DetailValue>{inspection?.engineerName}</DetailValue>
               </Grid>
             </Grid>
           </AccordionDetails>
@@ -302,7 +302,7 @@ const ReviewInspectionPage: React.FC = () => {
 
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" margin="20px 0px">
+      <Box display="flex" justifyContent="flex-end" margin="20px 20px">
         <Button
           variant="contained"
           endIcon={<SendIcon />}

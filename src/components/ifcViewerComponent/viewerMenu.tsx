@@ -7,8 +7,10 @@ import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
 import CloseIcon from '@mui/icons-material/Close';
-import { Divider, IconButton, Paper, Stack } from '@mui/material';
+import { Divider, IconButton, Paper, Stack, Tooltip } from '@mui/material';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import styles from "./style.module.scss";
 
 interface ViewerMenuProps {
@@ -16,11 +18,13 @@ interface ViewerMenuProps {
     isPanSelected: boolean;
     isMeasurementMode: boolean;
     isClipperOn: boolean;
+    showRatings?: boolean;
     onClipperClick: () => void;
     onMeasurementClick: () => void;
     onFitScreenClick: () => void;
     onOrbitCameraClick: () => void;
     onPanCameraClick: () => void;
+    onToggleRatings?: () => void;
     removeAllLineMeasurement: () => void;
     removeClipper: () => void;
     showstructureDetail: () => void;
@@ -32,11 +36,13 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
     isPanSelected,
     isMeasurementMode,
     isClipperOn,
+    showRatings = true,
     onClipperClick,
     onMeasurementClick,
     onFitScreenClick,
     onOrbitCameraClick,
     onPanCameraClick,
+    onToggleRatings,
     removeAllLineMeasurement,
     removeClipper,
     showstructureDetail,
@@ -52,7 +58,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                 <Divider orientation="vertical" variant="middle" flexItem />
 
                 <Stack direction={"row"} spacing={1}>
-                    <IconButton color="info" aria-label="fir screen" onClick={onFitScreenClick}>
+                    <IconButton color="info" aria-label="fit screen" onClick={onFitScreenClick}>
                         <FitScreenIcon />
                     </IconButton>
 
@@ -98,6 +104,20 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                         </IconButton>
                     }
                 </Stack>
+
+                <Divider orientation="vertical" variant="middle" flexItem />
+
+                {onToggleRatings && (
+                    <Tooltip title={showRatings ? "Hide ratings" : "Show ratings"}>
+                        <IconButton
+                            color={showRatings ? "success" : "default"}
+                            aria-label="toggle ratings visibility"
+                            onClick={onToggleRatings}
+                        >
+                            {showRatings ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                        </IconButton>
+                    </Tooltip>
+                )}
 
                 <IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler}>
                     <TroubleshootIcon />

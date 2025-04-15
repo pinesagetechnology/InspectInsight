@@ -33,6 +33,11 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
                 onClose={handleClose}
                 aria-labelledby="customized-dialog-title"
                 open={modalState}
+                sx={{
+                    '& .MuiDialog-paper': {
+                        minWidth: '350px',
+                    },
+                }}
             >
                 <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
                     Required Maintenance Action
