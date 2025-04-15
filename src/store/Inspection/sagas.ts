@@ -4,7 +4,6 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { InspectionFomrValidationPayload, InspectionModel } from '../../models/inspectionModel';
 import {
     setCurrentInspection,
-    fetchPreviousInspectionData,
     setInspectionProcessLoading,
     fetchPreviousInspectionsListSuccessful,
     setPreviousInspectionData,
@@ -25,7 +24,7 @@ export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
     yield takeLatest(actions.START_INSPECTION_PROCESS, startInspectionProcess);
     yield takeLatest(actions.GET_LIST_INSPECTIONS_DATA, getPreviousInspectionsList);
-    yield takeLatest(actions.GET_PREVIOUS_INSPECTION_DATA, getPreviousInspection);
+    // yield takeLatest(actions.GET_PREVIOUS_INSPECTION_DATA, getPreviousInspection);
     yield takeLatest(actions.SET_INSPECTION_VALIDATION_FLAG, setInspectionValidation);
 }
 
@@ -40,20 +39,20 @@ export function* startInspectionProcess() {
 
     yield put(setInspectionProcessLoading(true));
 
-    yield call(getPreviousInspectionValue, selectedStructure.id);
+    yield call(getPreviousInspectionValue, selectedStructure.previousInspection);
+
 
     yield put(setInspectionProcessLoading(false));
 
     yield put(setShowLoading(false));
 }
 
-function* getPreviousInspectionValue(id: string) {
+function* getPreviousInspectionValue(inspection?: InspectionEntity) {
     try {
-        yield put(fetchPreviousInspectionData());
 
-        const inspections: InspectionEntity[] = yield call(services.fetchPreviousInspectionData, id);
-        const previousInspection = (inspections && inspections.length > 0) ? inspections[0] : {} as InspectionEntity;
         const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
+
+        const previousInspection = (inspection) ? inspection : {} as InspectionEntity;
         const elementsWithCondition = setPreviousCondirtionrating(selectedStructureElements, (previousInspection?.conditionRatings || []));
 
         if (previousInspection?.conditionRatings) {

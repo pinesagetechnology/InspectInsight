@@ -31,20 +31,14 @@ const InspectionSlice = createSlice({
         setCurrentInspection: (state, action: PayloadAction<InspectionModel>) => {
             state.currentInspection = action.payload;
         },
-        setPreviousInspectionFromSavedState: (state, action: PayloadAction<InspectionEntity>) => {
+        setPreviousInspectionData: (state, action: PayloadAction<InspectionEntity>) => {
             state.previoustInspection = action.payload;
         },
         setPreviousInspectionListFromSavedState: (state, action: PayloadAction<InspectionEntity[]>) => {
             state.previoustInspectionsList = action.payload;
         },
-        fetchPreviousInspectionData: (state) => {
-            state.error = undefined;
-        },
         fetchPreviousInspectionsListSuccessful: (state, action: PayloadAction<InspectionEntity[]>) => {
             state.previoustInspectionsList = action.payload;
-        },
-        setPreviousInspectionData: (state, action: PayloadAction<InspectionEntity>) => {
-            state.previoustInspection = action.payload;
         },
         setInspectionDataFailure: (state, action: PayloadAction<any>) => {
             state.error = action.payload;
@@ -67,6 +61,7 @@ const InspectionSlice = createSlice({
                 nextInspectionProposedDate: new Date().toISOString()
             } as InspectionModel;
             state.previoustInspection = {} as InspectionEntity;
+            state.previoustInspectionsList = [] as InspectionEntity[];
             state.previousInspectionRatedElement = [];
             state.isLoading = false;
             state.validationErrors = [] as string[];
@@ -77,9 +72,7 @@ const InspectionSlice = createSlice({
 
 export const {
     setCurrentInspection,
-    setPreviousInspectionFromSavedState,
     setPreviousInspectionListFromSavedState,
-    fetchPreviousInspectionData,
     fetchPreviousInspectionsListSuccessful,
     setPreviousInspectionData,
     setInspectionDataFailure,

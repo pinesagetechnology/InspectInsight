@@ -43,11 +43,6 @@ const PreviousInspectionListPage: React.FC = () => {
     }, [dispatch])
 
     const handleRowClick = (row: InspectionEntity) => {
-        dispatch({
-            type: actions.GET_PREVIOUS_INSPECTION_DATA,
-            payload: row.id,
-        } as PayloadAction<string>);
-
         goTo(RoutesValueEnum.PreviousInspectionDetail);
     }
 

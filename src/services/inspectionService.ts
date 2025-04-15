@@ -2,13 +2,6 @@ import { InspectionEntity } from "../entities/inspection";
 import api, { setAuthorize } from "../helper/api";
 import { mockPreviousInspectionData } from "../mockData";
 
-export const fetchPreviousInspectionData = async (structureId: string) => {
-    await setAuthorize();
-    const result = await api.get(`api/Inspection/list/${structureId}?count=1`);
-
-    return result.data as InspectionEntity;
-};
-
 export const fetchListOfPreviousInspections = async (structureId: string) => {
     await setAuthorize();
     const result = await api.get(`api/Inspection/list/${structureId}?count=10`);

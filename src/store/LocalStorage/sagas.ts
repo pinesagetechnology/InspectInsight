@@ -5,7 +5,7 @@ import { InspectionModel, MaintenanceActionModel } from '../../models/inspection
 import { getRatedElements } from '../ConditionRating/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
 import { setLocalStorageFlag, setLocaStorageError } from './slice';
-import { setCurrentInspection, setPreviousInspectionFromSavedState, setPreviousInspectionListFromSavedState } from '../Inspection/slice';
+import { setCurrentInspection, setPreviousInspectionData, setPreviousInspectionListFromSavedState } from '../Inspection/slice';
 import { setReatedElement } from '../ConditionRating/slice';
 import { setMaintenanceActionList } from '../MaintenanceAction/slice';
 import { db, ReduxApplicationState } from '../../helper/db';
@@ -71,7 +71,7 @@ export function* mapLocalStorageToState() {
         if (savedState) {
             // mapp inspection
             yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
-            yield put(setPreviousInspectionFromSavedState(savedState.inspectionData.previoustInspection));
+            yield put(setPreviousInspectionData(savedState.inspectionData.previoustInspection));
             yield put(setPreviousInspectionListFromSavedState(savedState.inspectionData.previoustInspectionsList));
 
             // mapp condition rating
