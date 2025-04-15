@@ -10,14 +10,11 @@ const InspectionReview = React.lazy(() => import('../../pages/reviewAndSubmit/in
 const PreviousInspectionListPage = React.lazy(() => import('../../pages/previousInspectionList/index'));
 const PreviousInspectionDetailPage = React.lazy(() => import('../../pages/previousInspection/index'));
 
-// const Viewer = React.lazy(() => import('../../pages/viewer/index'));
-
 export const AppRouter: React.FunctionComponent = () => {
     return (
         <React.Fragment>
             <Routes>
                 <Route path={`/${RoutesValueEnum.Home}`} element={<HomePage />} />
-                {/* <Route path={`/${RoutesValueEnum.Home}`} element={<Viewer />} /> */}
                 <Route path={`/${RoutesValueEnum.InspectionDetail}`} element={<InspectionDetailPage />} />
                 <Route path={`/${RoutesValueEnum.ConditionRating}`} element={<ConditionRatingPage />} />
                 <Route path={`/${RoutesValueEnum.InspectorComments}`} element={<InspectionComment />} />
