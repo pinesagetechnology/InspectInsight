@@ -5,17 +5,19 @@ export interface Structure {
     name: string;
     code: string;
     type: string;
-    overal: string;
+    over: string;
     at: string;
+    LGA: string;
     overalLength: string;
     overalWidth: string;
     maxCmy: number;
     maxMd: number;
+    minVert: number;
     lastInspectionDate: string; // Date in ISO string format
     location: Location;
     metadata?: Metadata;
     elementMetadata: StructureElement[];
-    inspections?: InspectionEntity[];
+    previousInspection?: InspectionEntity;
 }
 
 export interface Location {

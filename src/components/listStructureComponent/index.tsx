@@ -12,6 +12,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { RoutesValueEnum } from '../../enums';
 import { useSelector } from 'react-redux';
 import { getCurrentStructure } from '../../store/Structure/selectors';
+import RowComponent from './rowComponent';
 
 interface ListModeProps {
     isListView: boolean;
@@ -28,97 +29,7 @@ const ListModeStructure: React.FC<ListModeProps> = ({
     setIsListView,
     onStartClickHandler
 }) => {
-    const { goTo } = useNavigationManager();
-    const dispatch = useDispatch();
-    const selectedStructure = useSelector(getCurrentStructure);
-    
-    const handleGetDirections = () => {
-        if (selectedStructure) {
-            // Open Google Maps directions
-            const { latitude, longitude } = selectedStructure.location;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`);
-        }
-    };
-
-    const handleViewPreviousInspections = () => {
-        dispatch({
-            type: actions.GET_LIST_INSPECTIONS_DATA
-        } as PayloadAction);
-        
-        goTo(RoutesValueEnum.PreviousInspection);
-    }
-
-    const columns: GridColDef<(typeof structures)[number]>[] = [
-        {
-            field: 'name',
-            headerName: 'Name',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'type',
-            headerName: 'Type',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'code',
-            headerName: 'Code',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'overal',
-            headerName: 'Overal',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'lastInspectionDate',
-            headerName: 'Last Inspection Date',
-            width: 180,
-            valueGetter: (value, row) => new Date(row.lastInspectionDate).toLocaleDateString()
-        },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 450,
-            renderCell: (params: GridRenderCellParams) => {
-                return (
-                    <Stack direction={'row'} spacing={2}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<PlayArrowIcon />}
-                            onClick={onStartClickHandler}>
-                                Inspection
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            startIcon={<HistoryIcon />}
-                            onClick={() => handleViewPreviousInspections()}>
-                                History
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="info"
-                            startIcon={<DirectionsIcon />}
-                            onClick={handleGetDirections}
-                        >
-                            Direction
-                        </Button>
-                    </Stack>
-                );
-            },
-        },
-    ];
-
     const toggleView = () => setIsListView(!isListView);
-
-    const onRowSelectionhandler = (params: GridRowParams, event: MuiEvent, details: GridCallbackDetails) => {
-        onSelectStructure(structures.find(x => x.id === params.id) || {} as Structure);
-    }
 
     return (
         <div>
@@ -126,21 +37,16 @@ const ListModeStructure: React.FC<ListModeProps> = ({
                 Show Map
             </Button>
             <Box sx={{ height: 400, width: '100%' }}>
-                <DataGrid
-                    rows={structures}
-                    columns={columns}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 5,
-                            },
-                        },
-                    }}
-                    pageSizeOptions={[5]}
-                    rowSelection={true}
-                    onRowClick={onRowSelectionhandler}
-                    getRowId={(row) => row.id}
-                />
+                {structures.length > 0 && (
+                    structures.map((structure) => (
+                        <RowComponent
+                            key={structure.id}
+                            structure={structure}
+                            onSelectStructure={onSelectStructure}
+                            onStartClickHandler={onStartClickHandler}
+                        />
+                    ))
+                )}
             </Box>
         </div>
     );

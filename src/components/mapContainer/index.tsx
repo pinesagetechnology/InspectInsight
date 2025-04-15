@@ -179,7 +179,7 @@ const MapContainer: React.FC<MapComponentProps> = (
                     <GoogleMap
                         mapContainerStyle={containerStyle}
                         center={deafaultCenter}
-                        zoom={13}
+                        zoom={8}
                         onLoad={onLoad}
                         onUnmount={onUnmount}
                         options={mapOptions}
