@@ -14,6 +14,8 @@ import * as commonActions from '../Common/actions';
 import { addQuantityToElements } from '../../helper/ifcTreeManager';
 import { isOnlineSelector } from '../SystemAvailability/selectors';
 import { db, StructureState } from '../../helper/db';
+import { setPreviousInspectionData } from '../Inspection/slice';
+import { InspectionEntity } from '../../entities/inspection';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -27,6 +29,8 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
     const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
 
     yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
+
+    yield put(setPreviousInspectionData(action.payload.previousInspection || {}  as InspectionEntity));
 }
 
 export function* getStructursData() {

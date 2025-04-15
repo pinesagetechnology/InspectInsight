@@ -24,7 +24,6 @@ export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
     yield takeLatest(actions.START_INSPECTION_PROCESS, startInspectionProcess);
     yield takeLatest(actions.GET_LIST_INSPECTIONS_DATA, getPreviousInspectionsList);
-    // yield takeLatest(actions.GET_PREVIOUS_INSPECTION_DATA, getPreviousInspection);
     yield takeLatest(actions.SET_INSPECTION_VALIDATION_FLAG, setInspectionValidation);
 }
 
