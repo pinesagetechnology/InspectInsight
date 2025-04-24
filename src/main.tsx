@@ -6,6 +6,8 @@ import Header from './components/header';
 import * as actions from "./store/Structure/actions";
 import * as sharedActions from "./store/Common/actions";
 import * as localDataActions from "./store/LocalStorage/actions";
+import InstallPrompt from './components/installPrompt';
+import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
 import {
     Alert,
     Backdrop,
@@ -33,12 +35,34 @@ export const MainComponent: React.FunctionComponent = () => {
     const isOnline = useOfflineSync();
     const showLoading = useSelector(getShowOverlayFlag);
     const hasLocalData = useSelector(getLocalStorageFlag);
-    const [opoenSnack, setOpenSnack] = useState<boolean>(false);
+    const [openSnack, setOpenSnack] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = React.useState(false);
+    const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+
+    useEffect(() => {
+        const handleOnlineStatusChange = () => {
+            setOpenSnack(true);
+        };
+
+        window.addEventListener('online', handleOnlineStatusChange);
+        window.addEventListener('offline', handleOnlineStatusChange);
+
+        // Get service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                setSwRegistration(registration);
+            });
+        }
+
+        return () => {
+            window.removeEventListener('online', handleOnlineStatusChange);
+            window.removeEventListener('offline', handleOnlineStatusChange);
+        };
+    }, []);
 
     useEffect(() => {
         setOpenSnack(true);
-    }, [isOnline])
+    }, [isOnline]);
 
     useEffect(() => {
         dispatch({
@@ -48,13 +72,13 @@ export const MainComponent: React.FunctionComponent = () => {
         dispatch({
             type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
         } as PayloadAction);
-    }, [])
+    }, []);
 
     useEffect(() => {
-        if(hasLocalData){
+        if (hasLocalData) {
             setModalOpen(true);
         }
-    }, [hasLocalData])
+    }, [hasLocalData]);
 
     const handleSnackClose = (
         event?: React.SyntheticEvent | Event,
@@ -70,12 +94,12 @@ export const MainComponent: React.FunctionComponent = () => {
     const handleClose = () => {
         dispatch({
             type: sharedActions.CLOSE_LOADING_OVERLAY
-        } as PayloadAction)
+        } as PayloadAction);
     };
 
     const handleModalClose = () => {
         setModalOpen(false);
-    }
+    };
 
     const handleDiscardData = () => {
         dispatch({
@@ -85,7 +109,7 @@ export const MainComponent: React.FunctionComponent = () => {
         setModalOpen(false);
 
         goTo(RoutesValueEnum.Home);
-    }
+    };
 
     const handleLoadData = () => {
         dispatch({
@@ -95,7 +119,7 @@ export const MainComponent: React.FunctionComponent = () => {
         setModalOpen(false);
 
         goTo(RoutesValueEnum.InspectionReview);
-    }
+    };
 
     return (
         <div>
@@ -106,7 +130,7 @@ export const MainComponent: React.FunctionComponent = () => {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    session data found
+                    Session data found
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
@@ -132,7 +156,7 @@ export const MainComponent: React.FunctionComponent = () => {
                 <div className="d-flex flex-column min-vh-100">
                     <Header headerValue="Inspection App" />
                     <Snackbar
-                        open={opoenSnack}
+                        open={openSnack}
                         autoHideDuration={6000}
                         onClose={handleSnackClose}
                         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -147,9 +171,10 @@ export const MainComponent: React.FunctionComponent = () => {
                         </Alert>
                     </Snackbar>
                     <AppRouter />
+                    <InstallPrompt />
+                    <ServiceWorkerUpdate registration={swRegistration} />
                 </div>
             </Suspense>
         </div>
     );
-
-}
+};

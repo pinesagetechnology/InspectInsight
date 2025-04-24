@@ -1,8 +1,10 @@
+
 const path = require('path');
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { InjectManifest } = require('workbox-webpack-plugin');
 
 module.exports = merge(common, {
     mode: "production",
@@ -42,6 +44,12 @@ module.exports = merge(common, {
                     },
                 }
             ]
+        }),
+        // Add the InjectManifest plugin at the end to ensure all assets are processed
+        new InjectManifest({
+            swSrc: './src/service-worker-template.js',
+            swDest: 'service-worker.js',
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Increase size limit to 5MB if needed
         })
     ]
 });
