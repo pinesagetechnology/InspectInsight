@@ -10,37 +10,30 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import { PayloadAction } from '@reduxjs/toolkit';
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    ...theme.applyStyles('dark', {
-        backgroundColor: '#1A2027',
-    }),
-    width: '60px'
-}));
+import RMADialog from '../../pages/conditionRating/rmaDialog';
 
 interface AssessmentPanelProps {
-    showConditionPanel: boolean;
-    closePanel: () => void;
+    showConditionPanel?: boolean;
+    isSelected?: boolean;
 }
 const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     showConditionPanel,
-    closePanel
+    isSelected
 }) => {
     const dispatch = useDispatch();
+
     const [originalCondition, setOriginalCondition] = useState<number[]>([]);
     const [currentStructureElelement, setCurrentStructureElement] = useState<StructureElement>({} as StructureElement);
+    const [open, setOpen] = useState<boolean>(false);
 
     const displayElements = useSelector(getDisplayElementList);
     const structureElement = useSelector(getSelectedStructureElement);
 
     useEffect(() => {
-        setOriginalCondition(structureElement?.condition || []);
-        setCurrentStructureElement(structureElement)
+        if (structureElement) {
+            setOriginalCondition(structureElement?.condition || []);
+            setCurrentStructureElement(structureElement);
+        }
     }, [structureElement])
 
     const updateStructureElement = (newConditions: number[]) => {
@@ -94,15 +87,17 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
 
     const saveOnClick = () => {
+        if (!currentStructureElelement) return;
+
         dispatch({
             type: actions.SAVE_CONDITION_RATING_DATA,
             payload: currentStructureElelement
         } as PayloadAction<StructureElement>);
-
-        closePanel();
     }
 
     const cancelOnClick = () => {
+        if (!currentStructureElelement) return;
+
         const newData = displayElements.map((item) => {
             if (item.data.expressID === currentStructureElelement.data.expressID) {
                 return { ...item, condition: originalCondition };
@@ -114,54 +109,76 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
             payload: newData,
             type: actions.UPDATE_DISPLAY_LIST_ITEMS
         } as PayloadAction<StructureElement[]>);
+    }
 
-        closePanel();
+    const addAssessmentOnClick = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
     }
 
     return (
-        <Paper elevation={0} className={classNames(styles.assessmentPanel, (showConditionPanel) ? styles.showAssessmentPanel : styles.hideAssessmentPanel)} >
-            <Typography variant="h6">Assessment Panel</Typography>
-            <Divider orientation="horizontal" flexItem />
-            <Typography variant="subtitle2">Condition Rating</Typography>
-            <Stack direction="row" spacing={1}>
-                {[0, 1, 2, 3].map((_, index) => {
-                    const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;
-                    const focusedKey = `${currentStructureElelement?.data?.expressID}-${index}`;
-                    return (<TextField
-                        key={focusedKey}
-                        size="small"
-                        variant="outlined"
-                        margin="none"
-                        value={fieldValue}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleConditionChange(e, index)
-                        }
-                        className={styles.conditionTextBox}
-                    />)
-                })}
-            </Stack>
+        <React.Fragment>
+            <style>{`.${classNames(styles.assessmentPanel)} { display: ${showConditionPanel ? 'block' : 'none'}; }`}</style>
+            <RMADialog
+                handleClose={handleClose}
+                modalState={open}
+            />
 
-            <Divider orientation="horizontal" flexItem />
-            <React.Fragment>
-                <Tooltip title="Save condition rating">
+            <Paper elevation={0} className={styles.assessmentPanel}>
+                <Typography variant="h6">Condition Rating Form</Typography>
+                <Divider orientation="horizontal" flexItem  className={styles.divider}/>
+                
+                <Stack direction="row" spacing={1}>
+                    {[0, 1, 2, 3].map((_, index) => {
+                        const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;
+                        const focusedKey = `${currentStructureElelement?.data?.expressID}-${index}`;
+                        return (<TextField
+                            key={focusedKey}
+                            size="small"
+                            variant="outlined"
+                            margin="none"
+                            value={fieldValue}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                handleConditionChange(e, index)
+                            }
+                            className={styles.conditionTextBox}
+                            disabled={!isSelected}
+                        />)
+                    })}
+                </Stack>
+
+                <Divider orientation="horizontal" flexItem />
+                <React.Fragment>
                     <IconButton
                         color="success"
-                        onClick={() => saveOnClick()}>
+                        onClick={() => saveOnClick()}
+                        disabled={!isSelected}
+                        className={styles.menuButtonSize}>
                         <SaveIcon />
                     </IconButton>
-                </Tooltip>
 
-                <Tooltip title="Cancel condition rating">
                     <IconButton
                         color="secondary"
-                        onClick={() => cancelOnClick()}>
+                        onClick={() => cancelOnClick()}
+                        disabled={!isSelected}
+                        className={styles.menuButtonSize}>
                         <CancelIcon />
                     </IconButton>
-                </Tooltip>
 
-            </React.Fragment>
+                    <IconButton
+                        color="primary"
+                        onClick={() => addAssessmentOnClick()}
+                        disabled={!isSelected}
+                        className={styles.menuButtonSize}>
+                        <PostAddIcon />
+                    </IconButton>
+                </React.Fragment>
 
-        </Paper>
+            </Paper>
+        </React.Fragment>
     );
 };
 

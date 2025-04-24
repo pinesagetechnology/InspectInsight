@@ -18,13 +18,11 @@ interface ViewerMenuProps {
     isPanSelected: boolean;
     isMeasurementMode: boolean;
     isClipperOn: boolean;
-    showRatings?: boolean;
     onClipperClick: () => void;
     onMeasurementClick: () => void;
     onFitScreenClick: () => void;
     onOrbitCameraClick: () => void;
     onPanCameraClick: () => void;
-    onToggleRatings?: () => void;
     removeAllLineMeasurement: () => void;
     removeClipper: () => void;
     showstructureDetail: () => void;
@@ -36,13 +34,11 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
     isPanSelected,
     isMeasurementMode,
     isClipperOn,
-    showRatings = true,
     onClipperClick,
     onMeasurementClick,
     onFitScreenClick,
     onOrbitCameraClick,
     onPanCameraClick,
-    onToggleRatings,
     removeAllLineMeasurement,
     removeClipper,
     showstructureDetail,
@@ -51,22 +47,22 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
     return (
         <Paper elevation={3} className={styles.viewerMenuContainer}>
             <Stack direction={"row"} spacing={1}>
-                <IconButton color="secondary" aria-label="show structure details" onClick={showstructureDetail}>
+                <IconButton color="secondary" aria-label="show structure details" onClick={showstructureDetail} className={styles.menuButtonSize}>
                     <SegmentIcon />
                 </IconButton>
 
                 <Divider orientation="vertical" variant="middle" flexItem />
 
                 <Stack direction={"row"} spacing={1}>
-                    <IconButton color="info" aria-label="fit screen" onClick={onFitScreenClick}>
+                    <IconButton color="info" aria-label="fit screen" onClick={onFitScreenClick} className={styles.menuButtonSize}>
                         <FitScreenIcon />
                     </IconButton>
 
-                    <IconButton color={(isOrbitSelected ? 'default' : 'primary')} aria-label="use camera rotate" onClick={onOrbitCameraClick}>
+                    <IconButton color={(isOrbitSelected ? 'default' : 'primary')} aria-label="use camera rotate" onClick={onOrbitCameraClick} className={styles.menuButtonSize}>
                         <ThreeSixtyIcon />
                     </IconButton>
 
-                    <IconButton color={(isPanSelected ? 'default' : 'secondary')} aria-label="use camera pan" onClick={onPanCameraClick}>
+                    <IconButton color={(isPanSelected ? 'default' : 'secondary')} aria-label="use camera pan" onClick={onPanCameraClick} className={styles.menuButtonSize}>
                         <PanToolIcon />
                     </IconButton>
                 </Stack>
@@ -74,7 +70,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                 <Divider orientation="vertical" variant="middle" flexItem />
 
                 <Stack direction='row' spacing={1}>
-                    <IconButton color={isMeasurementMode ? 'default' : 'info'} aria-label="use ruler" onClick={onMeasurementClick}>
+                    <IconButton color={isMeasurementMode ? 'default' : 'info'} aria-label="use ruler" onClick={onMeasurementClick} className={styles.menuButtonSize}>
                         {isMeasurementMode ?
                             <CloseIcon />
                             :
@@ -82,7 +78,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                         }
                     </IconButton>
                     {isMeasurementMode &&
-                        <IconButton color='error' aria-label="delete ruler" onClick={removeAllLineMeasurement}>
+                        <IconButton color='error' aria-label="delete ruler" onClick={removeAllLineMeasurement} className={styles.menuButtonSize}>
                             <DeleteForeverIcon />
                         </IconButton>
                     }
@@ -91,7 +87,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                 <Divider orientation="vertical" variant="middle" flexItem />
 
                 <Stack direction='row' spacing={2}>
-                    <IconButton color={isClipperOn ? 'default' : 'warning'} aria-label="use clipper" onClick={onClipperClick}>
+                    <IconButton color={isClipperOn ? 'default' : 'warning'} aria-label="use clipper" onClick={onClipperClick} className={styles.menuButtonSize}>
                         {isClipperOn ?
                             <CloseIcon />
                             :
@@ -99,7 +95,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                         }
                     </IconButton>
                     {isClipperOn &&
-                        <IconButton color='error' aria-label="delete clipper" onClick={removeClipper}>
+                        <IconButton color='error' aria-label="delete clipper" onClick={removeClipper} className={styles.menuButtonSize}>
                             <DeleteForeverIcon />
                         </IconButton>
                     }
@@ -107,19 +103,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
 
                 <Divider orientation="vertical" variant="middle" flexItem />
 
-                {onToggleRatings && (
-                    <Tooltip title={showRatings ? "Hide ratings" : "Show ratings"}>
-                        <IconButton
-                            color={showRatings ? "success" : "default"}
-                            aria-label="toggle ratings visibility"
-                            onClick={onToggleRatings}
-                        >
-                            {showRatings ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                        </IconButton>
-                    </Tooltip>
-                )}
-
-                <IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler}>
+                <IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler} className={styles.menuButtonSize}>
                     <TroubleshootIcon />
                 </IconButton>
             </Stack>

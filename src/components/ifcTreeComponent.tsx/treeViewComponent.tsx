@@ -95,10 +95,8 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
   }
 
   return (
-    <React.Fragment>
-      <div>
-        <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-      </div>
+    <div className={styles.treeViewContainer}>
+      <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <div className={styles.treeItemsContainer}>
         {filteredTreeData.map((node) => (
           <TreeItem
@@ -112,7 +110,7 @@ const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
           />
         ))}
       </div>
-    </React.Fragment>
+    </div>
   );
 };
 

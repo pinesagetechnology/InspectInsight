@@ -13,45 +13,24 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.showTreePanel {
-    transform: translateX(0);
-}
-
-.hideTreePanel {
-    transform: translateX(-100%);
-}
-
 .viewerMenuContainer {
     position: fixed;
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10000;
+    z-index: 99;
 }
 
 .assessmentPanel {
     position: absolute;
     top: 0;
-    right: 0;
-    min-width: 20%;
-    max-width: 30%;
-    height: 30%;
+    left: 0;
+    height: 100%;
     background-color: rgba(255, 255, 255, 0.9);
     border: 1px solid #ccc;
     box-sizing: border-box;
     padding: 10px;
     overflow: auto;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.showAssessmentPanel {
-    // display: block;
-    transform: translateY(0);
-}
-
-.hideAssessmentPanel {
-    transform: translateY(-210%);
-    // display: none;
 }
 
 .conditionTextBox {
@@ -61,4 +40,13 @@
 
 .radingConditionCell {
     width: 20%;
+}
+
+.menuButtonSize {
+    width: 70px;
+    height: 70px;
+}
+
+.divider {
+    margin: 20px 0;
 }

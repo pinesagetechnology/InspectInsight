@@ -8,15 +8,13 @@ import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewCom
 import { useDispatch } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as WEBIFC from 'web-ifc';
-import { Paper, Grid2 as Grid } from "@mui/material";
-import classNames from 'classnames';
+import { Grid2 as Grid, Drawer } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import ViewerMenu from "./viewerMenu";
 import { useSelector } from "react-redux";
 import { getStructureElements } from "../../store/Structure/selectors";
 import { getRatedElements } from "../../store/ConditionRating/selectors";
 import AssessmentPanel from "./assessmentPanel";
-import styles from "./style.module.scss";
 import { PayloadAction } from "@reduxjs/toolkit";
 import * as ratingActions from "../../store/ConditionRating/actions";
 
@@ -42,22 +40,19 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     const clipperRef = useRef<OBC.Clipper>();
     const cameraComponentRef = useRef<OBC.OrthoPerspectiveCamera>();
 
-    const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [isMeasurementMode, setIsMeasurementMode] = useState(false);
     const [isClipperOn, setIsClipperOn] = useState(false);
-    const [showRatings, setShowRatings] = useState(true);
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
-    const selectedItemsRef = useRef<string[]>([]);
 
-    const [isShowTree, setIsShowTree] = useState(true);
-    const [labels, setLabels] = useState<THREE.Sprite[]>([])
+    const [isShowTree, setIsShowTree] = useState(false);
+    const [isSelected, setIsSelected] = useState<boolean>(false);
     const [model, setModel] = useState<FRAGS.FragmentsGroup>();
     const [fragMgr, setFragmentsManager] = useState<OBC.FragmentsManager>();
     const [indx, setIndexer] = useState<OBC.IfcRelationsIndexer>();
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
-    const [showConditionPanel, setShowConditionPanel] = useState(false);
+    const [showConditionPanel, setShowConditionPanel] = useState(true);
 
     const components = new OBC.Components();
 
@@ -73,7 +68,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     // Function to highlight rated elements
     const highlightRatedElements = () => {
         if (model && ratedElements && ratedElements.length > 0 && highlighterRef.current) {
-            if (!showRatings) return;
             ratedElements.forEach((item) => {
                 if (item.condition && item.condition.length > 0) {
                     // Calculate average rating
@@ -90,7 +84,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         const avgRating = sum / count;
                         const color = getColorForRating(avgRating);
                         const fragmentIDMap = getRowFragmentIdMap(model, item.data);
-                        
+
                         if (fragmentIDMap) {
                             const fragments = fragMgr?.list;
                             if (fragments) {
@@ -114,20 +108,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         }
     };
 
-    // Toggle showing ratings
-    const toggleRatings = () => {
-        setShowRatings(!showRatings);
-        if (!showRatings) {
-            highlightRatedElements();
-        } else{
-            //undo coloring
-        }
-    };
-
-    useEffect(() => {
-        selectedItemsRef.current = selectedItems;
-    }, [selectedItems]);
-
     useEffect(() => {
         isMeasurementModeRef.current = isMeasurementMode;
     }, [isMeasurementMode]);
@@ -141,7 +121,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         if (model && highlighterRef.current) {
             highlightRatedElements();
         }
-    }, [ratedElements, model, showRatings]);
+    }, [ratedElements, model]);
 
     useEffect(() => {
         if (!containerRef.current) {
@@ -198,8 +178,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                 type: ratingActions.SET_SELECTED_ELEMENT,
                 payload: fragmentExpressId
             } as PayloadAction<number>);
-            
-            setShowConditionPanel(prev => !prev);
         });
 
         const dimensions = components.get(OBF.LengthMeasurement);
@@ -276,7 +254,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
         container.ondblclick = onContainerDoubleClick;
 
-        // container.onclick = onContainerClick;
+        container.onclick = onContainerClick;
 
         window.onkeydown = (event: KeyboardEvent) => {
             if (event.code === "Delete") {
@@ -368,7 +346,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     }, [])
 
     const onContainerClick = (event: MouseEvent) => {
-        console.log("onContainerClick", "the event is not being used - To be removed later");
         if (!isClipperOnRef.current && !isMeasurementModeRef.current) {
             const rect = containerRef.current?.getBoundingClientRect();
             const mouse = new THREE.Vector2(
@@ -383,11 +360,13 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
             // Check for intersections in the scene.
             if (!worldRef.current) return;
             const intersects = raycaster.intersectObjects(worldRef.current.scene.three.children, true);
+
             if (intersects.length > 0) {
-                const selectedMesh = intersects[0].object;
-                // Toggle disabled state; here we always set it to disabled for demonstration.
-                // toggleDisabled(selectedMesh);
+                setIsSelected(true);
+            } else {
+                setIsSelected(false);
             }
+
         }
     }
 
@@ -484,13 +463,6 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
 
     const removeAllLineMeasurement = () => {
         dimensionsRef.current?.deleteAll();
-
-        for (const label of labels) {
-            worldRef.current?.scene.three.remove(label);
-            label.material.dispose();
-            label.geometry?.dispose();
-        }
-        labels.length = 0;
     }
 
     const removeClipper = () => {
@@ -529,48 +501,12 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
         setShowConditionPanel(prev => !prev);
     }
 
-    const toggleDisabled = (mesh: THREE.Object3D) => {
-        console.log("toggleDisabled", "toggle function is being called - to be removed later");
-        let isDisabled: boolean = false;
-
-        if (selectedItemsRef.current.includes(mesh.uuid)) {
-            isDisabled = false;
-        } else {
-            isDisabled = true;
-        }
-
-        mesh.traverse((child: any) => {
-            if (child.isMesh) {
-                if (isDisabled) {
-                    // Save the original material if it hasn't been saved yet.
-                    if (!child.userData.originalMaterial) {
-                        child.userData.originalMaterial = child.material;
-                    }
-                    // Set a wireframe material to simulate a "disabled" state.
-                    child.material = new THREE.MeshBasicMaterial({
-                        color: 0xcccccc,
-                        wireframe: true,
-                    });
-
-                    setSelectedItems((prevData) => [...prevData, child.uuid]);
-                } else {
-                    // Restore the original material if it exists.
-                    if (child.userData.originalMaterial) {
-                        setSelectedItems((prevData) => prevData.filter((item) => item !== child.uuid));
-                        child.material = child.userData.originalMaterial;
-                    }
-                }
-            }
-        });
-    }
-
     return (
         <div style={{ position: 'relative', width: '100%' }}>
             <Grid container spacing={2}>
                 <Grid size={12}>
                     <div id="container" ref={containerRef} style={{ width: '100%', height: '68vh' }} />
-
-                    <Paper elevation={0} className={classNames(styles.treeViewerContainer, (isShowTree) ? styles.showTreePanel : styles.hideTreePanel)}>
+                    <Drawer open={isShowTree} onClose={() => setIsShowTree(false)}>
                         {
                             model?.uuid &&
                             <TreeViewComponent
@@ -578,25 +514,20 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                                 handleTreeItemClick={handleTreeItemClick}
                                 handleFragmentVisibilityChange={handleHideSelectedFragment} />
                         }
-                    </Paper>
+                    </Drawer>
 
-                    <AssessmentPanel
-                        showConditionPanel={showConditionPanel}
-                        closePanel={() => setShowConditionPanel(false)}
-                    />
+                    <AssessmentPanel showConditionPanel={showConditionPanel} isSelected={isSelected}/>
 
                     <ViewerMenu
                         isClipperOn={isClipperOn}
                         isMeasurementMode={isMeasurementMode}
                         isPanSelected={isPanSelected}
                         isOrbitSelected={isOrbitSelected}
-                        showRatings={showRatings}
                         onClipperClick={onClipperClick}
                         onMeasurementClick={onMeasurementClick}
                         onFitScreenClick={onFitScreenClick}
                         onOrbitCameraClick={onOrbitCameraClick}
                         onPanCameraClick={onPanCameraClick}
-                        // onToggleRatings={toggleRatings}
                         removeAllLineMeasurement={removeAllLineMeasurement}
                         removeClipper={removeClipper}
                         showConditionPanelHandler={onShowConditionPanelClickHandler}

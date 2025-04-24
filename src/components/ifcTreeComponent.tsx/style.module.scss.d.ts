@@ -1,3 +1,4 @@
+export const treeViewContainer: string;
 export const treeItemContainer: string;
 export const treeItem: string;
 export const hasChildrenTreeArrow: string;
