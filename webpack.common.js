@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
@@ -40,6 +40,30 @@ module.exports = {
             template: path.join(__dirname, '/public/index.html'),
             filename: 'index.html',
         }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { 
+                    from: 'public/manifest.json', 
+                    to: 'manifest.json' 
+                },
+                { 
+                    from: 'public/offline.html', 
+                    to: 'offline.html' 
+                },
+                { 
+                    from: 'public/favicon.ico', 
+                    to: 'favicon.ico' 
+                },
+                { 
+                    from: 'public/logo192.png', 
+                    to: 'logo192.png' 
+                },
+                { 
+                    from: 'public/logo512.png', 
+                    to: 'logo512.png' 
+                }
+            ]
+        }),
         new webpack.DefinePlugin({
             'process.env.REACT_APP_USE_MOCK': JSON.stringify(process.env.REACT_APP_USE_MOCK),
             'process.env.REACT_APP_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_API_LOCAL_URL),
@@ -47,6 +71,7 @@ module.exports = {
             'process.env.REACT_APP_GOOGLE_MAPS_API_KEY': JSON.stringify(process.env.REACT_APP_GOOGLE_MAPS_API_KEY),
             'process.env.REACT_APP_ASSET_LOCAL_URL': JSON.stringify(process.env.REACT_APP_ASSET_LOCAL_URL),
             'process.env.REACT_APP_ASSET_URL': JSON.stringify(process.env.REACT_APP_ASSET_URL),
+            'process.env.PUBLIC_URL': JSON.stringify('')
         })
     ]
 };
