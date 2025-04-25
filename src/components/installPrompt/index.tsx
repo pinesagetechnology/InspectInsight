@@ -1,4 +1,3 @@
-// src/components/installPrompt/index.tsx
 import React, { useEffect, useState } from 'react';
 import {
   Button,
@@ -35,24 +34,36 @@ const InstallPrompt: React.FC = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [showMiniPrompt, setShowMiniPrompt] = useState(false);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
   useEffect(() => {
     // Check if the app is already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    // Check for iOS standalone mode
-    const isIOSStandalone = (window.navigator as any).standalone === true;
+    const checkIfInstalled = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+      // Check for iOS standalone mode
+      const isIOSStandalone = 'standalone' in window.navigator && (window.navigator as any).standalone === true;
 
-    const isAppInstalled = isStandalone || isIOSStandalone;
+      return isStandalone || isIOSStandalone;
+    };
 
-    // If installed, don't show any prompts
-    if (isAppInstalled) {
-      return;
-    }
+    setIsAppInstalled(checkIfInstalled());
+
+    // Re-check when visibility changes (user might have installed in another tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setIsAppInstalled(checkIfInstalled());
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Handler for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
+
+      // If already installed, don't proceed
+      if (checkIfInstalled()) return;
 
       // Store the event for later use
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -64,20 +75,25 @@ const InstallPrompt: React.FC = () => {
       // Check if we should show the full dialog (every 7 days max)
       if (!lastPromptTime || (Date.now() - Number(lastPromptTime)) > 7 * 24 * 60 * 60 * 1000) {
         setTimeout(() => {
-          setShowDialog(true);
-          localStorage.setItem(INSTALL_PROMPT_SHOWN_KEY, Date.now().toString());
+          if (!checkIfInstalled()) {
+            setShowDialog(true);
+            localStorage.setItem(INSTALL_PROMPT_SHOWN_KEY, Date.now().toString());
+          }
         }, 5000); // Wait 5 seconds after page load
       }
       // Show mini prompt if full dialog isn't shown and mini prompt wasn't dismissed recently
       else if (!miniPromptDismissed || (Date.now() - Number(miniPromptDismissed)) > 3 * 24 * 60 * 60 * 1000) {
         setTimeout(() => {
-          setShowMiniPrompt(true);
+          if (!checkIfInstalled()) {
+            setShowMiniPrompt(true);
+          }
         }, 5000);
       }
     };
 
     // Handler for appinstalled event
     const handleAppInstalled = () => {
+      setIsAppInstalled(true);
       setShowSnackbar(true);
       setDeferredPrompt(null);
       setShowDialog(false);
@@ -93,30 +109,49 @@ const InstallPrompt: React.FC = () => {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // Don't show anything if already installed
+  if (isAppInstalled) {
+    return null;
+  }
 
   // Handle install button click
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
+      console.log('No installation prompt available');
       return;
     }
 
-    // Show the install prompt
-    await deferredPrompt.prompt();
+    try {
+      // Show the install prompt
+      await deferredPrompt.prompt();
 
-    // Wait for the user to respond to the prompt
-    const choiceResult = await deferredPrompt.userChoice;
+      // Wait for the user to respond to the prompt
+      const choiceResult = await deferredPrompt.userChoice;
 
-    // Reset the deferred prompt variable
-    setDeferredPrompt(null);
+      // Reset the deferred prompt variable
+      setDeferredPrompt(null);
 
-    // Close dialog
-    setShowDialog(false);
-    setShowMiniPrompt(false);
+      // Close dialog
+      setShowDialog(false);
+      setShowMiniPrompt(false);
 
-    // Log result
-    console.log('User ' + (choiceResult.outcome === 'accepted' ? 'accepted' : 'dismissed') + ' the install prompt');
+      // Show success message if accepted
+      if (choiceResult.outcome === 'accepted') {
+        setShowSnackbar(true);
+      }
+
+      // Log result
+      console.log('User ' + (choiceResult.outcome === 'accepted' ? 'accepted' : 'dismissed') + ' the install prompt');
+    } catch (error) {
+      console.error('Error during installation:', error);
+      // If there's an error, close the prompts
+      setShowDialog(false);
+      setShowMiniPrompt(false);
+    }
   };
 
   // Handle dialog close
@@ -158,7 +193,13 @@ const InstallPrompt: React.FC = () => {
           <Button onClick={handleCloseDialog} color="primary">
             Not Now
           </Button>
-          <Button onClick={handleInstallClick} color="primary" variant="contained" startIcon={<InstallMobileIcon />}>
+          <Button
+            onClick={handleInstallClick}
+            color="primary"
+            variant="contained"
+            startIcon={<InstallMobileIcon />}
+            disabled={!deferredPrompt}
+          >
             Install App
           </Button>
         </DialogActions>
@@ -219,6 +260,7 @@ const InstallPrompt: React.FC = () => {
             size="small"
             startIcon={<InstallMobileIcon />}
             sx={{ alignSelf: 'flex-start', mt: 1 }}
+            disabled={!deferredPrompt}
           >
             Install Now
           </Button>

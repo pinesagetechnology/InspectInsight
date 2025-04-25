@@ -8,10 +8,11 @@ import { setLocalStorageFlag, setLocaStorageError } from './slice';
 import { setCurrentInspection, setPreviousInspectionData, setPreviousInspectionListFromSavedState } from '../Inspection/slice';
 import { setReatedElement } from '../ConditionRating/slice';
 import { setMaintenanceActionList } from '../MaintenanceAction/slice';
-import { db, ReduxApplicationState } from '../../helper/db';
+import { db, ReduxApplicationState, ensureDbReady } from '../../helper/db';
 import { StructureElement } from '../../entities/structure';
 import { getInspectionComment } from '../InspectionComment/selectors';
 import { setInspectionComment } from '../InspectionComment/slice';
+import { setShowLoading } from '../Common/slice';
 
 export function* locaStorageRootSaga() {
     yield takeLatest(actions.SAVE_IN_LOCAL_STORAGE, saveStateInLocalStorage);
@@ -22,12 +23,17 @@ export function* locaStorageRootSaga() {
 
 export function* saveStateInLocalStorage() {
     try {
+        yield put(setShowLoading(true));
+
+        // Ensure database is ready
+        yield call(ensureDbReady);
+
         const inspectionState: InspectionModel = yield select(getInspection);
         const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
         const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
         const ratedElements: StructureElement[] = yield select(getRatedElements);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-        const inspectionComment: string  = yield select(getInspectionComment);
+        const inspectionComment: string = yield select(getInspectionComment);
 
         const stateToSave = {
             id: 'appState', // fixed key
@@ -43,80 +49,191 @@ export function* saveStateInLocalStorage() {
                 maintenanceActions: maintenanceActions,
             },
             inspectionComment: inspectionComment,
+            timestamp: Date.now(), // Add timestamp for versioning
         } as ReduxApplicationState;
 
+        // Use your original method that works
         yield call([db.reduxApplicationState, db.reduxApplicationState.put], stateToSave);
 
         console.log('Redux state saved to IndexedDB');
     } catch (error: any) {
         console.error('Error saving state to IndexedDB:', error);
 
-        if (error instanceof Error) {
-            yield put(setLocaStorageError(error.message));
+        // Implement retry logic here without using safePut
+        let retryCount = 3;
+        let saved = false;
 
-        } else {
-            yield put(setLocaStorageError(error));
+        while (retryCount > 0 && !saved) {
+            try {
+                console.log(`Retrying save operation (${retryCount} attempts left)...`);
+                // Wait a bit before retrying
+                yield call(delay, 500);
 
+                // Get fresh state
+                const inspectionState: InspectionModel = yield select(getInspection);
+                const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
+                const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
+                const ratedElements: StructureElement[] = yield select(getRatedElements);
+                const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
+                const inspectionComment: string = yield select(getInspectionComment);
+
+                const stateToSave = {
+                    id: 'appState',
+                    inspectionData: {
+                        currentInspection: inspectionState,
+                        previoustInspection: previousInspection,
+                        previoustInspectionsList: previousInspectionList,
+                    },
+                    conditionRating: {
+                        ratedElements: ratedElements,
+                    },
+                    maintenanceAction: {
+                        maintenanceActions: maintenanceActions,
+                    },
+                    inspectionComment: inspectionComment,
+                    timestamp: Date.now(),
+                } as ReduxApplicationState;
+
+                // Try the put operation again
+                yield call([db.reduxApplicationState, db.reduxApplicationState.put], stateToSave);
+
+                saved = true;
+                console.log('Redux state saved successfully after retry');
+            } catch (retryError) {
+                retryCount--;
+                if (retryCount === 0) {
+                    console.error('Failed to save after multiple retries', retryError);
+                    if (error instanceof Error) {
+                        yield put(setLocaStorageError(error.message));
+                    } else {
+                        yield put(setLocaStorageError(error));
+                    }
+                }
+            }
         }
+    } finally {
+        yield put(setShowLoading(false));
     }
 }
 
 export function* mapLocalStorageToState() {
     try {
-        // Get the saved state from Dexie using the fixed key
+        yield put(setShowLoading(true));
+
+        // Ensure database is ready
+        yield call(ensureDbReady);
+
+        // Get the saved state using original method
         const savedState: ReduxApplicationState = yield call(() =>
             db.reduxApplicationState.get('appState')
         );
 
         if (savedState) {
-            // mapp inspection
+            // Map inspection
             yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
             yield put(setPreviousInspectionData(savedState.inspectionData.previoustInspection));
             yield put(setPreviousInspectionListFromSavedState(savedState.inspectionData.previoustInspectionsList));
 
-            // mapp condition rating
+            // Map condition rating
             yield put(setReatedElement(savedState.conditionRating.ratedElements));
 
-            // mapp maintenance action
+            // Map maintenance action
             yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
 
-            // map inspection comment
+            // Map inspection comment
             yield put(setInspectionComment(savedState.inspectionComment));
 
+            console.log('State loaded from IndexedDB successfully');
         } else {
             console.log('No state found in IndexedDB');
         }
     } catch (error) {
         console.error('Error loading state from IndexedDB:', error);
+        yield put(setLocaStorageError('Failed to load saved data. Please try again.'));
+
+        // Implement retry logic here
+        let retryCount = 2;
+        let loaded = false;
+
+        while (retryCount > 0 && !loaded) {
+            try {
+                console.log(`Retrying load operation (${retryCount} attempts left)...`);
+                // Wait a bit before retrying
+                yield call(delay, 800);
+
+                // Try the get operation again
+                const savedState: ReduxApplicationState = yield call(() =>
+                    db.reduxApplicationState.get('appState')
+                );
+
+                if (savedState) {
+                    // Map all state again
+                    yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
+                    yield put(setPreviousInspectionData(savedState.inspectionData.previoustInspection));
+                    yield put(setPreviousInspectionListFromSavedState(savedState.inspectionData.previoustInspectionsList));
+                    yield put(setReatedElement(savedState.conditionRating.ratedElements));
+                    yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
+                    yield put(setInspectionComment(savedState.inspectionComment));
+
+                    loaded = true;
+                    console.log('State loaded successfully after retry');
+                }
+            } catch (retryError) {
+                retryCount--;
+            }
+        }
+    } finally {
+        yield put(setShowLoading(false));
     }
 }
 
 export function* checkIfLocalStorageHasValue() {
     try {
+        // Ensure database is ready
+        yield call(ensureDbReady);
+
         const exists: number = yield db.reduxApplicationState.count();
-        
+
         yield put(setLocalStorageFlag(exists > 0));
     } catch (error: any) {
+        console.error('Error checking local storage:', error);
+
         if (error instanceof Error) {
             yield put(setLocaStorageError(error.message));
-
         } else {
             yield put(setLocaStorageError(error));
-
         }
+
+        // Default to false if there's an error
+        yield put(setLocalStorageFlag(false));
     }
 }
 
 export function* removeStateFromLocalStorage() {
     try {
-        yield db.reduxApplicationState.clear();
+        yield put(setShowLoading(true));
+
+        // Ensure database is ready
+        yield call(ensureDbReady);
+
+        // Use the original clear method
+        yield call([db.reduxApplicationState, db.reduxApplicationState.clear]);
+
         console.log('All data cleared from IndexedDB');
     } catch (error) {
+        console.error('Error clearing IndexedDB:', error);
+
         if (error instanceof Error) {
             yield put(setLocaStorageError(error.message));
         } else {
             yield put(setLocaStorageError(error));
         }
+    } finally {
+        yield put(setShowLoading(false));
     }
 }
 
+// Helper function for delay
+function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

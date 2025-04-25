@@ -8,6 +8,7 @@ import * as sharedActions from "./store/Common/actions";
 import * as localDataActions from "./store/LocalStorage/actions";
 import InstallPrompt from './components/installPrompt';
 import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
+import AppInitialization from './components/appInitialization';
 import {
     Alert,
     Backdrop,
@@ -51,6 +52,8 @@ export const MainComponent: React.FunctionComponent = () => {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(registration => {
                 setSwRegistration(registration);
+            }).catch(err => {
+                console.error('Failed to get SW registration:', err);
             });
         }
 
@@ -72,7 +75,7 @@ export const MainComponent: React.FunctionComponent = () => {
         dispatch({
             type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
         } as PayloadAction);
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         if (hasLocalData) {
@@ -122,7 +125,7 @@ export const MainComponent: React.FunctionComponent = () => {
     };
 
     return (
-        <div>
+        <AppInitialization>
             <Dialog
                 open={modalOpen}
                 onClose={handleModalClose}
@@ -152,7 +155,16 @@ export const MainComponent: React.FunctionComponent = () => {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <Suspense fallback={<React.Fragment></React.Fragment>} >
+            <Suspense fallback={
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh'
+                }}>
+                    <CircularProgress />
+                </div>
+            }>
                 <div className="d-flex flex-column min-vh-100">
                     <Header headerValue="Inspection App" />
                     <Snackbar
@@ -175,6 +187,6 @@ export const MainComponent: React.FunctionComponent = () => {
                     <ServiceWorkerUpdate registration={swRegistration} />
                 </div>
             </Suspense>
-        </div>
+        </AppInitialization>
     );
 };
