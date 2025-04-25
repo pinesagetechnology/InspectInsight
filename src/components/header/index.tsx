@@ -31,7 +31,12 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
           </Button>
         </Box>
         <Stack direction={'row'} spacing={2}>
-            {isOnline ? <SignalWifiStatusbar4BarIcon sx={{alignSelf: 'center'}} /> : <SignalWifiOffIcon sx={{alignSelf: 'center'}} />}
+          {
+            isOnline ?
+              <SignalWifiStatusbar4BarIcon sx={{ alignSelf: 'center', color: 'success.main' }} />
+              :
+              <SignalWifiOffIcon sx={{ alignSelf: 'center', color: 'text.secondary' }} />
+          }
           <IconButton color="inherit">
             <NotificationsIcon />
           </IconButton>

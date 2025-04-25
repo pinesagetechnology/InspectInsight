@@ -7,12 +7,19 @@
 // existing tabs open on the page have been closed, since previously cached
 // resources are updated in the background.
 
+// const isLocalhost = typeof window !== 'undefined' && Boolean(
+//   window.location.hostname === 'localhost' ||
+//   // [::1] is the IPv6 localhost address.
+//   window.location.hostname === '[::1]' ||
+//   // 127.0.0.0/8 are considered localhost for IPv4.
+//   window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+// );
+
+const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 const isLocalhost = Boolean(
-  window.location.hostname === 'localhost' ||
-  // [::1] is the IPv6 localhost address.
-  window.location.hostname === '[::1]' ||
-  // 127.0.0.0/8 are considered localhost for IPv4.
-  window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+  hostname === 'localhost' ||
+  hostname === '[::1]' ||
+  hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
 );
 
 type Config = {
@@ -21,6 +28,9 @@ type Config = {
 };
 
 export function register(config?: Config): void {
+  console.log('Registering service worker...');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href);

@@ -163,7 +163,7 @@ export const MainComponent: React.FunctionComponent = () => {
                     >
                         <Alert
                             onClose={handleSnackClose}
-                            severity={(isOnline) ? "success" : "error"}
+                            severity={(isOnline) ? "success" : "warning"}
                             variant="filled"
                             sx={{ width: '100%' }}
                         >
