@@ -87,6 +87,21 @@ registerRoute(
   'POST'
 );
 
+// Ensure health endpoint always comes from the network and is never cached
+registerRoute(
+  ({ url }) => url.pathname.endsWith('/health'),
+  new NetworkOnly({
+    plugins: [
+      {
+        // Optional - log when health check fails due to network
+        fetchDidFail: async ({ request }) => {
+          console.log('Health check failed - network unavailable');
+        }
+      }
+    ]
+  })
+);
+
 // Offline fallback - use a custom handler to avoid conflicts with Workbox's default handlers
 self.addEventListener('fetch', (event) => {
   // Only handle navigation requests, let Workbox handle the rest
