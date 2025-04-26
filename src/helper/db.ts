@@ -2,6 +2,7 @@ import Dexie, { Table } from 'dexie';
 import { Structure, StructureElement } from '../entities/structure';
 import { InspectionModel, MaintenanceActionModel } from '../models/inspectionModel';
 import { InspectionEntity } from '../entities/inspection';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ReduxApplicationState {
     id: 'appState', // fixed key
@@ -20,6 +21,16 @@ export interface ReduxApplicationState {
     timestamp?: number; // Optional timestamp for version control
 }
 
+// Add this new interface for captured images
+export interface CapturedImage {
+    id: string;
+    maintenanceId: string;
+    blob: Blob;
+    timestamp: number;
+    fileName: string;
+    uploaded: boolean;
+}
+
 export interface StructureState {
     id: string;
     structures: Structure[];
@@ -29,14 +40,17 @@ export interface StructureState {
 export class AppDatabase extends Dexie {
     public reduxApplicationState!: Table<ReduxApplicationState, string>;
     public structureState!: Table<StructureState, string>;
+    public capturedImages!: Table<CapturedImage, string>;
 
     constructor() {
         super('AppDatabase');
 
         // Define database schema with versioning
-        this.version(3).stores({
+        this.version(4).stores({
             reduxApplicationState: 'id', // define the primary key for the reduxApplicationState table
             structureState: 'id', // define the primary key for the structureState table
+            // Add indexing by both id and maintenanceId
+            capturedImages: 'id, maintenanceId, timestamp, uploaded'
         });
 
         // Define ready event handler
@@ -53,6 +67,81 @@ export class AppDatabase extends Dexie {
         this.on('close', () => {
             console.warn('Database connection closed');
         });
+    }
+}
+
+export const saveCapturedImage = async (maintenanceId: string,
+    blob: Blob, fileName: string): Promise<string> => {
+
+    const id = uuidv4(); // Generate a unique ID for the image
+
+    if (!db.capturedImages) {
+        throw new Error('CapturedImages table is not initialized.');
+    }
+
+    await db.capturedImages.put({
+        id: id,
+        maintenanceId,
+        blob,
+        fileName,
+        timestamp: Date.now(),
+        uploaded: false
+    });
+
+    console.log(`Image saved to IndexedDB: ${id}`);
+    return id;
+}
+
+// Get all images for a specific maintenance ID
+export const getImagesByMaintenanceId = async (maintenanceId: string): Promise<CapturedImage[]> => {
+    try {
+        return await db.capturedImages
+            .where('maintenanceId')
+            .equals(maintenanceId)
+            .toArray();
+    } catch (error) {
+        console.error(`Failed to retrieve images for maintenance ID ${maintenanceId}:`, error);
+        return [];
+    }
+}
+
+export const getImageById = async (id: string): Promise<CapturedImage | undefined> => {
+    try {
+        return await db.capturedImages.get(id);
+    } catch (error) {
+        console.error(`Failed to retrieve image with ID ${id}:`, error);
+        return undefined;
+    }
+}
+
+// Mark an image as uploaded
+export const markImageAsUploaded = async (id: string): Promise<void> => {
+    try {
+        await db.capturedImages.update(id, { uploaded: true });
+    } catch (error) {
+        console.error(`Failed to mark image ${id} as uploaded:`, error);
+    }
+}
+
+// Delete an image
+export const deleteImage = async (id: string): Promise<void> => {
+    try {
+        await db.capturedImages.delete(id);
+    } catch (error) {
+        console.error(`Failed to delete image ${id}:`, error);
+    }
+}
+
+// Get all unuploaded images (useful for sync)
+export const getUnuploadedImages = async (): Promise<CapturedImage[]> => {
+    try {
+        return await db.capturedImages
+            .where('uploaded')
+            .equals(0)
+            .toArray();
+    } catch (error) {
+        console.error('Failed to retrieve unuploaded images:', error);
+        return [];
     }
 }
 
@@ -130,3 +219,4 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
         return false;
     }
 };
+

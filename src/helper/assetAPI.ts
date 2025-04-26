@@ -1,12 +1,12 @@
 import axios from "axios";
-import { setUpAPIEnv } from "../configuration";
+import { setUpAssetAPIEnv } from "../configuration";
 
-setUpAPIEnv();
+setUpAssetAPIEnv();
 
-const apiUrl = window.API_URL;
+const assetApiUrl = window.ASSET_URL;
 
-const assetAPI = axios.create({
-    baseURL: apiUrl,
+const api = axios.create({
+    baseURL: assetApiUrl,
     validateStatus: (status) => (status >= 200 && status < 300),
     // These headers are important as IE 11 can otherwise cache API responses
     // causing very weird behaviour
@@ -17,7 +17,7 @@ const assetAPI = axios.create({
     }
 });
 
-assetAPI.interceptors.response.use((response) => {
+api.interceptors.response.use((response) => {
     return response;
 }, (error) => {
     if ((error?.response?.status === 400 || error?.response?.status === 401)
@@ -27,8 +27,8 @@ assetAPI.interceptors.response.use((response) => {
     return Promise.reject(error);
 });
 
-assetAPI.defaults.headers.common.Accept = 'application/json';
-assetAPI.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
+api.defaults.headers.common.Accept = 'application/json';
+api.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
 
 export const setAuthorize = async () => {
     // const msalInstance = new PublicClientApplication(msalConfig);
@@ -48,7 +48,7 @@ export const setAuthorize = async () => {
   };
 
   export const revokeAccess = () => {
-    delete assetAPI.defaults.headers.common.Authorization;
+    delete api.defaults.headers.common.Authorization;
   };
 
-export default assetAPI;
+export default api;

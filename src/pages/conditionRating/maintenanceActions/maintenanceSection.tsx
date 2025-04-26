@@ -12,7 +12,7 @@ import {
     AccordionDetails,
     AccordionActions
 } from '@mui/material';
-import { MaintenanceActionModel, MaintenanceImageFile } from '../../../models/inspectionModel';
+import { MaintenanceActionModel } from '../../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
 import SelectComponent from '../../../components/selectComponent';
 import DatePickerComponent from '../../../components/dataPickerComponent';
@@ -111,13 +111,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
         dispatch({
             type: actions.SET_MAINTENANCE_FORM_DATA,
             payload: { ...formData, [name as string]: newDate }
-        } as PayloadAction<MaintenanceActionModel>);
-    }
-
-    const handleImageUpload = (photos: MaintenanceImageFile[]) => {
-        dispatch({
-            type: actions.UPLOAD_MAINTENANCE_IMAGE,
-            payload: { ...formData, photos: [...photos] }
         } as PayloadAction<MaintenanceActionModel>);
     }
 
@@ -277,7 +270,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                             {
                                 (maintenanceActionData.mode > 0) &&
                                 <Grid size={12}>
-                                    <ImageUpload handleImageUpload={handleImageUpload} images={formData.photos || []} />
+                                    <ImageUpload formData={formData} />
                                 </Grid>
                             }
                         </Grid>

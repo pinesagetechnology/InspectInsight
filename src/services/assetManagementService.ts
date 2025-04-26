@@ -3,15 +3,19 @@ import {
     UploadAPIResponse
 } from "../models/inspectionModel";
 import axios, { AxiosResponse } from "axios";
+import { getImageById } from "../helper/db";
 
 export const uploadImage = async (data: MaintenanceImageFile, path: string) => {
-    if (!data.file) {
-        console.log("Please select a file first.");
+    const image = await getImageById(data.dbId);
+
+    if (!image) {
+        console.log("unable to find image or nvalid file");
         return;
     }
 
+    const file = new File([image.blob], image.fileName, { type: 'image/jpeg' });
     const formData = new FormData();
-    formData.append('file', data.file); // Match the name of the form field ('file') with your API parameter
+    formData.append('file', file);
 
     const response: AxiosResponse<UploadAPIResponse> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
         headers: {

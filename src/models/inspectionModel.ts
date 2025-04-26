@@ -12,10 +12,9 @@ export interface InspectionModel {
 }
 
 export interface MaintenanceImageFile {
-    file?: File;
+    dbId: string;
     fileName: string;
     url: string;
-    uploadAPIResponse?: UploadAPIResponse;
 }
 
 export interface UploadAPIResponse {
@@ -46,7 +45,7 @@ export interface MaintenanceActionModel {
     mode: number;
 }
 
-export interface InspectionFomrValidationPayload{
+export interface InspectionFomrValidationPayload {
     name: string;
     value: string;
 }

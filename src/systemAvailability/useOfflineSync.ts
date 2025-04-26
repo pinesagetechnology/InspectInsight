@@ -27,7 +27,7 @@ export const useOfflineSync = () => {
         window.addEventListener('focus', handleFocus);
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', () => {
-            dispatch({ type: actions.SYSTEM_SET_STATUS } as PayloadAction);
+            dispatch({ type: actions.SYSTEM_SET_STATUS_OFFLINE } as PayloadAction);
         });
 
         // Initial check

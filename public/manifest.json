@@ -1,6 +1,7 @@
 {
   "short_name": "Inspection App",
   "name": "Inspection App",
+  "permissions": ["camera"],
   "description": "Inspect and manage structures, even when offline",
   "icons": [
     {

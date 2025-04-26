@@ -59,10 +59,21 @@ registerRoute(
   })
 );
 
-// Set up background sync for offline form submissions
-const backgroundSyncPlugin = new BackgroundSyncPlugin('inspection-sync-queue', {
-  maxRetentionTime: 24 * 60, // Retry for max of 24 Hours (specified in minutes)
-});
+// Cache locally captured images
+registerRoute(
+  ({ request, url }) =>
+    request.destination === 'image' &&
+    url.pathname.includes('camera_'),
+  new CacheFirst({
+    cacheName: 'captured-images',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 50,
+        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+      }),
+    ],
+  })
+);
 
 // Handle API requests with a network-first approach
 registerRoute(
@@ -76,15 +87,6 @@ registerRoute(
       }),
     ],
   })
-);
-
-// Register a route for inspection submissions that will use background sync
-registerRoute(
-  ({ url }) => url.pathname.includes('/api/Inspection'),
-  new NetworkFirst({
-    plugins: [backgroundSyncPlugin],
-  }),
-  'POST'
 );
 
 // Ensure health endpoint always comes from the network and is never cached

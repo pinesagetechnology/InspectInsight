@@ -1,6 +1,5 @@
 import { InspectionEntity } from "../entities/inspection";
 import api, { setAuthorize } from "../helper/api";
-import { mockPreviousInspectionData } from "../mockData";
 
 export const fetchListOfPreviousInspections = async (structureId: string) => {
     await setAuthorize();

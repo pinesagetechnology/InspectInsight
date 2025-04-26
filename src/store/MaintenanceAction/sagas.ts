@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Structure, StructureElement } from '../../entities/structure';
 import * as service from "../../services/assetManagementService";
 import { getCurrentStructure } from '../Structure/selectors';
+import { saveCapturedImage } from '../../helper/db';
 
 export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.ADD_MAINTENANCE_ACTION_DATA, addMaintenanceActionValue);
@@ -22,7 +23,7 @@ export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.CANCEL_NEW_ITEM, cancelNewItem);
     yield takeLatest(actions.EDIT_ITEM, editItem);
     yield takeLatest(actions.SET_MAINTENANCE_FORM_DATA, setMaintenanceActionFormData);
-    yield takeLatest(actions.UPLOAD_MAINTENANCE_IMAGE, uploadMaintenanceImageData);
+    yield takeLatest(actions.UPLOAD_MAINTENANCE_IMAGE, saveMaintenanceImageData);
     yield takeLatest(actions.DELETE_MAINTENANCE_IMAGE, deleteMaintenanceImageData);
     yield takeLatest(actions.SET_SELECTED_MAINTENANCE_ITEM, setSelectedMaintenanceItem);
 }
@@ -144,21 +145,13 @@ export function* setMaintenanceActionFormData(action: PayloadAction<MaintenanceA
     yield put(setCurrentMaintenanceFormData(action.payload));
 }
 
-export function* uploadMaintenanceImageData(action: PayloadAction<MaintenanceActionModel>) {
+export function* saveMaintenanceImageData(action: PayloadAction<MaintenanceActionModel>) {
     try {
         yield put(setUploadFlag(true));
 
-        const selectedStructure: Structure = yield select(getCurrentStructure);
-        const path = `${selectedStructure.id}/${action.payload.elementCode}`;
-
         const updatedPayloadPhotos = [] as MaintenanceImageFile[];
         for (const photo of action.payload.photos) {
-            if (photo.uploadAPIResponse === undefined) {
-                const response: UploadAPIResponse = yield call(service.uploadImage, photo, path);
-                updatedPayloadPhotos.push({ ...photo, file: undefined, uploadAPIResponse: response });
-            } else {
-                updatedPayloadPhotos.push({ ...photo, file: undefined });
-            }
+            updatedPayloadPhotos.push({ ...photo});
         }
 
         yield put(setCurrentMaintenanceFormData({ ...action.payload, photos: updatedPayloadPhotos }));
@@ -179,8 +172,7 @@ export function* uploadMaintenanceImageData(action: PayloadAction<MaintenanceAct
 export function* deleteMaintenanceImageData(action: PayloadAction<DeleteImagePayload>) {
     try {
         yield put(setUploadFlag(true));
-
-        yield call(service.deleteImage, action.payload.id);
+        console.log("deleteMaintenanceImageData", action.payload);
 
         const currentMaintenanceData: MaintenanceActionModel = yield select(getMaintenanceFormData);
 
