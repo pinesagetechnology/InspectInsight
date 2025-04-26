@@ -17,11 +17,6 @@ export interface MaintenanceImageFile {
     url: string;
 }
 
-export interface UploadAPIResponse {
-    id: string;
-    name: string;
-}
-
 export interface DeleteImagePayload {
     id: string;
     updatedImageList: MaintenanceImageFile[];

@@ -17,9 +17,9 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.SAVE_CONDITION_RATING_DATA, saveConditionRatingValue);
     yield takeLatest(actions.UPDATE_DISPLAY_LIST_ITEMS, updateDisplayListItem);
     yield takeLatest(actions.SET_SELECTED_STRUCTURE_ELEMENT, setSelectedElement);
-    yield takeLatest(actions.SAVE_CONDITION_RATING_ASSESSMENT_DATA, saveConditionRatingAssessmentData);
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
     yield takeLatest(actions.SET_SELECTED_ELEMENT, setSelectedElementIdSaga);
+    // yield takeLatest(actions.SAVE_CONDITION_RATING_ASSESSMENT_DATA, saveConditionRatingAssessmentData);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -150,7 +150,13 @@ export function* saveConditionRatingAssessmentData() {
 
         const newInspectionEntity = {
             ...inspectionData,
-            maintenanceActions: [...maintenanceActions],
+            maintenanceActions: maintenanceActions.map(action => ({
+                ...action,
+                photos: action.photos.map(photo => ({
+                    name: photo.fileName,
+                    id:'',
+                }))
+            })),
             conditionRatings: conditionRatings,
             inspectionStatus: InspectionStatusEnum.ToDo
         } as InspectionEntity;

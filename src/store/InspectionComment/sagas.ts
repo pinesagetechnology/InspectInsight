@@ -34,7 +34,14 @@ function* saveInspectionCommentData() {
 
         const newInspectionEntity = {
             ...inspectionData,
-            maintenanceActions: [...maintenanceActions],
+            maintenanceActions: maintenanceActions.map(action => ({
+                ...action,
+                photos: action.photos.map(photo => ({
+                    ...photo,
+                    id: '',
+                    name: photo.fileName || ''
+                }))
+            })),
             conditionRatings: conditionRatings,
             comment: inspectionComment,
             inspectionStatus: InspectionStatusEnum.ToDo

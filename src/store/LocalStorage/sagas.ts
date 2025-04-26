@@ -211,13 +211,14 @@ export function* checkIfLocalStorageHasValue() {
 
 export function* removeStateFromLocalStorage() {
     try {
-        yield put(setShowLoading(true));
 
         // Ensure database is ready
         yield call(ensureDbReady);
 
         // Use the original clear method
         yield call([db.reduxApplicationState, db.reduxApplicationState.clear]);
+
+        yield call([db.capturedImages, db.capturedImages.clear]);
 
         console.log('All data cleared from IndexedDB');
     } catch (error) {
@@ -228,8 +229,6 @@ export function* removeStateFromLocalStorage() {
         } else {
             yield put(setLocaStorageError(error));
         }
-    } finally {
-        yield put(setShowLoading(false));
     }
 }
 

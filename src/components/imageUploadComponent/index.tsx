@@ -143,7 +143,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             }
 
             dispatch({
-                type: actions.UPLOAD_MAINTENANCE_IMAGE,
+                type: actions.SAVE_MAINTENANCE_IMAGE,
                 payload: { ...formData, photos: [...(images || []), ...newImages] }
             } as PayloadAction<MaintenanceActionModel>);
         }
@@ -256,7 +256,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
                 // Add to the UI state
                 dispatch({
-                    type: actions.UPLOAD_MAINTENANCE_IMAGE,
+                    type: actions.SAVE_MAINTENANCE_IMAGE,
                     payload: { ...formData, photos: [...(images || []), newImage] }
                 } as PayloadAction<MaintenanceActionModel>);
 

@@ -1,29 +1,21 @@
 import {
     MaintenanceImageFile,
-    UploadAPIResponse
 } from "../models/inspectionModel";
 import axios, { AxiosResponse } from "axios";
 import { getImageById } from "../helper/db";
+import { MaintenanceImageFileEntity } from "../entities/inspection";
 
-export const uploadImage = async (data: MaintenanceImageFile, path: string) => {
-    const image = await getImageById(data.dbId);
-
-    if (!image) {
-        console.log("unable to find image or nvalid file");
-        return;
-    }
-
-    const file = new File([image.blob], image.fileName, { type: 'image/jpeg' });
+export const uploadImage = async (file: File, path: string) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response: AxiosResponse<UploadAPIResponse> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
+    const response: AxiosResponse<MaintenanceImageFileEntity> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     });
 
-    return response.data as UploadAPIResponse;
+    return response.data as MaintenanceImageFileEntity;
 };
 
 export const deleteImage = async (id: string) => {

@@ -40,6 +40,6 @@ export interface ConditionRatingEntity {
 }
 
 export interface MaintenanceImageFileEntity {
-    fileName: string;
-    url: string;
+    id: string;
+    name: string;
 }

@@ -7,12 +7,10 @@ import {
     setCurrentMaintenanceFormData,
     setUploadFlag
 } from './slice';
-import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile, UploadAPIResponse } from '../../models/inspectionModel';
+import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile } from '../../models/inspectionModel';
 import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
 import { v4 as uuidv4 } from 'uuid';
-import { Structure, StructureElement } from '../../entities/structure';
-import * as service from "../../services/assetManagementService";
-import { getCurrentStructure } from '../Structure/selectors';
+import { StructureElement } from '../../entities/structure';
 import { saveCapturedImage } from '../../helper/db';
 
 export function* maintenanceActionRootSaga() {
@@ -23,7 +21,7 @@ export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.CANCEL_NEW_ITEM, cancelNewItem);
     yield takeLatest(actions.EDIT_ITEM, editItem);
     yield takeLatest(actions.SET_MAINTENANCE_FORM_DATA, setMaintenanceActionFormData);
-    yield takeLatest(actions.UPLOAD_MAINTENANCE_IMAGE, saveMaintenanceImageData);
+    yield takeLatest(actions.SAVE_MAINTENANCE_IMAGE, saveMaintenanceImageData);
     yield takeLatest(actions.DELETE_MAINTENANCE_IMAGE, deleteMaintenanceImageData);
     yield takeLatest(actions.SET_SELECTED_MAINTENANCE_ITEM, setSelectedMaintenanceItem);
 }

@@ -6,6 +6,6 @@ export const UPDATE_MAINTENANCE_ACTION_DATA = "sagaAction/UpdateMaintenanceActio
 export const DELETE_MAINTENANCE_ACTION_DATA = "sagaAction/DeleteMaintenanceActionData";
 export const SAVE_MAINTENANCE_ACTION_DATA = "sagaAction/SaveMaintenanceActionData";
 export const SET_MAINTENANCE_FORM_DATA = "sagaAction/setMaintenanceFormData";
-export const UPLOAD_MAINTENANCE_IMAGE = "sagaAction/UploadMaintenanceImage";
+export const SAVE_MAINTENANCE_IMAGE = "sagaAction/SaveMaintenanceImage";
 export const DELETE_MAINTENANCE_IMAGE = "sagaAction/DeleteMaintenanceImage";
 export const SET_SELECTED_MAINTENANCE_ITEM = "sagaAction/SetSelectedMaintenanceItem";
