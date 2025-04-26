@@ -106,6 +106,7 @@ const MapContainer: React.FC<MapComponentProps> = (
     }) => {
 
     useEffect(() => {
+        console.log("Structures: ", structures);
         setStructureList(structures || []);
     }, [structures]);
 

@@ -62,6 +62,7 @@ module.exports = merge(common, {
         new InjectManifest({
             swSrc: './src/service-worker-template.js',
             swDest: 'service-worker.js',
+            include: [/\.js$/, /\.css$/, /\.html$/, /\.wasm$/],
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
             // Add additional options to prevent issues
             dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,  // Don't cache bust files that already have a hash

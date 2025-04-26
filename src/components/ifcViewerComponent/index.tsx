@@ -22,13 +22,7 @@ const selectHighlighterName: string = "select";
 const Plan: string = "Plan";
 const Orbit: string = "Orbit";
 
-interface IFCViewerComponentProps {
-    expressID?: number;
-}
-
-const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
-    expressID,
-}) => {
+const IFCViewerComponent: React.FC = () => {
     const dispatch = useDispatch();
     const structureElements: StructureElement[] = useSelector(getStructureElements);
     const ratedElements: StructureElement[] = useSelector(getRatedElements);
@@ -119,159 +113,199 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
     // Apply highlighting when rated elements change
     useEffect(() => {
         if (model && highlighterRef.current) {
+            console.log("useeffect highlightRatedElements");
             highlightRatedElements();
         }
     }, [ratedElements, model]);
 
     useEffect(() => {
-        if (!containerRef.current) {
-            return;
-        }
-        const container = containerRef.current;
+        // Cleanup function to prevent duplicate mounts
+        let isComponentMounted = true;
 
-        const worlds = components.get(OBC.Worlds);
-        const world = worlds.create<
-            OBC.SimpleScene,
-            OBC.OrthoPerspectiveCamera,
-            OBF.RendererWith2D
-        >();
+        const setupViewer = async () => {
+            if (!containerRef.current || !isComponentMounted) return;
 
-        const sceneComponent = new OBC.SimpleScene(components);
-        sceneComponent.setup();
-        world.scene = sceneComponent;
+            try {
 
-        const rendererComponent = new OBF.RendererWith2D(components, container);
-        world.renderer = rendererComponent;
+                const container = containerRef.current;
 
-        const cameraComponent = new OBC.OrthoPerspectiveCamera(components);
-        world.camera = cameraComponent;
-        cameraComponentRef.current = cameraComponent;
+                const worlds = components.get(OBC.Worlds);
+                const world = worlds.create<
+                    OBC.SimpleScene,
+                    OBC.OrthoPerspectiveCamera,
+                    OBF.RendererWith2D
+                >();
 
-        const onResize = () => {
-            rendererComponent.resize();
-            cameraComponent.updateAspect();
-        };
+                const sceneComponent = new OBC.SimpleScene(components);
+                sceneComponent.setup();
+                world.scene = sceneComponent;
 
-        container.addEventListener("resize", onResize);
+                const rendererComponent = new OBF.RendererWith2D(components, container);
+                world.renderer = rendererComponent;
 
-        components.init();
+                const cameraComponent = new OBC.OrthoPerspectiveCamera(components);
+                world.camera = cameraComponent;
+                cameraComponentRef.current = cameraComponent;
 
-        // Attach 2D renderer to container
-        containerRef.current.appendChild(world.renderer.three2D.domElement);
+                const onResize = () => {
+                    rendererComponent.resize();
+                    cameraComponent.updateAspect();
+                };
 
-        const ifcLoader = components.get(OBC.IfcLoader);
+                container.addEventListener("resize", onResize);
 
-        const highlighter = components.get(OBF.Highlighter);
-        if (highlighter) {
-            highlighter.setup({ world });
-            highlighter.zoomToSelection = true;
-            highlighterRef.current = highlighter;
-        } else {
-            console.error("Highlighter could not be initialized.");
-        }
+                components.init();
+                // Attach 2D renderer to container
+                containerRef.current.appendChild(world.renderer.three2D.domElement);
 
-        highlighter.events.select.onHighlight.add((fragmentIdMap) => {
-            const fragmentId = Object.keys(fragmentIdMap)[0];
-            const fragmentExpressId = fragmentIdMap[fragmentId].values().next().value;
-
-            dispatch({
-                type: ratingActions.SET_SELECTED_ELEMENT,
-                payload: fragmentExpressId
-            } as PayloadAction<number>);
-        });
-
-        const dimensions = components.get(OBF.LengthMeasurement);
-        if (dimensions) {
-            dimensions.world = world;
-            dimensions.snapDistance = 1;
-            dimensionsRef.current = dimensions;
-        }
-
-        const fragmentsManager = components.get(OBC.FragmentsManager);
-        fragmentsManager.onFragmentsLoaded.add(async (model) => {
-            if (world.scene) {
-                dispatch({
-                    type: commonActions.CLOSE_LOADING_OVERLAY
-                });
-
-                world.scene.three.add(model);
-
-                for (const child of model.children) {
-                    if (child instanceof THREE.Mesh) {
-                        world.meshes.add(child);
+                const highlighter = components.get(OBF.Highlighter);
+                try {
+                    if (highlighter) {
+                        highlighter.setup({ world });
+                        highlighter.zoomToSelection = true;
+                        highlighterRef.current = highlighter;
+                    } else {
+                        console.error("Highlighter could not be initialized.");
+                    }
+                }
+                catch (error) {
+                    if (!(error instanceof Error) || !error.message.includes("selection with that name already exists")) {
+                        console.error("Highlighter setup error:", error);
                     }
                 }
 
-                // Apply rating highlights after model is loaded
-                highlightRatedElements();
-            }
-        });
+                highlighter.events.select.onHighlight.add((fragmentIdMap) => {
+                    const fragmentId = Object.keys(fragmentIdMap)[0];
+                    const fragmentExpressId = fragmentIdMap[fragmentId].values().next().value;
 
-        const indexer = components.get(OBC.IfcRelationsIndexer);
-        fragmentsManager.onFragmentsLoaded.add(async (model) => {
-            if (model.hasProperties) await indexer.process(model);
-        });
+                    dispatch({
+                        type: ratingActions.SET_SELECTED_ELEMENT,
+                        payload: fragmentExpressId
+                    } as PayloadAction<number>);
+                });
 
-        const fetchAndLoad = async () => {
-            await ifcLoader.setup({
-                autoSetWasm: false,
-                wasm: {
-                    path: "/",
-                    absolute: false
+                const dimensions = components.get(OBF.LengthMeasurement);
+                if (dimensions) {
+                    dimensions.world = world;
+                    dimensions.snapDistance = 1;
+                    dimensionsRef.current = dimensions;
                 }
-            });
 
-            const file = await fetch("https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc");
-            const buffer = await file.arrayBuffer();
+                const fragmentsManager = components.get(OBC.FragmentsManager);
+                fragmentsManager.onFragmentsLoaded.add(async (model) => {
+                    if (world.scene) {
+                        dispatch({
+                            type: commonActions.CLOSE_LOADING_OVERLAY
+                        });
 
-            const typedArray = new Uint8Array(buffer);
-            const model = await ifcLoader.load(typedArray);
+                        world.scene.three.add(model);
 
-            const classifierObj = components.get(OBC.Classifier);
-            classifierObj.byEntity(model);
+                        for (const child of model.children) {
+                            if (child instanceof THREE.Mesh) {
+                                world.meshes.add(child);
+                            }
+                        }
 
-            await classifierObj.bySpatialStructure(model, {
-                isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
-            })
+                        // Apply rating highlights after model is loaded
+                        highlightRatedElements();
+                    }
+                });
 
-            setModel(model);
-            setFragmentsManager(fragmentsManager);
-            setIndexer(indexer);
+                const indexer = components.get(OBC.IfcRelationsIndexer);
+                fragmentsManager.onFragmentsLoaded.add(async (model) => {
+                    if (model.hasProperties) await indexer.process(model);
+                });
 
-            const hider = components.get(OBC.Hider);
-            hiderRef.current = hider;
-        }
+                const ifcLoader = components.get(OBC.IfcLoader);
 
-        fetchAndLoad();
+                const fetchAndLoad = async () => {
+                    try {
+                        console.log("About to setup IFC loader");
 
-        const casters = components.get(OBC.Raycasters);
-        casters.get(world);
+                        // First attempt - modern approach
+                        try {
+                            await ifcLoader.setup({
+                                autoSetWasm: false,
+                                wasm: {
+                                    // this must be the full URL to the .wasm file
+                                    path: '/web-ifc.wasm',
+                                    absolute: true
+                                }
+                            });
+                            console.log('✓ IFC WASM path set, module loaded');
 
-        const clipper = components.get(OBC.Clipper);
+                        } catch (e) {
+                            console.error("First setup attempt failed:", e);
+                        }
 
-        clipperRef.current = clipper;
-        worldRef.current = world;
+                        console.log("IFC setup completed");
 
-        container.ondblclick = onContainerDoubleClick;
+                        const file = await fetch("https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc");
+                        const buffer = await file.arrayBuffer();
 
-        container.onclick = onContainerClick;
+                        const typedArray = new Uint8Array(buffer);
+                        const model = await ifcLoader.load(typedArray);
 
-        window.onkeydown = (event: KeyboardEvent) => {
-            if (event.code === "Delete") {
-                if (isMeasurementModeRef.current) {
-                    dimensions.delete();
-                } else if (isClipperOnRef.current) {
-                    clipper.delete(world);
+                        const classifierObj = components.get(OBC.Classifier);
+                        classifierObj.byEntity(model);
+
+                        await classifierObj.bySpatialStructure(model, {
+                            isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
+                        })
+
+                        setModel(model);
+                        setFragmentsManager(fragmentsManager);
+                        setIndexer(indexer);
+
+                        const hider = components.get(OBC.Hider);
+                        hiderRef.current = hider;
+                    }
+                    catch (error) {
+                        console.error("Error in IFC loading:", error);
+                        dispatch({
+                            type: commonActions.CLOSE_LOADING_OVERLAY
+                        });
+                    }
                 }
+
+                fetchAndLoad();
+
+                const casters = components.get(OBC.Raycasters);
+                casters.get(world);
+
+                const clipper = components.get(OBC.Clipper);
+
+                clipperRef.current = clipper;
+                worldRef.current = world;
+
+                container.ondblclick = onContainerDoubleClick;
+
+                container.onclick = onContainerClick;
+
+                window.onkeydown = (event: KeyboardEvent) => {
+                    if (event.code === "Delete") {
+                        if (isMeasurementModeRef.current) {
+                            dimensions.delete();
+                        } else if (isClipperOnRef.current) {
+                            clipper.delete(world);
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error in setup:", error);
             }
-        }
+        };
+
+        setupViewer();
 
         return () => {
+            isComponentMounted = false;
             try {
-                if (container) {
-                    container.removeEventListener("resize", onResize);
-                    container.ondblclick = null;
-                    container.onclick = null;
+                if (containerRef.current) {
+                    // containerRef.current.removeEventListener("resize", onResize);
+                    containerRef.current.ondblclick = null;
+                    containerRef.current.onclick = null;
                 }
                 window.onkeydown = null;
 
@@ -516,7 +550,7 @@ const IFCViewerComponent: React.FC<IFCViewerComponentProps> = ({
                         }
                     </Drawer>
 
-                    <AssessmentPanel showConditionPanel={showConditionPanel} isSelected={isSelected}/>
+                    <AssessmentPanel showConditionPanel={showConditionPanel} isSelected={isSelected} />
 
                     <ViewerMenu
                         isClipperOn={isClipperOn}

@@ -41,13 +41,6 @@ export const MainComponent: React.FunctionComponent = () => {
     const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
     useEffect(() => {
-        const handleOnlineStatusChange = () => {
-            setOpenSnack(true);
-        };
-
-        window.addEventListener('online', handleOnlineStatusChange);
-        window.addEventListener('offline', handleOnlineStatusChange);
-
         // Get service worker registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(registration => {
@@ -57,17 +50,6 @@ export const MainComponent: React.FunctionComponent = () => {
             });
         }
 
-        return () => {
-            window.removeEventListener('online', handleOnlineStatusChange);
-            window.removeEventListener('offline', handleOnlineStatusChange);
-        };
-    }, []);
-
-    useEffect(() => {
-        setOpenSnack(true);
-    }, [isOnline]);
-
-    useEffect(() => {
         dispatch({
             type: actions.FETCH_STRUCTURES_DATA
         } as PayloadAction);
@@ -76,6 +58,10 @@ export const MainComponent: React.FunctionComponent = () => {
             type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
         } as PayloadAction);
     }, []);
+
+    useEffect(() => {
+        setOpenSnack(true);
+    }, [isOnline]);
 
     useEffect(() => {
         if (hasLocalData) {

@@ -61,7 +61,15 @@ module.exports = {
                 { 
                     from: 'public/logo512.png', 
                     to: 'logo512.png' 
-                }
+                },
+                { 
+                    from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
+                    to: 'web-ifc.wasm' 
+                },
+                { 
+                    from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc-mt.wasm'),
+                    to: 'web-ifc-mt.wasm' 
+                },
             ]
         }),
         new webpack.DefinePlugin({
