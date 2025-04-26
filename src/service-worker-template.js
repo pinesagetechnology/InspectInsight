@@ -5,6 +5,17 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { clientsClaim } from 'workbox-core';
 import { NetworkOnly } from 'workbox-strategies';
 
+// At the top of your SW file, alongside your imports:
+const RUNTIME_CACHE_WHITELIST = [
+  'wasm-files',
+  'google-fonts-stylesheets',
+  'google-fonts-webfonts',
+  'images',
+  'static-resources',
+  'offline-fallbacks'
+];
+
+
 // Adopt the clients immediately
 self.skipWaiting();
 clientsClaim();
@@ -114,13 +125,9 @@ registerRoute(
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.pathname.endsWith('.wasm')) {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => caches.match(event.request))
-    );
+    console.log('[SW] Bypassing .wasm fetch for:', url.pathname);
     return;
   }
-
   // Only handle navigation requests, let Workbox handle the rest
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -176,5 +183,21 @@ self.addEventListener('install', (event) => {
     caches.open('offline-fallbacks').then((cache) => {
       return cache.add('/offline.html');
     })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames.map(cacheName => {
+          // If the cache is NOT in our whitelist, delete it:
+          if (!RUNTIME_CACHE_WHITELIST.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+          return Promise.resolve();
+        })
+      )
+    )
   );
 });

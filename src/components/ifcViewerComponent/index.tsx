@@ -221,14 +221,14 @@ const IFCViewerComponent: React.FC = () => {
                 const fetchAndLoad = async () => {
                     try {
                         console.log("About to setup IFC loader");
-
+                        console.log(process.env.PUBLIC_URL + '/web-ifc.wasm');
                         // First attempt - modern approach
                         try {
                             await ifcLoader.setup({
                                 autoSetWasm: false,
                                 wasm: {
                                     // this must be the full URL to the .wasm file
-                                    path: '/web-ifc.wasm',
+                                    path: process.env.PUBLIC_URL + '/',
                                     absolute: true
                                 }
                             });

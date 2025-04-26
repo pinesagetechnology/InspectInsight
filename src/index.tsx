@@ -40,6 +40,7 @@ root.render(
 );
 
 // Register the service worker
+
 serviceWorkerRegistration.register({
     onSuccess: (registration) => {
         console.log('Service Worker registration successful with scope: ', registration.scope);
@@ -48,7 +49,8 @@ serviceWorkerRegistration.register({
         console.log('Service Worker updated. New content is available.');
         // Note: The update notification will be handled by the ServiceWorkerUpdate component
     }
-});
+})
+
 
 // Log some info about the environment
 console.log(`Running in ${process.env.NODE_ENV} mode`);

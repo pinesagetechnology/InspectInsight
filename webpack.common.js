@@ -42,33 +42,33 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { 
-                    from: 'public/manifest.json', 
-                    to: 'manifest.json' 
+                {
+                    from: 'public/manifest.json',
+                    to: 'manifest.json'
                 },
-                { 
-                    from: 'public/offline.html', 
-                    to: 'offline.html' 
+                {
+                    from: 'public/offline.html',
+                    to: 'offline.html'
                 },
-                { 
-                    from: 'public/favicon.ico', 
-                    to: 'favicon.ico' 
+                {
+                    from: 'public/favicon.ico',
+                    to: 'favicon.ico'
                 },
-                { 
-                    from: 'public/logo192.png', 
-                    to: 'logo192.png' 
+                {
+                    from: 'public/logo192.png',
+                    to: 'logo192.png'
                 },
-                { 
-                    from: 'public/logo512.png', 
-                    to: 'logo512.png' 
+                {
+                    from: 'public/logo512.png',
+                    to: 'logo512.png'
                 },
-                { 
+                {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
-                    to: 'web-ifc.wasm' 
+                    to: 'web-ifc.wasm'
                 },
-                { 
+                {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc-mt.wasm'),
-                    to: 'web-ifc-mt.wasm' 
+                    to: 'web-ifc-mt.wasm'
                 },
             ]
         }),
@@ -77,6 +77,7 @@ module.exports = {
             'process.env.REACT_APP_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_API_LOCAL_URL),
             'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL),
             'process.env.REACT_APP_GOOGLE_MAPS_API_KEY': JSON.stringify(process.env.REACT_APP_GOOGLE_MAPS_API_KEY),
+            'process.env.REACT_APP_GOOGLE_MAPS_MAP_ID': JSON.stringify(process.env.REACT_APP_GOOGLE_MAPS_MAP_ID),
             'process.env.REACT_APP_ASSET_LOCAL_URL': JSON.stringify(process.env.REACT_APP_ASSET_LOCAL_URL),
             'process.env.REACT_APP_ASSET_URL': JSON.stringify(process.env.REACT_APP_ASSET_URL),
             'process.env.PUBLIC_URL': JSON.stringify('')
