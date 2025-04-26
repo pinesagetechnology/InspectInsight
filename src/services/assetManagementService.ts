@@ -1,21 +1,17 @@
-import {
-    MaintenanceImageFile,
-} from "../models/inspectionModel";
 import axios, { AxiosResponse } from "axios";
-import { getImageById } from "../helper/db";
-import { MaintenanceImageFileEntity } from "../entities/inspection";
+import { uploadAPIResponse } from "../entities/inspection";
 
 export const uploadImage = async (file: File, path: string) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response: AxiosResponse<MaintenanceImageFileEntity> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
+    const response: AxiosResponse<uploadAPIResponse> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     });
 
-    return response.data as MaintenanceImageFileEntity;
+    return response.data as uploadAPIResponse;
 };
 
 export const deleteImage = async (id: string) => {

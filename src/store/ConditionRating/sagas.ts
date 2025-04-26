@@ -150,13 +150,7 @@ export function* saveConditionRatingAssessmentData() {
 
         const newInspectionEntity = {
             ...inspectionData,
-            maintenanceActions: maintenanceActions.map(action => ({
-                ...action,
-                photos: action.photos.map(photo => ({
-                    name: photo.fileName,
-                    id:'',
-                }))
-            })),
+            maintenanceActions: [...maintenanceActions],
             conditionRatings: conditionRatings,
             inspectionStatus: InspectionStatusEnum.ToDo
         } as InspectionEntity;

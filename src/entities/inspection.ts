@@ -40,6 +40,13 @@ export interface ConditionRatingEntity {
 }
 
 export interface MaintenanceImageFileEntity {
+    dbId: string;
+    fileName: string;
+    url: string;
+    apiResponse?: uploadAPIResponse
+}
+
+export interface uploadAPIResponse {
     id: string;
     name: string;
 }

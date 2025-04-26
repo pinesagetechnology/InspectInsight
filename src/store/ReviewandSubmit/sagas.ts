@@ -2,7 +2,13 @@ import { takeLatest, select, call, put } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { getCurrentStructure } from '../Structure/selectors';
 import { Structure, StructureElement } from '../../entities/structure';
-import { ConditionRatingEntity, InspectionEntity, MaintenanceActionEntity, MaintenanceImageFileEntity } from '../../entities/inspection';
+import { 
+    ConditionRatingEntity, 
+    InspectionEntity, 
+    MaintenanceActionEntity, 
+    MaintenanceImageFileEntity, 
+    uploadAPIResponse 
+} from '../../entities/inspection';
 import * as inspectionServices from "../../services/inspectionService";
 import { getInspection } from '../Inspection/selectors';
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
@@ -26,7 +32,7 @@ export function* saveData() {
 
         const selectedStructure: Structure = yield select(getCurrentStructure);
         const maintenanceActionsModel: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-
+        console.log("maintenanceActionsModel", maintenanceActionsModel);
         const maintenanceActionsEntity: MaintenanceActionEntity[] = [];
 
         for (const action of maintenanceActionsModel) {
@@ -43,20 +49,18 @@ export function* saveData() {
                         type: 'image/jpeg'
                     });
 
-                    const response: MaintenanceImageFileEntity = yield call(assetService.uploadImage, file, path);
+                    const response: uploadAPIResponse = yield call(assetService.uploadImage, file, path);
 
-                    if (response) {
-                        photos.push({
-                            id: response.id,
-                            name: response.name
-                        } as MaintenanceImageFileEntity)
-                    }
+                    photos.push({
+                        ...item,
+                        apiResponse: response,
+                    } as MaintenanceImageFileEntity);
                 }
             }
 
             maintenanceActionsEntity.push({ ...action, photos: [...photos] } as MaintenanceActionEntity)
         }
-
+        console.log("maintenanceActionsEntity", maintenanceActionsEntity);
         const ratedElements: StructureElement[] = yield select(getRatedElements);
         const conditionRatingEntity = ratedElements?.map(item => {
             return {

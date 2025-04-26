@@ -75,7 +75,7 @@ export const MainComponent: React.FunctionComponent = () => {
         dispatch({
             type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
         } as PayloadAction);
-    }, [dispatch]);
+    }, []);
 
     useEffect(() => {
         if (hasLocalData) {

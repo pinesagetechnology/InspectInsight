@@ -211,7 +211,6 @@ export function* checkIfLocalStorageHasValue() {
 
 export function* removeStateFromLocalStorage() {
     try {
-
         // Ensure database is ready
         yield call(ensureDbReady);
 
