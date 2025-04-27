@@ -2,6 +2,7 @@ export enum RoutesValueEnum {
     Home = '',
     InspectionDetail = 'inspectionDetail',
     ConditionRating = 'conditionRating',
+    IFCViewer = 'ifcViewer',
     InspectorComments = 'inspectorComments',
     InspectionReview = 'inspectionReview',
     PreviousInspection = 'previousInspection',

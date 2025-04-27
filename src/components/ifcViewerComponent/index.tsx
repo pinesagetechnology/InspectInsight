@@ -31,13 +31,14 @@ const IFCViewerComponent: React.FC = () => {
     const cameraRef = useRef<OBC.OrthoPerspectiveCamera>();
     const fragMgrRef = useRef<OBC.FragmentsManager>();
     const indexerRef = useRef<OBC.IfcRelationsIndexer>();
-    const modelRef = useRef<FRAGS.FragmentsGroup>();
+    // const modelRef = useRef<FRAGS.FragmentsGroup>();
 
     const highlighterRef = useRef<OBF.Highlighter>();
     const hiderRef = useRef<OBC.Hider>();
     const dimensionsRef = useRef<OBF.LengthMeasurement>();
     const clipperRef = useRef<OBC.Clipper>();
 
+    const [model, setModel] = useState<FRAGS.FragmentsGroup>();
     const [isMeasurementMode, setIsMeasurementMode] = useState(false);
     const [isClipperOn, setIsClipperOn] = useState(false);
     const isMeasurementModeRef = useRef(isMeasurementMode);
@@ -48,14 +49,15 @@ const IFCViewerComponent: React.FC = () => {
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
     const [showConditionPanel, setShowConditionPanel] = useState(true);
+    const [isModelLoaded, setIsModelLoaded] = useState(false);
 
     // Keep refs in sync
     useEffect(() => { isMeasurementModeRef.current = isMeasurementMode; }, [isMeasurementMode]);
     useEffect(() => { isClipperOnRef.current = isClipperOn; }, [isClipperOn]);
 
     // Highlight rated elements
-    const highlightRatedElements = useCallback(() => {
-        if (modelRef.current && fragMgrRef.current && ratedElements.length > 0 && highlighterRef.current) {
+    const highlightRatedElements = () => {
+        if (model && fragMgrRef.current && ratedElements.length > 0 && highlighterRef.current) {
             ratedElements.forEach((item) => {
                 if (item.condition && item.condition.length) {
                     const valid = item.condition.filter(c => c > 0);
@@ -66,8 +68,10 @@ const IFCViewerComponent: React.FC = () => {
                             : avg <= 2.5 ? new THREE.Color(0xffff00)
                                 : avg <= 3.5 ? new THREE.Color(0xff9900)
                                     : new THREE.Color(0xff0000);
-                        const fragmentIDMap = getRowFragmentIdMap(modelRef.current!, item.data);
+                        const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
                         if (fragmentIDMap) {
+                            console.log('ratedElements', ratedElements);
+
                             if (fragMgrRef.current?.list) {
                                 Object.keys(fragmentIDMap).forEach(fragmentId => {
                                     const fragment = fragMgrRef.current?.list.get(fragmentId);
@@ -85,13 +89,17 @@ const IFCViewerComponent: React.FC = () => {
                 }
             });
         }
-    }, [ratedElements]);
+    }
 
-    useEffect(() => { highlightRatedElements(); }, [highlightRatedElements]);
+    useEffect(() => {
+        if (isModelLoaded)
+            highlightRatedElements();
+    }, [isModelLoaded, highlightRatedElements]);
 
     // Initialize viewer
     useEffect(() => {
         let isMounted = true;
+        setIsModelLoaded(false);
         const components = new OBC.Components();
 
         const setup = async () => {
@@ -147,8 +155,6 @@ const IFCViewerComponent: React.FC = () => {
                 loadedModel.children.forEach(child => child instanceof THREE.Mesh && world.meshes.add(child));
 
                 highlightRatedElements();
-
-                modelRef.current = loadedModel;
             });
             const idx = components.get(OBC.IfcRelationsIndexer);
             indexerRef.current = idx;
@@ -167,7 +173,8 @@ const IFCViewerComponent: React.FC = () => {
                 const resp = await fetch(url);
                 const arrayBuffer = await resp.arrayBuffer();
                 const model = await ifcLoader.load(new Uint8Array(arrayBuffer));
-
+                // modelRef.current = model;
+                setModel(model);
                 classifierObj.byEntity(model);
 
                 await classifierObj.bySpatialStructure(model, {
@@ -178,6 +185,8 @@ const IFCViewerComponent: React.FC = () => {
                 console.error('IFC load error:', e);
                 dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY } as PayloadAction);
             }
+
+            setIsModelLoaded(true);
         };
 
         setup();
@@ -296,8 +305,8 @@ const IFCViewerComponent: React.FC = () => {
     }
 
     const handleHideSelectedFragment = (node: StructureElement, isVisible: boolean) => {
-        if (modelRef.current && fragMgrRef.current && indexerRef.current) {
-            const fragmentProperties = modelRef.current.getLocalProperties();
+        if (model && fragMgrRef.current && indexerRef.current) {
+            const fragmentProperties = model.getLocalProperties();
             if (fragmentProperties) {
                 const matchingIDs = Object.entries(fragmentProperties)
                     .filter(([key, value]) => {
@@ -305,7 +314,7 @@ const IFCViewerComponent: React.FC = () => {
                     })
                     .map(([key]) => parseInt(key));
 
-                const fragmentMap = modelRef.current.getFragmentMap(matchingIDs);
+                const fragmentMap = model.getFragmentMap(matchingIDs);
 
                 if (hiderRef.current && fragmentMap) {
                     hiderRef.current.set(isVisible, fragmentMap);
@@ -315,8 +324,8 @@ const IFCViewerComponent: React.FC = () => {
     }
 
     const handleTreeItemClick = (item: StructureElement) => {
-        if (modelRef.current && modelRef.current.uuid) {
-            const fragmentIDMap = getRowFragmentIdMap(modelRef.current, item.data);
+        if (model && model.uuid) {
+            const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
             if (fragmentIDMap && !isMeasurementMode) {
                 highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
@@ -333,7 +342,7 @@ const IFCViewerComponent: React.FC = () => {
                         onDoubleClick={onContainerDoubleClick}
                     />
                     <Drawer open={isShowTree} onClose={() => setIsShowTree(false)}>
-                        {modelRef.current && (
+                        {model && (
                             <TreeViewComponent
                                 treeData={structureElements}
                                 handleTreeItemClick={handleTreeItemClick}

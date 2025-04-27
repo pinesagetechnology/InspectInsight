@@ -15,10 +15,10 @@ export const AppRouter: React.FunctionComponent = () => {
     return (
         <React.Fragment>
             <Routes>
-                <Route path={`/${RoutesValueEnum.Home}`} element={<IFCViewer />} />
-                {/* <Route path={`/${RoutesValueEnum.Home}`} element={<HomePage />} /> */}
+                <Route path={`/${RoutesValueEnum.Home}`} element={<HomePage />} />
                 <Route path={`/${RoutesValueEnum.InspectionDetail}`} element={<InspectionDetailPage />} />
                 <Route path={`/${RoutesValueEnum.ConditionRating}`} element={<ConditionRatingPage />} />
+                <Route path={`/${RoutesValueEnum.IFCViewer}`} element={<IFCViewer />} />
                 <Route path={`/${RoutesValueEnum.InspectorComments}`} element={<InspectionComment />} />
                 <Route path={`/${RoutesValueEnum.InspectionReview}`} element={<InspectionReview />} />
                 <Route path={`/${RoutesValueEnum.PreviousInspection}`} element={<PreviousInspectionListPage />} />

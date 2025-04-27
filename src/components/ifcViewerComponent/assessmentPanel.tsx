@@ -85,7 +85,6 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
         }
     };
 
-
     const saveOnClick = () => {
         if (!currentStructureElelement) return;
 
@@ -129,6 +128,12 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
             <Paper elevation={0} className={styles.assessmentPanel}>
                 <Typography variant="h6">Condition Rating Form</Typography>
+                <Divider orientation="horizontal" flexItem  className={styles.divider}/>
+                <Stack>
+                    <Typography variant='caption'>Element Name</Typography>
+                    <Typography variant='body2'>{structureElement?.data?.Name}</Typography>
+                </Stack>
+
                 <Divider orientation="horizontal" flexItem  className={styles.divider}/>
                 
                 <Stack direction="row" spacing={1}>
