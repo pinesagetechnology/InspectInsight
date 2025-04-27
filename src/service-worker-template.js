@@ -1,9 +1,8 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate, NetworkFirst, CacheFirst } from 'workbox-strategies';
+import { StaleWhileRevalidate, NetworkFirst, CacheFirst, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { clientsClaim } from 'workbox-core';
-import { NetworkOnly } from 'workbox-strategies';
 
 // At the top of your SW file, alongside your imports:
 const RUNTIME_CACHE_WHITELIST = [
@@ -95,7 +94,7 @@ registerRoute(
 // Handle API requests with a network-first approach
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),
-  new NetworkFirst({
+  new NetworkOnly({
     cacheName: 'api-responses',
     plugins: [
       new ExpirationPlugin({
