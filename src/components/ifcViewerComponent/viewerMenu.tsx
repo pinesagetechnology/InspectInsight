@@ -86,7 +86,7 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
 
                 <Divider orientation="vertical" variant="middle" flexItem />
 
-                <Stack direction='row' spacing={2}>
+                {/* <Stack direction='row' spacing={2}>
                     <IconButton color={isClipperOn ? 'default' : 'warning'} aria-label="use clipper" onClick={onClipperClick} className={styles.menuButtonSize}>
                         {isClipperOn ?
                             <CloseIcon />
@@ -99,9 +99,9 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                             <DeleteForeverIcon />
                         </IconButton>
                     }
-                </Stack>
+                </Stack> */}
 
-                <Divider orientation="vertical" variant="middle" flexItem />
+                {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
 
                 <IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler} className={styles.menuButtonSize}>
                     <TroubleshootIcon />
