@@ -1,9 +1,8 @@
 import { Structure, StructureElement } from "../entities/structure";
-import api from "../helper/api"
-import mockStructures from '../mockData/get_structure.json';
+import api, { setAuthorize } from "../helper/api"
 
 export const getStructureData = async () => {
-    // await new Promise(resolve => setTimeout(resolve, 3000));
+    await setAuthorize();
 
     let result = await api.get("api/Structure/list");
 

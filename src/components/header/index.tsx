@@ -1,18 +1,28 @@
 import React from 'react';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { AppBar, Box, Button, IconButton, Stack, Toolbar, Typography } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from "../../enums";
 import { useOfflineSync } from '../../systemAvailability/useOfflineSync';
 import SignalWifiStatusbar4BarIcon from '@mui/icons-material/SignalWifiStatusbar4Bar';
 import SignalWifiOffIcon from '@mui/icons-material/SignalWifiOff';
+import LogoutIcon from '@mui/icons-material/Logout';
+import * as actions from "../../store/Common/actions";
+import { useDispatch, useSelector } from 'react-redux';
+import { getEmail, getUserId } from '../../store/Auth/selectors';
+import { useAuth } from '../../context';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 interface HeaderProps {
   headerValue: string
 }
 const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
   const { goTo } = useNavigationManager();
+  const dispatch = useDispatch();
+  const { logout } = useAuth();
+
+  const logedInEmail = useSelector(getEmail);
+  const userId = useSelector(getUserId);
 
   const isOnline = useOfflineSync();
 
@@ -20,6 +30,13 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
     goTo(RoutesValueEnum.Home);
   };
 
+  const handleLogoutClick = () => {
+    dispatch({
+      type: actions.SHOW_LOADING_OVERLAY,
+    } as PayloadAction);
+    
+    logout();
+  }
   return (
     <AppBar position="static" color="default">
       <Toolbar>
@@ -40,9 +57,11 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
           <IconButton color="inherit">
             <NotificationsIcon />
           </IconButton>
-          <IconButton color="inherit">
-            <PersonIcon />
-          </IconButton>
+          {userId && (
+            <IconButton color="inherit" onClick={handleLogoutClick}>
+              <LogoutIcon />
+            </IconButton>
+          )}
         </Stack>
       </Toolbar>
     </AppBar>

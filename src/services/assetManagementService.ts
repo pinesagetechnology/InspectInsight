@@ -1,19 +1,35 @@
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { uploadAPIResponse } from "../entities/inspection";
+import assetApi from "../helper/assetAPI";
 
-export const uploadImage = async (file: File, path: string) => {
+export const uploadImage = async (file: File, path: string): Promise<uploadAPIResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response: AxiosResponse<uploadAPIResponse> = await axios.post(`${window.ASSET_URL}api/assets/upload?path=${path}`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
-
-    return response.data as uploadAPIResponse;
+    // Use assetApi instance instead of direct axios call
+    const response: AxiosResponse<uploadAPIResponse> = await assetApi.post(
+        `/api/assets/upload?path=${path}`, 
+        formData, 
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+console.log('Upload response:', response); // Log the response data
+    return response.data;
 };
 
-export const deleteImage = async (id: string) => {
-    await axios.delete(`${window.ASSET_URL}api/assets/${id}`);
+export const deleteImage = async (id: string): Promise<void> => {
+    await assetApi.delete(`/api/assets/${id}`);
+};
+
+export const getAssetById = async (id: string): Promise<any> => {
+    const response = await assetApi.get(`/api/assets/${id}`);
+    return response.data;
+};
+
+export const listAssets = async (path: string): Promise<any[]> => {
+    const response = await assetApi.get(`/api/assets?path=${path}`);
+    return response.data;
 };

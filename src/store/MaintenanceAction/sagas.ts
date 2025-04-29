@@ -11,7 +11,6 @@ import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile } from
 import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
 import { v4 as uuidv4 } from 'uuid';
 import { StructureElement } from '../../entities/structure';
-import { saveCapturedImage } from '../../helper/db';
 
 export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.ADD_MAINTENANCE_ACTION_DATA, addMaintenanceActionValue);

@@ -10,6 +10,7 @@ import LoadingOverlayState from "./Common/slice";
 import ReviewAndSubmitState from "./ReviewandSubmit/slice";
 import IFCViewerState from "./IFCViewer/slice";
 import LocalStorageSlice from "./LocalStorage/slice";
+import AuthState from "./Auth/slice";
 
 const rootReducer = combineReducers({
     StepsState,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     ReviewAndSubmitState,
     LocalStorageSlice,
     IFCViewerState,
+    AuthState
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

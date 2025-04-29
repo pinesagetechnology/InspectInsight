@@ -17,3 +17,14 @@ export const setUpAssetAPIEnv = () => {
 
     return;
 }
+
+
+export const setUpAuthAPIEnv = () => {
+    if (process.env.REACT_APP_USE_MOCK === 'true') {
+        window.USER_API_URL = process.env.REACT_APP_USER_API_LOCAL_URL
+    } else {
+        window.USER_API_URL = process.env.REACT_APP_USER_API_URL
+    }
+
+    return;
+}
