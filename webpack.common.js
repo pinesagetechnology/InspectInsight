@@ -80,7 +80,11 @@ module.exports = {
             'process.env.REACT_APP_GOOGLE_MAPS_MAP_ID': JSON.stringify(process.env.REACT_APP_GOOGLE_MAPS_MAP_ID),
             'process.env.REACT_APP_ASSET_LOCAL_URL': JSON.stringify(process.env.REACT_APP_ASSET_LOCAL_URL),
             'process.env.REACT_APP_ASSET_URL': JSON.stringify(process.env.REACT_APP_ASSET_URL),
-            'process.env.PUBLIC_URL': JSON.stringify('')
+            'process.env.PUBLIC_URL': JSON.stringify(''),
+            'process.env.REACT_APP_USER_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_USER_API_LOCAL_URL),
+            'process.env.REACT_APP_USER_API_URL': JSON.stringify(process.env.REACT_APP_USER_API_URL),
+            'process.env.REACT_APP_SUBSCRIPTION_KEY': JSON.stringify(process.env.REACT_APP_SUBSCRIPTION_KEY),
+
         })
     ]
 };

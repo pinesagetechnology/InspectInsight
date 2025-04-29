@@ -1,24 +1,21 @@
-import axios from "axios";
-import { setUpAPIEnv } from "../configuration";
-import authAPI from "./authAPI";
-import { AuthResponse } from "../entities/auth";
+import axios from 'axios';
+import { setUpAuthAPIEnv } from "../configuration";
 
-setUpAPIEnv();
+setUpAuthAPIEnv();
+const authApiUrl = window.USER_API_URL;
 
-const apiUrl = window.API_URL;
-
-const api = axios.create({
-    baseURL: apiUrl,
+const authAPI = axios.create({
+    baseURL: authApiUrl,
     validateStatus: (status) => (status >= 200 && status < 300),
     headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache,no-store,must-revalidate,max-age=0',
         Pragma: 'no-cache',
         Expires: 0
-    }
+    },
 });
 
-// api.interceptors.request.use(config => {
+// authAPI.interceptors.request.use(config => {
 //     const subscriptionKey = process.env.REACT_APP_SUBSCRIPTION_KEY;
 //     config.headers = config.headers || {};
 
@@ -33,8 +30,9 @@ const api = axios.create({
 
 export const setAuthorize = async () => {
     // Request interceptor to add Authorization header
-    api.interceptors.request.use(config => {
+    authAPI.interceptors.request.use(config => {
         const token = localStorage.getItem('token');
+        console.log('token', token);
         if (token) {
             config.headers = config.headers || {};
             config.headers['Authorization'] = `Bearer ${token}`;
@@ -46,7 +44,7 @@ export const setAuthorize = async () => {
 };
 
 // Response interceptor to handle 401 → try token refresh
-api.interceptors.response.use(
+authAPI.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
@@ -64,22 +62,22 @@ api.interceptors.response.use(
                 }
 
                 // Call refresh token endpoint
-                const response: AuthResponse = await authAPI.post('api/User/refresh-token', { refreshToken });
+                const response = await authAPI.post('api/User/refresh-token', { refreshToken });
 
-                if (response && response.token) {
-                    const newToken = response.token;
+                if (response.data && response.data.token) {
+                    const newToken = response.data.token;
 
                     // Update token in localStorage
                     localStorage.setItem('token', newToken);
 
                     // Update headers for future requests
-                    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                    authAPI.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
                     // Update the original request headers
                     originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
 
                     // Retry the original request
-                    return api(originalRequest);
+                    return authAPI(originalRequest);
                 }
             } catch (refreshError) {
                 console.error('Token refresh failed:', refreshError);
@@ -88,6 +86,9 @@ api.interceptors.response.use(
                 localStorage.removeItem('token');
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('loggedInUserId');
+
+                // You might want to redirect to login page here
+                // window.location.href = '/login';
 
                 return Promise.reject(refreshError);
             }
@@ -98,8 +99,4 @@ api.interceptors.response.use(
     }
 );
 
-export const revokeAccess = () => {
-    delete api.defaults.headers.common.Authorization;
-};
-
-export default api;
+export default authAPI;

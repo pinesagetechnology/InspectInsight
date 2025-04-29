@@ -10,6 +10,7 @@ import { systemStatusWatcher } from "./SystemAvailability/saga";
 import { reviewAndSubmitRootSaga } from "./ReviewandSubmit/sagas";
 import { locaStorageRootSaga } from "./LocalStorage/sagas";
 import { ifcViewerRootSaga } from "./IFCViewer/sagas";
+import { authRootSaga } from "./Auth/sagas";
 
 export default function* rootSaga() {
     yield all([
@@ -24,5 +25,6 @@ export default function* rootSaga() {
         fork(reviewAndSubmitRootSaga),
         fork(locaStorageRootSaga),
         fork(ifcViewerRootSaga),
+        fork(authRootSaga),
     ]);
 }

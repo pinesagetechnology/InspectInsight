@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Container } from '@mui/material';
 import MapContainer from '../../components/mapContainer';
 import { Structure } from '../../entities/structure';
 import { useSelector } from 'react-redux';
@@ -16,13 +15,19 @@ import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from "../../enums";
 import styles from "./style.module.scss";
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const { goTo } = useNavigationManager();
 
   const dispatch = useDispatch();
   const [structureList, setStructureList] = useState<Structure[]>([]);
   const structures = useSelector(getStructures);
   const [isListView, setIsListView] = useState(false);
+
+  useEffect(() => {
+    dispatch({
+      type: structureActions.FETCH_STRUCTURES_DATA
+    } as PayloadAction);
+  }, []);
 
   useEffect(() => {
     setStructureList(structures);

@@ -3,12 +3,12 @@ import { AppRouter } from './navigation/routes';
 import React, { Suspense, useEffect, useState } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import Header from './components/header';
-import * as actions from "./store/Structure/actions";
 import * as sharedActions from "./store/Common/actions";
 import * as localDataActions from "./store/LocalStorage/actions";
 import InstallPrompt from './components/installPrompt';
 import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
 import AppInitialization from './components/appInitialization';
+; import { AuthProvider } from './context';
 import {
     Alert,
     Backdrop,
@@ -49,10 +49,6 @@ export const MainComponent: React.FunctionComponent = () => {
                 console.error('Failed to get SW registration:', err);
             });
         }
-
-        dispatch({
-            type: actions.FETCH_STRUCTURES_DATA
-        } as PayloadAction);
 
         dispatch({
             type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
@@ -112,67 +108,69 @@ export const MainComponent: React.FunctionComponent = () => {
 
     return (
         <AppInitialization>
-            <Dialog
-                open={modalOpen}
-                onClose={handleModalClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    Session data found
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Previous session data was found. Would you like to continue from where you left off or start fresh?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDiscardData}>Discard data</Button>
-                    <Button onClick={handleLoadData} autoFocus>
-                        Load Data
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <AuthProvider>
+                <Dialog
+                    open={modalOpen}
+                    onClose={handleModalClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        Session data found
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Previous session data was found. Would you like to continue from where you left off or start fresh?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDiscardData}>Discard data</Button>
+                        <Button onClick={handleLoadData} autoFocus>
+                            Load Data
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
-            <Backdrop
-                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-                open={showLoading}
-                onClick={handleClose}
-            >
-                <CircularProgress color="inherit" />
-            </Backdrop>
-            <Suspense fallback={
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh'
-                }}>
-                    <CircularProgress />
-                </div>
-            }>
-                <div className="d-flex flex-column min-vh-100">
-                    <Header headerValue="Inspection App" />
-                    <Snackbar
-                        open={openSnack}
-                        autoHideDuration={6000}
-                        onClose={handleSnackClose}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    >
-                        <Alert
+                <Backdrop
+                    sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                    open={showLoading}
+                    onClick={handleClose}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+                <Suspense fallback={
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100vh'
+                    }}>
+                        <CircularProgress />
+                    </div>
+                }>
+                    <div className="d-flex flex-column min-vh-100">
+                        <Header headerValue="Inspection App" />
+                        <Snackbar
+                            open={openSnack}
+                            autoHideDuration={6000}
                             onClose={handleSnackClose}
-                            severity={(isOnline) ? "success" : "warning"}
-                            variant="filled"
-                            sx={{ width: '100%' }}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                         >
-                            {(isOnline) ? "Connected to the server!" : "Disconnected from server!"}
-                        </Alert>
-                    </Snackbar>
-                    <AppRouter />
-                    <InstallPrompt />
-                    <ServiceWorkerUpdate registration={swRegistration} />
-                </div>
-            </Suspense>
+                            <Alert
+                                onClose={handleSnackClose}
+                                severity={(isOnline) ? "success" : "warning"}
+                                variant="filled"
+                                sx={{ width: '100%' }}
+                            >
+                                {(isOnline) ? "Connected to the server!" : "Disconnected from server!"}
+                            </Alert>
+                        </Snackbar>
+                        <AppRouter />
+                        <InstallPrompt />
+                        <ServiceWorkerUpdate registration={swRegistration} />
+                    </div>
+                </Suspense>
+            </AuthProvider>
         </AppInitialization>
     );
 };
