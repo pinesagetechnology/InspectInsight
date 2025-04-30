@@ -33,7 +33,6 @@ export function* saveData(action: PayloadAction<()=> void>) {
 
         const selectedStructure: Structure = yield select(getCurrentStructure);
         const maintenanceActionsModel: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-        console.log("maintenanceActionsModel", maintenanceActionsModel);
         const maintenanceActionsEntity: MaintenanceActionEntity[] = [];
 
         for (const action of maintenanceActionsModel) {
@@ -61,7 +60,6 @@ export function* saveData(action: PayloadAction<()=> void>) {
 
             maintenanceActionsEntity.push({ ...action, photos: [...photos] } as MaintenanceActionEntity)
         }
-        console.log("maintenanceActionsEntity", maintenanceActionsEntity);
         const ratedElements: StructureElement[] = yield select(getRatedElements);
         const conditionRatingEntity = ratedElements?.map(item => {
             return {

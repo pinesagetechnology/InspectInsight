@@ -70,8 +70,6 @@ const IFCViewerComponent: React.FC = () => {
                                     : new THREE.Color(0xff0000);
                         const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
                         if (fragmentIDMap) {
-                            console.log('ratedElements', ratedElements);
-
                             if (fragMgrRef.current?.list) {
                                 Object.keys(fragmentIDMap).forEach(fragmentId => {
                                     const fragment = fragMgrRef.current?.list.get(fragmentId);
@@ -240,7 +238,6 @@ const IFCViewerComponent: React.FC = () => {
             }
         } else if (isClipperOnRef.current) {
             if (worldRef.current && clipperRef.current?.enabled) {
-                console.log('clipperRef.current', clipperRef.current);
                 clipperRef.current?.create(worldRef.current);
             }
         }

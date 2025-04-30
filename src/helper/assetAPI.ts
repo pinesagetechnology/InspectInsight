@@ -65,7 +65,6 @@ assetApi.interceptors.response.use(
 
                 // Call refresh token endpoint
                 const response: AuthResponse = await authAPI.post('api/User/refresh-token', { refreshToken });
-                console.log('Token refresh response:', response);
                 if (response && response.token) {
                     const newToken = response.token;
 

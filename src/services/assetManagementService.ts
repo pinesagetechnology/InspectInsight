@@ -17,7 +17,6 @@ export const uploadImage = async (file: File, path: string): Promise<uploadAPIRe
             },
         }
     );
-console.log('Upload response:', response); // Log the response data
     return response.data;
 };
 

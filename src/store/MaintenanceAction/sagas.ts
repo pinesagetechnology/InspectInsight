@@ -169,7 +169,6 @@ export function* saveMaintenanceImageData(action: PayloadAction<MaintenanceActio
 export function* deleteMaintenanceImageData(action: PayloadAction<DeleteImagePayload>) {
     try {
         yield put(setUploadFlag(true));
-        console.log("deleteMaintenanceImageData", action.payload);
 
         const currentMaintenanceData: MaintenanceActionModel = yield select(getMaintenanceFormData);
 
