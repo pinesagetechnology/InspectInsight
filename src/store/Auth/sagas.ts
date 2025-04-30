@@ -1,3 +1,4 @@
+// src/store/Auth/sagas.ts
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
@@ -15,11 +16,15 @@ export function* authRootSaga() {
     yield takeLatest(actions.LOGOUT, userLogout);
 }
 
-export function* userLogin(action: PayloadAction<AuthRequest>) {
+export function* userLogin(action: PayloadAction<any>) {
     try {
+        // Extract callback functions if provided
+        const { email, password, onSuccess, onError } = action.payload;
+        const authRequest: AuthRequest = { email, password, remoteIpAddress: '' };
+
         // Call the login service
-        const response: AuthResponse = yield call(services.loginUser, action.payload);
-        console.log("Login response: ", response);
+        const response: AuthResponse = yield call(services.loginUser, authRequest);
+
         // Decode JWT to extract user information
         const tokenData: TokenPayload = jwtDecode(response.token);
 
@@ -41,11 +46,19 @@ export function* userLogin(action: PayloadAction<AuthRequest>) {
 
             // Initialize all API instances with the new token
             yield call(initializeAuthHeaders);
+
+            // Call success callback if provided
+            if (onSuccess && typeof onSuccess === 'function') {
+                onSuccess();
+            }
         }
     } catch (error) {
         console.error("Login error: ", error);
-        // You may want to add error handling here
-        // yield put(setLoginError(error.message));
+
+        // Call error callback if provided
+        if (action.payload.onError && typeof action.payload.onError === 'function') {
+            action.payload.onError(error);
+        }
     }
 }
 
@@ -53,22 +66,17 @@ export function* userLogout() {
     try {
         const token = localStorage.getItem('token');
         const userId: string = yield select(getUserId);
-        console.log("User ID: ", userId);
+
         if (token && userId) {
             // Call the logout service if we have a token and userId
             yield call(services.logoutUser, userId, token);
         }
 
         yield put(setLoginData({} as AuthData)); // Clear auth data in Redux
-        // Clear tokens from localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('loggedInUserId');
 
         yield put(setShowLoading(false));
-        // You might want to clear the auth state in Redux here as well
-        // yield put(clearAuthState());
     } catch (error) {
         console.error("Logout error: ", error);
+        yield put(setShowLoading(false));
     }
 }

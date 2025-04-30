@@ -4,40 +4,27 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import Header from './components/header';
 import * as sharedActions from "./store/Common/actions";
-import * as localDataActions from "./store/LocalStorage/actions";
 import InstallPrompt from './components/installPrompt';
 import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
 import AppInitialization from './components/appInitialization';
-; import { AuthProvider } from './context';
+import { AuthProvider } from './context';
 import {
     Alert,
     Backdrop,
     CircularProgress,
     Snackbar,
     SnackbarCloseReason,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Button
 } from '@mui/material';
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
-import { getLocalStorageFlag } from './store/LocalStorage/selector';
-import { useNavigationManager } from './navigation';
-import { RoutesValueEnum } from './enums';
 
 export const MainComponent: React.FunctionComponent = () => {
     const dispatch = useDispatch();
-    const { goTo } = useNavigationManager();
 
     const isOnline = useOfflineSync();
     const showLoading = useSelector(getShowOverlayFlag);
-    const hasLocalData = useSelector(getLocalStorageFlag);
     const [openSnack, setOpenSnack] = useState<boolean>(false);
-    const [modalOpen, setModalOpen] = React.useState(false);
     const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
     useEffect(() => {
@@ -49,21 +36,11 @@ export const MainComponent: React.FunctionComponent = () => {
                 console.error('Failed to get SW registration:', err);
             });
         }
-
-        dispatch({
-            type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
-        } as PayloadAction);
     }, []);
 
     useEffect(() => {
         setOpenSnack(true);
     }, [isOnline]);
-
-    useEffect(() => {
-        if (hasLocalData) {
-            setModalOpen(true);
-        }
-    }, [hasLocalData]);
 
     const handleSnackClose = (
         event?: React.SyntheticEvent | Event,
@@ -82,55 +59,9 @@ export const MainComponent: React.FunctionComponent = () => {
         } as PayloadAction);
     };
 
-    const handleModalClose = () => {
-        setModalOpen(false);
-    };
-
-    const handleDiscardData = () => {
-        dispatch({
-            type: localDataActions.REMOVE_FROM_LOCAL_STORAGE
-        } as PayloadAction);
-
-        setModalOpen(false);
-
-        goTo(RoutesValueEnum.Home);
-    };
-
-    const handleLoadData = () => {
-        dispatch({
-            type: localDataActions.MAP_LOCAL_STORAGE_STATE
-        } as PayloadAction);
-
-        setModalOpen(false);
-
-        goTo(RoutesValueEnum.InspectionReview);
-    };
-
     return (
         <AppInitialization>
             <AuthProvider>
-                <Dialog
-                    open={modalOpen}
-                    onClose={handleModalClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        Session data found
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Previous session data was found. Would you like to continue from where you left off or start fresh?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleDiscardData}>Discard data</Button>
-                        <Button onClick={handleLoadData} autoFocus>
-                            Load Data
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
                 <Backdrop
                     sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                     open={showLoading}

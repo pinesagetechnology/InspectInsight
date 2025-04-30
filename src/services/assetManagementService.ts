@@ -5,10 +5,11 @@ import assetApi from "../helper/assetAPI";
 export const uploadImage = async (file: File, path: string): Promise<uploadAPIResponse> => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('path', path);
 
     // Use assetApi instance instead of direct axios call
     const response: AxiosResponse<uploadAPIResponse> = await assetApi.post(
-        `/api/assets/upload?path=${path}`, 
+        '/api/assets/upload', 
         formData, 
         {
             headers: {

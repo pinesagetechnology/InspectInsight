@@ -1,3 +1,4 @@
+// src/pages/loginPage/index.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Box,
@@ -20,17 +21,21 @@ const LoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
     const { login } = useAuth();
     const { goTo } = useNavigationManager();
     const token = useSelector(getToken);
 
-    // Redirect if already logged in
+    // Only check for authentication once on component mount
     useEffect(() => {
-        if (token) {
-            goTo(RoutesValueEnum.Home);
+        if (!hasCheckedAuth) {
+            if (token) {
+                goTo(RoutesValueEnum.Home);
+            }
+            setHasCheckedAuth(true);
         }
-    }, [token, goTo]);
+    }, [token, goTo, hasCheckedAuth]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,8 +49,9 @@ const LoginPage: React.FC = () => {
         setIsLoading(true);
 
         try {
-            login(email, password);
-            // The actual redirection will happen in the useEffect when the token changes
+            await login(email, password);
+            // Manually navigate on successful login
+            goTo(RoutesValueEnum.Home);
         } catch (err) {
             setError('Login failed. Please check your credentials and try again.');
             console.error('Login error:', err);

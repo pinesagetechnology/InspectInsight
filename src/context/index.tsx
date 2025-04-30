@@ -1,3 +1,4 @@
+// src/context/index.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthorize as setApiAuthorize } from '../helper/api';
@@ -13,14 +14,14 @@ import { AuthRequest } from '../entities/auth';
 interface AuthContextProps {
     isAuthenticated: boolean;
     isInitializing: boolean;
-    login: (username: string, password: string) => void;
+    login: (username: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({
     isAuthenticated: false,
     isInitializing: true,
-    login: () => { },
+    login: async () => { },
     logout: () => { },
 });
 
@@ -36,32 +37,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initialize auth state from localStorage on app start
     useEffect(() => {
         const initializeAuth = async () => {
-            const storedToken = localStorage.getItem('token');
+            try {
+                const storedToken = localStorage.getItem('token');
 
-            if (storedToken) {
-                try {
-                    // Check if token is expired
-                    const tokenData: TokenPayload = jwtDecode(storedToken);
-                    const expiryDate = new Date(tokenData.exp * 1000);
-                    const now = new Date();
+                if (storedToken) {
+                    try {
+                        // Check if token is expired
+                        const tokenData: TokenPayload = jwtDecode(storedToken);
+                        const expiryDate = new Date(tokenData.exp * 1000);
+                        const now = new Date();
 
-                    if (expiryDate > now) {
-                        // Token is still valid - initialize APIs with stored token
-                        await setApiAuthorize();
-                        await setAssetApiAuthorize();
-                        await setAuthApiAuthorize();
-                        setIsAuthenticated(true);
-                    } else {
-                        // Token expired, try to refresh or clear
-                        handleLogout();
+                        if (expiryDate > now) {
+                            // Token is still valid - initialize APIs with stored token
+                            await setApiAuthorize();
+                            await setAssetApiAuthorize();
+                            await setAuthApiAuthorize();
+                            setIsAuthenticated(true);
+                        } else {
+                            // Token expired, clear localStorage
+                            handleLogout(false); // Pass false to avoid dispatching action during initialization
+                        }
+                    } catch (error) {
+                        console.error('Error initializing auth:', error);
+                        handleLogout(false); // Pass false to avoid dispatching action during initialization
                     }
-                } catch (error) {
-                    console.error('Error initializing auth:', error);
-                    handleLogout();
                 }
+            } finally {
+                setIsInitializing(false);
             }
-
-            setIsInitializing(false);
         };
 
         initializeAuth();
@@ -69,18 +72,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Update authentication status when token changes in Redux
     useEffect(() => {
-        setIsAuthenticated(!!token);
-    }, [token]);
+        // Only update state after initialization is complete
+        if (!isInitializing) {
+            setIsAuthenticated(!!token);
+        }
+    }, [token, isInitializing]);
 
-    const handleLogin = (email: string, password: string) => {
-        dispatch({
-            type: actions.LOGIN,
-            payload: { email, password }
-        } as PayloadAction<AuthRequest>);
+    const handleLogin = async (email: string, password: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            try {
+                dispatch({
+                    type: actions.LOGIN,
+                    payload: { email, password, onSuccess: resolve, onError: reject }
+                } as PayloadAction<any>);
+            } catch (error) {
+                reject(error);
+            }
+        });
     };
 
-    const handleLogout = () => {
-        dispatch({ type: actions.LOGOUT } as PayloadAction);
+    const handleLogout = (dispatchAction = true) => {
+        // Clear localStorage first
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('loggedInUserId');
+
+        // Only dispatch when needed (not during initialization)
+        if (dispatchAction) {
+            dispatch({ type: actions.LOGOUT } as PayloadAction);
+        }
+        
         setIsAuthenticated(false);
     };
 
@@ -90,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 isAuthenticated,
                 isInitializing,
                 login: handleLogin,
-                logout: handleLogout,
+                logout: () => handleLogout(true),
             }}
         >
             {children}
