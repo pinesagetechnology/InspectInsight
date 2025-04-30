@@ -108,10 +108,10 @@ const ReviewInspectionPage: React.FC = () => {
 
   const handleSubmitOnclick = () => {
     dispatch({
-      type: reviewActions.SUBMIT_DATA
-    } as PayloadAction);
-
-    goTo(RoutesValueEnum.Home);
+      type: reviewActions.SUBMIT_DATA,
+      payload: () => goTo(RoutesValueEnum.Home)
+      
+    } as PayloadAction<() => void>);
   }
 
   return (

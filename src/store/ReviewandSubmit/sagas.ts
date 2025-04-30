@@ -21,12 +21,13 @@ import { setShowLoading } from '../Common/slice';
 import { removeStateFromLocalStorage } from '../LocalStorage/sagas';
 import * as assetService from '../../services/assetManagementService';
 import { CapturedImage, getImageById } from '../../helper/db';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 export function* reviewAndSubmitRootSaga() {
     yield takeLatest(actions.SUBMIT_DATA, saveData);
 }
 
-export function* saveData() {
+export function* saveData(action: PayloadAction<()=> void>) {
     try {
         yield put(setShowLoading(true));
 
@@ -89,6 +90,9 @@ export function* saveData() {
         yield put(setReviewAndSubmitResult(inspectionId));
 
         yield call(removeStateFromLocalStorage);
+
+        if(action.payload)
+            yield call(action.payload);
     }
     catch (error: any) {
         if (error instanceof Error) {
