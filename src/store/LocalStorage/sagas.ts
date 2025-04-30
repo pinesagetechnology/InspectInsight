@@ -219,6 +219,8 @@ export function* removeStateFromLocalStorage() {
 
         yield call([db.capturedImages, db.capturedImages.clear]);
 
+        yield put(setLocalStorageFlag(false));
+
         console.log('All data cleared from IndexedDB');
     } catch (error) {
         console.error('Error clearing IndexedDB:', error);
