@@ -1,7 +1,7 @@
 import React from 'react'
 import FormPageWrapper from '../../components/formPageWrapper';
 import StructureElementGrid from './conditionRatingTable';
-import { IconButton, Stack } from '@mui/material';
+import { IconButton, Stack, Typography } from '@mui/material';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
@@ -20,6 +20,9 @@ const ConditionRating: React.FC = () => {
                     <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
                         <ViewInArIcon fontSize="inherit" />
                     </IconButton>
+                     <Typography variant="body1">
+                        3D View
+                     </Typography>
                 </Stack>
                 <StructureElementGrid />
             </div>
