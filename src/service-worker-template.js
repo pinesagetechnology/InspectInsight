@@ -75,7 +75,7 @@ const navigationRoute = new NavigationRoute(handler, {
     /^\/_/,
     /\/api\//,
     /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
-    /\.(?:js|css|wasm)$/
+    /\.(?:js|css|wasm|json|webmanifest)$/
   ]
 });
 registerRoute(navigationRoute);
@@ -302,6 +302,7 @@ self.addEventListener('fetch', (event) => {
           // Next, try the network
           return await fetch(event.request);
         } catch (error) {
+          console.warn('Fetch failed; returning offline page instead.', error);
           // If network fails, serve the offline page
           const cache = await caches.open('offline-fallbacks');
           return await cache.match('/offline.html') || Response.error();
