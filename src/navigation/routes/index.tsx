@@ -18,52 +18,53 @@ export const AppRouter: React.FunctionComponent = () => {
         <React.Fragment>
             <Routes>
                 {/* Public routes */}
-                <Route path={`/${RoutesValueEnum.Login}`} element={<LoginPage />} />
+                <Route path="" element={<LoginPage />} />
+                <Route path={`${RoutesValueEnum.Login}`} element={<LoginPage />} />
 
                 {/* Protected routes */}
-                <Route path={`/${RoutesValueEnum.Home}`} element={
+                <Route path={`${RoutesValueEnum.Home}`} element={
                     <ProtectedRoute>
                         <HomePage />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.InspectionDetail}`} element={
+                <Route path={`${RoutesValueEnum.InspectionDetail}`} element={
                     <ProtectedRoute>
                         <InspectionDetailPage />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.ConditionRating}`} element={
+                <Route path={`${RoutesValueEnum.ConditionRating}`} element={
                     <ProtectedRoute>
                         <ConditionRatingPage />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.IFCViewer}`} element={
+                <Route path={`${RoutesValueEnum.IFCViewer}`} element={
                     <ProtectedRoute>
                         <IFCViewer />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.InspectorComments}`} element={
+                <Route path={`${RoutesValueEnum.InspectorComments}`} element={
                     <ProtectedRoute>
                         <InspectionComment />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.InspectionReview}`} element={
+                <Route path={`${RoutesValueEnum.InspectionReview}`} element={
                     <ProtectedRoute>
                         <InspectionReview />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.PreviousInspection}`} element={
+                <Route path={`${RoutesValueEnum.PreviousInspection}`} element={
                     <ProtectedRoute>
                         <PreviousInspectionListPage />
                     </ProtectedRoute>
                 } />
-                <Route path={`/${RoutesValueEnum.PreviousInspectionDetail}`} element={
+                <Route path={`${RoutesValueEnum.PreviousInspectionDetail}`} element={
                     <ProtectedRoute>
                         <PreviousInspectionDetailPage />
                     </ProtectedRoute>
                 } />
 
                 {/* Catch all route */}
-                <Route path="*" element={<Navigate to={`/${RoutesValueEnum.Login}`} replace />} />
+                <Route path="*" element={<Navigate to={`${RoutesValueEnum.Login}`} replace />} />
             </Routes>
         </React.Fragment>
     )

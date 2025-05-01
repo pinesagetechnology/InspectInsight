@@ -7,19 +7,6 @@ import store from './store';
 import { MainComponent } from './main';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
-// Determine the base URL for routing
-const getBasename = () => {
-    const path = window.location.pathname;
-    // If root path, return empty string
-    if (path === '/' || path === '') return '';
-
-    // Otherwise, get the path up to the last slash
-    const lastSlashIndex = path.lastIndexOf('/');
-    if (lastSlashIndex <= 0) return '';
-
-    return path.substring(0, lastSlashIndex);
-};
-
 // Get the container element
 const container = document.getElementById('root');
 if (!container) {
@@ -32,7 +19,7 @@ const root = createRoot(container);
 root.render(
     <React.StrictMode>
         <Provider store={store}>
-            <BrowserRouter basename={getBasename()}>
+            <BrowserRouter>
                 <MainComponent />
             </BrowserRouter>
         </Provider>
