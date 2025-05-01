@@ -1,7 +1,10 @@
-// src/serviceWorkerRegistration.ts
+// src/serviceWorkerRegistration.ts - Updated for more reliable registration and precaching
+
 type Config = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
+  onOffline?: () => void;
+  onFailed?: (error: Error) => void;
 };
 
 // Define whether the current environment is localhost
@@ -43,17 +46,61 @@ export function register(config?: Config): void {
         registerValidSW(swUrl, config);
       }
     });
+
+    // Add offline/online event listeners to manage offline state
+    window.addEventListener('offline', () => {
+      console.log('App is offline');
+      if (config?.onOffline) config.onOffline();
+    });
+
+    window.addEventListener('online', () => {
+      console.log('App is back online - checking for updates');
+      navigator.serviceWorker.ready.then(registration => {
+        // When coming back online, check for updates
+        registration.update().catch(err => {
+          console.error('SW update after reconnection failed:', err);
+        });
+      });
+    });
   } else {
     console.log('Service Worker registration skipped - not in production or not supported');
   }
 }
 
-// Register a valid service worker
+// Register a valid service worker with enhanced error handling and logging
 function registerValidSW(swUrl: string, config?: Config) {
   navigator.serviceWorker
-    .register(swUrl)
+    .register(swUrl, { scope: '/' })
     .then((registration) => {
       console.log('Service Worker registered successfully');
+
+      // Enable periodic background sync if supported
+      if ('periodicSync' in registration) {
+        const enablePeriodicBackgroundSync = async () => {
+          try {
+            // @ts-ignore - TS doesn't know about periodicSync yet
+            const status = await navigator.permissions.query({
+              name: 'periodic-background-sync' as PermissionName,
+            });
+
+            if (status.state === 'granted') {
+              try {
+                // @ts-ignore
+                await registration.periodicSync.register('content-sync', {
+                  minInterval: 24 * 60 * 60 * 1000, // 24 hours
+                });
+                console.log('Periodic background sync registered');
+              } catch (e) {
+                console.error('Error registering periodic background sync', e);
+              }
+            }
+          } catch (e) {
+            console.log('Periodic background sync not supported');
+          }
+        };
+
+        enablePeriodicBackgroundSync();
+      }
 
       // Check for updates immediately
       registration.update().catch(err => {
@@ -63,8 +110,10 @@ function registerValidSW(swUrl: string, config?: Config) {
       // Set up a periodic check for SW updates (every hour)
       const updateInterval = setInterval(() => {
         try {
-          registration.update();
-          console.log('Checking for Service Worker updates');
+          if (navigator.onLine) {
+            registration.update();
+            console.log('Checking for Service Worker updates');
+          }
         } catch (error) {
           console.error('Error checking for SW updates:', error);
           // If there's a persistent error, stop trying
@@ -77,6 +126,7 @@ function registerValidSW(swUrl: string, config?: Config) {
         }
       }, 1000 * 60 * 60); // Check every hour
 
+      // Handle waiting worker - update available
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {
@@ -108,6 +158,7 @@ function registerValidSW(swUrl: string, config?: Config) {
     })
     .catch((error) => {
       console.error('Error during service worker registration:', error);
+      if (config?.onFailed) config.onFailed(error);
     });
 }
 
@@ -137,6 +188,7 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
     })
     .catch(() => {
       console.log('No internet connection found. App is running in offline mode.');
+      if (config?.onOffline) config.onOffline();
     });
 }
 
@@ -145,6 +197,34 @@ export function sendSkipWaitingMessage(registration: ServiceWorkerRegistration) 
   if (registration && registration.waiting) {
     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
   }
+}
+
+// Force update - can be called when user manually requests refresh
+export function forceUpdate(): Promise<void> {
+  if ('serviceWorker' in navigator) {
+    return navigator.serviceWorker.ready
+      .then(registration => {
+        return registration.update()
+          .then(() => {
+            console.log('Service worker updated successfully');
+          });
+      })
+      .catch(err => {
+        console.error('Failed to update service worker', err);
+        throw err;
+      });
+  }
+  return Promise.resolve();
+}
+
+// Get the current registration - useful for components that need to work with the SW
+export function getRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if ('serviceWorker' in navigator) {
+    return navigator.serviceWorker.ready
+      .then(registration => registration)
+      .catch(() => null);
+  }
+  return Promise.resolve(null);
 }
 
 // Unregister the service worker
