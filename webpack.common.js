@@ -43,6 +43,17 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 {
+                    from: path.resolve(__dirname, 'public'),
+                    to: path.resolve(__dirname, 'dist'),
+                    globOptions: {
+                        ignore: ['**/index.html'],
+                    },
+                },
+                {
+                    from: path.resolve(__dirname, 'staticwebapp.config.json'),
+                    to: path.resolve(__dirname, 'dist'),
+                },
+                {
                     from: 'public/manifest.json',
                     to: 'manifest.json'
                 },

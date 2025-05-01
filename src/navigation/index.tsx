@@ -5,10 +5,11 @@ export const useNavigationManager = () => {
     const location = useLocation();
 
     const getCurrentPageName = () => {
-        return location.pathname.substring(1);
+        return location.pathname.replace(/^\//, '');
     }
 
     const goTo = (pageName: string) => {
+        pageName = pageName.replace(/^\//, '');
         navigate(`/${pageName}`);
     }
 
