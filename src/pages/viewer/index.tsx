@@ -28,7 +28,7 @@ const Viewer: React.FC = () => {
                     <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
                         <DatasetIcon fontSize="inherit" />
                     </IconButton>
-                    <Typography variant="body1">
+                    <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                         Table View
                     </Typography>
                 </Stack>

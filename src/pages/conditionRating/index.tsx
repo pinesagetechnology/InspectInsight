@@ -20,9 +20,9 @@ const ConditionRating: React.FC = () => {
                     <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
                         <ViewInArIcon fontSize="inherit" />
                     </IconButton>
-                     <Typography variant="body1">
+                    <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                         3D View
-                     </Typography>
+                    </Typography>
                 </Stack>
                 <StructureElementGrid />
             </div>
