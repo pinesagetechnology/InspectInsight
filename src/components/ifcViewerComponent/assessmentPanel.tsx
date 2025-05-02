@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StructureElement } from "entities/structure";
-import { Divider, IconButton, Paper, Stack, Typography, TextField, styled, Tooltip } from "@mui/material";
+import { Divider, IconButton, Paper, Stack, Typography, TextField, styled, Tooltip, Box } from "@mui/material";
 import classNames from 'classnames';
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,14 +11,19 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import { PayloadAction } from '@reduxjs/toolkit';
 import RMADialog from '../../pages/conditionRating/rmaDialog';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface AssessmentPanelProps {
     showConditionPanel?: boolean;
     isSelected?: boolean;
+    isTablet: boolean;
+    closeConditionPanelHandler: () => void;
 }
 const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     showConditionPanel,
-    isSelected
+    isSelected,
+    isTablet,
+    closeConditionPanelHandler
 }) => {
     const dispatch = useDispatch();
 
@@ -127,15 +132,31 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
             />
 
             <Paper elevation={0} className={styles.assessmentPanel}>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    width: '100%',
+                    mb: 1
+                }}>
+                    <IconButton
+                        size="small"
+                        onClick={() => closeConditionPanelHandler()}
+                        sx={{
+                            display: 'flex'
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
                 <Typography variant="h6">Condition Rating Form</Typography>
-                <Divider orientation="horizontal" flexItem  className={styles.divider}/>
+                <Divider orientation="horizontal" flexItem className={styles.divider} />
                 <Stack>
                     <Typography variant='caption'>Element Name</Typography>
                     <Typography variant='body2'>{structureElement?.data?.Name}</Typography>
                 </Stack>
 
-                <Divider orientation="horizontal" flexItem  className={styles.divider}/>
-                
+                <Divider orientation="horizontal" flexItem className={styles.divider} />
+
                 <Stack direction="row" spacing={1}>
                     {[0, 1, 2, 3].map((_, index) => {
                         const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;

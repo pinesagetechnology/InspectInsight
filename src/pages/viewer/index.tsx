@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import IFCViewerComponent from '../../components/ifcViewerComponent';
 import FormPageWrapper from '../../components/formPageWrapper';
-import { IconButton, Stack } from '@mui/material';
+import { IconButton, Stack, Typography } from '@mui/material';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import DatasetIcon from '@mui/icons-material/Dataset';
@@ -28,6 +28,9 @@ const Viewer: React.FC = () => {
                     <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
                         <DatasetIcon fontSize="inherit" />
                     </IconButton>
+                    <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+                        Table View
+                    </Typography>
                 </Stack>
                 <IFCViewerComponent />
             </div>

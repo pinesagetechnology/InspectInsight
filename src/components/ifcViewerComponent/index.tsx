@@ -13,9 +13,10 @@ import { getStructureElements } from "../../store/Structure/selectors";
 import { getRatedElements } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
-import { Grid2 as Grid, Drawer } from "@mui/material";
+import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
+import CloseIcon from '@mui/icons-material/Close';
 
 const selectHighlighterName = "select";
 const Plan = "Plan";
@@ -26,12 +27,16 @@ const IFCViewerComponent: React.FC = () => {
     const structureElements: StructureElement[] = useSelector(getStructureElements) || [];
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
 
+    // Add theme and media queries for responsive design
+    const theme = useTheme();
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+    const isSmallTablet = useMediaQuery('(max-width:600px)');
+
     const containerRef = useRef<HTMLDivElement | null>(null);
     const worldRef = useRef<OBC.SimpleWorld<any, any, any>>();
     const cameraRef = useRef<OBC.OrthoPerspectiveCamera>();
     const fragMgrRef = useRef<OBC.FragmentsManager>();
     const indexerRef = useRef<OBC.IfcRelationsIndexer>();
-    // const modelRef = useRef<FRAGS.FragmentsGroup>();
 
     const highlighterRef = useRef<OBF.Highlighter>();
     const hiderRef = useRef<OBC.Hider>();
@@ -48,12 +53,26 @@ const IFCViewerComponent: React.FC = () => {
     const [isSelected, setIsSelected] = useState(false);
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
-    const [showConditionPanel, setShowConditionPanel] = useState(true);
+    const [showConditionPanel, setShowConditionPanel] = useState(false);
     const [isModelLoaded, setIsModelLoaded] = useState(false);
 
     // Keep refs in sync
     useEffect(() => { isMeasurementModeRef.current = isMeasurementMode; }, [isMeasurementMode]);
     useEffect(() => { isClipperOnRef.current = isClipperOn; }, [isClipperOn]);
+
+    // Close panels when in tablet mode and orientation changes
+    useEffect(() => {
+        const handleOrientationChange = () => {
+            if (isTablet && isShowTree) {
+                setIsShowTree(false);
+            }
+        };
+
+        window.addEventListener('orientationchange', handleOrientationChange);
+        return () => {
+            window.removeEventListener('orientationchange', handleOrientationChange);
+        };
+    }, [isTablet, isShowTree]);
 
     // Highlight rated elements
     const highlightRatedElements = () => {
@@ -171,7 +190,6 @@ const IFCViewerComponent: React.FC = () => {
                 const resp = await fetch(url);
                 const arrayBuffer = await resp.arrayBuffer();
                 const model = await ifcLoader.load(new Uint8Array(arrayBuffer));
-                // modelRef.current = model;
                 setModel(model);
                 classifierObj.byEntity(model);
 
@@ -198,8 +216,6 @@ const IFCViewerComponent: React.FC = () => {
         };
 
         window.addEventListener('resize', onResize);
-        // // fire once immediately if you need an initial fit
-        // onResize();
 
         return () => {
             window.removeEventListener('resize', onResize);
@@ -228,8 +244,12 @@ const IFCViewerComponent: React.FC = () => {
                 setIsSelected(false);
             }
 
+            // Auto-close the tree panel on tablet when clicking elsewhere
+            if (isTablet && isShowTree) {
+                setIsShowTree(false);
+            }
         }
-    }
+    };
 
     const onContainerDoubleClick = () => {
         if (isMeasurementModeRef.current) {
@@ -241,7 +261,7 @@ const IFCViewerComponent: React.FC = () => {
                 clipperRef.current?.create(worldRef.current);
             }
         }
-    }
+    };
 
     const onClipperClick = () => {
         setIsClipperOn((prevFlag) => {
@@ -260,7 +280,7 @@ const IFCViewerComponent: React.FC = () => {
             }
             return !prevFlag
         });
-    }
+    };
 
     const onMeasurementClick = () => {
         setIsMeasurementMode((prevFlag) => {
@@ -279,7 +299,7 @@ const IFCViewerComponent: React.FC = () => {
             }
             return !prevFlag
         });
-    }
+    };
 
     const onOrbitCameraClick = () => {
         if (isOrbitSelected === false) {
@@ -289,7 +309,7 @@ const IFCViewerComponent: React.FC = () => {
             setIsOrbitSelected(true);
             setIsPanSelected(false);
         }
-    }
+    };
 
     const onPanCameraClick = () => {
         if (isPanSelected === false) {
@@ -299,7 +319,7 @@ const IFCViewerComponent: React.FC = () => {
             setIsOrbitSelected(false);
             setIsPanSelected(true);
         }
-    }
+    };
 
     const handleHideSelectedFragment = (node: StructureElement, isVisible: boolean) => {
         if (model && fragMgrRef.current && indexerRef.current) {
@@ -318,7 +338,7 @@ const IFCViewerComponent: React.FC = () => {
                 }
             }
         }
-    }
+    };
 
     const handleTreeItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
@@ -327,28 +347,89 @@ const IFCViewerComponent: React.FC = () => {
             if (fragmentIDMap && !isMeasurementMode) {
                 highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
             }
+
+            // Auto-close tree panel after selection on small tablets
+            if (isSmallTablet) {
+                setIsShowTree(false);
+            }
         }
-    }
+    };
+
+    // Custom styles for tree panel with responsive adjustments
+    const treeViewPanelStyle = {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: isTablet ? '55%' : '25%', // Wider on tablet
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)', // More opaque for better readability on tablet
+        boxShadow: '2px 0 10px rgba(0, 0, 0, 0.2)',
+        zIndex: 1000,
+        overflowY: 'auto',
+        transform: isShowTree ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s ease-in-out',
+        padding: isTablet ? '10px' : '16px', // Less padding on tablet
+        display: 'flex',
+        flexDirection: 'column'
+    };
+
+    // Custom styles for the viewer container to ensure it fills the available space
+    const viewerContainerStyle = {
+        width: '100%',
+        height: isTablet ? '60vh' : '68vh', // Shorter on tablet
+        position: 'relative' as 'relative'
+    };
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
             <Grid container spacing={2}>
                 <Grid size={12}>
-                    <div ref={containerRef} style={{ width: '100%', height: '68vh' }}
+                    {/* The main container for the 3D viewer */}
+                    <div
+                        ref={containerRef}
+                        style={viewerContainerStyle}
                         onClick={onContainerClick}
                         onDoubleClick={onContainerDoubleClick}
-                    />
-                    <Drawer open={isShowTree} onClose={() => setIsShowTree(false)}>
+                    >
+                        {/* Custom Tree Panel that slides in/out */}
                         {model && (
-                            <TreeViewComponent
-                                treeData={structureElements}
-                                handleTreeItemClick={handleTreeItemClick}
-                                handleFragmentVisibilityChange={handleHideSelectedFragment}
-                            />
-                        )}
-                    </Drawer>
+                            <Paper
+                                elevation={3}
+                                sx={treeViewPanelStyle}
+                            >
+                                {/* Close button for the tree panel - especially important on tablet */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    width: '100%',
+                                    mb: 1
+                                }}>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setIsShowTree(false)}
+                                        sx={{
+                                            display: isTablet ? 'flex' : 'none'  // Only show on tablet
+                                        }}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
 
-                    <AssessmentPanel showConditionPanel={showConditionPanel} isSelected={isSelected} />
+                                <TreeViewComponent
+                                    treeData={structureElements}
+                                    handleTreeItemClick={handleTreeItemClick}
+                                    handleFragmentVisibilityChange={handleHideSelectedFragment}
+                                />
+                            </Paper>
+                        )}
+                    </div>
+
+                    <AssessmentPanel
+                        showConditionPanel={showConditionPanel}
+                        isSelected={isSelected}
+                        isTablet={isTablet}
+                        closeConditionPanelHandler={() => setShowConditionPanel(false)}
+                    />
 
                     <ViewerMenu
                         isClipperOn={isClipperOn}
