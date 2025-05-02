@@ -1,25 +1,66 @@
 {
-    "routes": [
-      {
-        "route": "/*",
-        "rewrite": "/index.html"
+  "routes": [
+    {
+      "route": "/static/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
       }
-    ],
-    "navigationFallback": {
-      "rewrite": "/index.html",
-      "exclude": [
-        "/*.{png,jpg,gif,svg}",
-        "/*.{css,scss}",
-        "/*.js",
-        "/*.wasm"
-      ]
     },
-    "globalHeaders": {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Pragma": "no-cache",
-      "Expires": "0"
+    {
+      "route": "/static/js/*",
+      "headers": {
+        "content-type": "application/javascript"
+      }
     },
-    "mimeTypes": {
-      ".wasm": "application/wasm"
+    {
+      "route": "/static/css/*",
+      "headers": {
+        "content-type": "text/css"
+      }
+    },
+    {
+      "route": "/manifest.json",
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "route": "/*.wasm",
+      "headers": {
+        "content-type": "application/wasm",
+        "cache-control": "public, max-age=604800"
+      }
+    },
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
     }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/static/*",
+      "/*.wasm",
+      "/*.json",
+      "/*.png",
+      "/*.jpg",
+      "/*.jpeg",
+      "/*.gif",
+      "/*.svg",
+      "/*.css",
+      "/*.js"
+    ]
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm",
+    ".json": "application/json",
+    ".js": "application/javascript",
+    ".css": "text/css",
+    ".html": "text/html"
+  },
+  "globalHeaders": {
+    "content-security-policy": "default-src 'self' cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*; font-src 'self' data:; connect-src 'self' https://* wss://*;",
+    "cache-control": "must-revalidate, max-age=86400"
   }
+}

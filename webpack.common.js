@@ -9,9 +9,10 @@ dotenv.config(); // This will load your .env file into process.env
 module.exports = {
     entry: './src/index.tsx',
     output: {
+        filename: '[name].[contenthash].js',
+        chunkFilename: '[name].[contenthash].chunk.js',
         path: path.resolve(__dirname, 'dist'),
-        filename: 'main.js',  // Explicitly define the output file name
-        publicPath: '/'  // Ensure this is set if you're referencing assets or chunks in HTML
+        publicPath: '/'  // This is critical
     },
     experiments: { asyncWebAssembly: true },
     resolve: {
