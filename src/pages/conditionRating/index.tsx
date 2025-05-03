@@ -16,14 +16,6 @@ const ConditionRating: React.FC = () => {
     return (
         <FormPageWrapper isFooterVisible={true}>
             <div style={{ width: '100%' }}>
-                {/* <Stack direction={'row'} spacing={2}>
-                    <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
-                        <ViewInArIcon fontSize="inherit" />
-                    </IconButton>
-                    <Typography variant="body1" sx={{ alignSelf: 'center' }}>
-                        3D View
-                    </Typography>
-                </Stack> */}
                 <Button variant="outlined" startIcon={<ViewInArIcon />} onClick={() => handleClick()}>
                     3D View
                 </Button>

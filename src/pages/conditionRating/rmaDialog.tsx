@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
@@ -22,6 +22,9 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
     handleClose,
     modalState
 }) => {
+    const theme = useTheme();
+    const isTablet = useMediaQuery('(max-width:960px)');
+    const isPortrait = useMediaQuery('(max-width:600px)');
 
     const SubmitAndClose = () => {
         handleClose();
@@ -33,9 +36,11 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
                 onClose={handleClose}
                 aria-labelledby="customized-dialog-title"
                 open={modalState}
+                fullScreen={isPortrait}
                 sx={{
                     '& .MuiDialog-paper': {
-                        minWidth: '350px',
+                        minWidth: isPortrait ? '100%' : isTablet ? '80%' : '350px',
+                        maxHeight: isTablet ? '90vh' : '80vh',
                     },
                 }}
             >

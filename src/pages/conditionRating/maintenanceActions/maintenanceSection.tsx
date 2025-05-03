@@ -10,7 +10,8 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    AccordionActions
+    AccordionActions,
+    useMediaQuery
 } from '@mui/material';
 import { MaintenanceActionModel } from '../../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,6 +37,8 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
+    const isTablet = useMediaQuery('(max-width:960px)');
+    const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
 
@@ -133,8 +136,15 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                 aria-controls="maintenanceActionHeader"
                 id="maintenanceActionHeader"
             >
-                <Container fixed>
-                    <Typography variant="h5" gutterBottom>
+                <Container
+                    fixed
+                    sx={{
+                        px: isPortrait ? 1 : 2
+                    }}>
+                    <Typography
+                        variant={isPortrait ? "h6" : "h5"}
+                        gutterBottom
+                    >
                         {
                             (maintenanceActionData.mode === 1) ?
                                 "Adding new maintenance action"
@@ -145,9 +155,14 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                 </Container>
             </AccordionSummary>
             <AccordionDetails>
-                <Container fixed>
-                    <Box mt={4}>
-                        <Grid container spacing={3}>
+                <Container
+                    fixed
+                    sx={{
+                        px: isPortrait ? 1 : 2
+                    }}
+                >
+                    <Box mt={isPortrait ? 2 : 4}>
+                        <Grid container spacing={isPortrait ? 2 : 3}>
                             <Grid size={12}>
                                 <Box display="flex" alignItems="center">
                                     <Switch checked={formData.isComplete || false}
@@ -158,7 +173,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            <Grid size={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Elemnt Code"
@@ -170,7 +185,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="MMS Act. No."
@@ -211,7 +226,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -224,7 +239,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <DatePickerComponent
                                     name="dateForCompletion"
                                     label='Date of completion'
@@ -235,7 +250,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
 
                                 />
                             </Grid>
-                            <Grid size={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <SelectComponent
                                     label='Probability'
                                     name='probability'
@@ -246,7 +261,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <SelectComponent
                                     label='Consequence of interaction'
                                     name='consequenceOfInteraction'
@@ -257,7 +272,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <SelectComponent
                                     label='Activity inaction risk'
                                     name='activityInactionRisk'
@@ -277,7 +292,15 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                     </Box>
                 </Container>
             </AccordionDetails>
-            <AccordionActions>
+            <AccordionActions
+                sx={{
+                    flexDirection: isPortrait ? 'column' : 'row',
+                    '& > :not(style)': {
+                        marginBottom: isPortrait ? 1 : 0,
+                        width: isPortrait ? '100%' : 'auto'
+                    },
+                }}
+            >
                 {
                     (maintenanceActionData.mode !== 0) ?
                         (

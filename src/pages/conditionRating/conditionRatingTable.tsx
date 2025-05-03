@@ -14,7 +14,10 @@ import {
   styled,
   IconButton,
   Tooltip,
-  Grid2 as Grid
+  Grid2 as Grid,
+  useMediaQuery,
+  useTheme,
+  Box
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -35,39 +38,56 @@ import { filterTree } from '../../helper/ifcTreeManager';
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: '#fff',
   ...theme.typography.body2,
-  padding: theme.spacing(1),
+  padding: theme.spacing(0.5),
   textAlign: 'center',
   color: theme.palette.text.secondary,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
-  }),
-  width: '60px'
+  width: '50px',
+  '@media (max-width: 600px)': {
+    width: '40px',
+    fontSize: '0.75rem'
+  }
 }));
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[200]}`,
   padding: '12px 16px',
   fontSize: '14px',
+  '@media (max-width: 960px)': {
+    padding: '8px 12px',
+    fontSize: '13px',
+  },
+  '@media (max-width: 600px)': {
+    padding: '6px 8px',
+    fontSize: '12px',
+  }
 }));
 
 const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   fontWeight: 600,
   color: theme.palette.text.primary,
+  whiteSpace: 'nowrap'
 }));
 
-const RatingInput = styled(TextField)({
+const RatingInput = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
-    width: '60px',
-    height: '40px',
+    width: '50px',
+    height: '35px',
     '& input': {
       padding: '4px',
       textAlign: 'center',
     }
+  },
+  '@media (max-width: 600px)': {
+    '& .MuiOutlinedInput-root': {
+      width: '40px',
+      height: '30px',
+    }
   }
-});
+}));
 
 const StructureElementGrid: React.FC = () => {
+  const theme = useTheme();
   const displayElements = useSelector(getDisplayElementList);
   const elementHistory: StructureElement[][] = useSelector(getElementHistory);
   const [open, setOpen] = useState<boolean>(false);
@@ -76,6 +96,10 @@ const StructureElementGrid: React.FC = () => {
   const [editRowId, setEditRowId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [goBackLabel, setGoBackLabel] = useState<string>('');
+
+  // Responsive breakpoints
+  const isTablet = useMediaQuery('(max-width:960px)');
+  const isPortrait = useMediaQuery('(max-width:600px)');
 
   const filteredTreeData = searchQuery ? filterTree(displayElements, searchQuery) : displayElements;
 
@@ -99,7 +123,7 @@ const StructureElementGrid: React.FC = () => {
     const onlyNums = event.target.value.replace(/[^0-9]/g, '');
     if (onlyNums) {
       const num = parseInt(onlyNums, 10);
-      if (num >= 1 && num <= 4) { // Ensure the number is between 1 and 4
+      if (num >= 1 && num <= 4) {
         const newData = displayElements.map((item) => {
           if (item.data.expressID === elementId) {
             const newConditions: number[] = [0, 0, 0, 0];
@@ -111,32 +135,25 @@ const StructureElementGrid: React.FC = () => {
               } else {
                 newConditions[x] = 0;
               }
-
             });
-
             return { ...item, condition: newConditions };
           }
           return item;
         });
-
         dispatch({
           payload: newData,
           type: actions.UPDATE_DISPLAY_LIST_ITEMS
         });
       }
     } else {
-      // Handle the case where the input is cleared or invalid
       const newData = displayElements.map((item) => {
         if (item.data.expressID === elementId) {
           const newConditions = [...(item.condition || [])];
-
           newConditions[index] = 0;
-
           return { ...item, condition: newConditions };
         }
         return item;
       });
-
       dispatch({
         payload: newData,
         type: actions.UPDATE_DISPLAY_LIST_ITEMS
@@ -149,14 +166,12 @@ const StructureElementGrid: React.FC = () => {
       type: actions.SAVE_CONDITION_RATING_DATA,
       payload: item
     } as PayloadAction<StructureElement>)
-
     setEditRowId(null);
   }
 
   const handleEditButton = (id: number) => {
     setEditRowId(editRowId === id ? null : id);
     const selectedElement = displayElements.find(el => el.data.expressID === id);
-
     setOriginalCondition(selectedElement?.condition || []);
   }
 
@@ -168,7 +183,6 @@ const StructureElementGrid: React.FC = () => {
       }
       return item;
     });
-
     dispatch({
       payload: newData,
       type: actions.UPDATE_DISPLAY_LIST_ITEMS
@@ -180,7 +194,6 @@ const StructureElementGrid: React.FC = () => {
       payload: element,
       type: actions.HANDLE_ROW_CLICK_SAGA
     } as PayloadAction<StructureElement>);
-
   }
 
   const handleAddAssesmentOnClick = (element: StructureElement) => {
@@ -188,7 +201,6 @@ const StructureElementGrid: React.FC = () => {
       type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
       payload: element
     } as PayloadAction<StructureElement>);
-
     setOpen(true);
   }
 
@@ -197,22 +209,22 @@ const StructureElementGrid: React.FC = () => {
   }
 
   const addAssessmentOnClick = (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     handleAddAssesmentOnClick(element);
   }
 
   const cancelOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     handleCancelButton(elementId);
   }
 
   const editOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     handleEditButton(elementId)
   }
 
   const saveOnClick = (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     handleSaveButton(element);
   }
 
@@ -228,7 +240,6 @@ const StructureElementGrid: React.FC = () => {
     } as PayloadAction);
   }
 
-
   return (
     <React.Fragment>
       <RMADialog
@@ -236,31 +247,47 @@ const StructureElementGrid: React.FC = () => {
         modalState={open}
       />
       <Stack direction={'column'}>
-        <Grid container sx={{ margin: '10px 5px' }} spacing={2}>
-          <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}>
-            <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
-
+        <Grid
+          container
+          sx={{
+            margin: isPortrait ? '10px 0' : '10px 5px'
+          }}
+          spacing={isPortrait ? 1 : 2}
+          direction={isPortrait ? 'column' : 'row'}
+        >
+          <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px' }}>
+              <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
+            </Box>
           </Grid>
-          <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
             {elementHistory.length > 0 && (
-              <Button onClick={handleBack} startIcon={<KeyboardReturnIcon />} color="primary">
+              <Button
+                onClick={handleBack}
+                startIcon={<KeyboardReturnIcon />}
+                color="primary"
+                size={isPortrait ? 'small' : 'medium'}
+              >
                 {`Go Back to ${goBackLabel}`}
               </Button>
             )}
           </Grid>
-          <Grid size={4}>
-
-          </Grid>
         </Grid>
 
-        <TableContainer component={Paper}>
-          <Table aria-label="collapsible table">
+        <TableContainer
+          component={Paper}
+          sx={{
+            mt: 2,
+            maxHeight: isTablet ? '60vh' : '70vh'
+          }}
+        >
+          <Table stickyHeader aria-label="collapsible table">
             <TableHead>
               <TableRow>
-                <StyledTableHeaderCell>ID</StyledTableHeaderCell>
+                <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>ID</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
+                <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
               </TableRow>
@@ -268,13 +295,16 @@ const StructureElementGrid: React.FC = () => {
             <TableBody>
               {filteredTreeData?.map((element: StructureElement) => (
                 <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
-                  <StyledTableCell>{element.data.expressID}</StyledTableCell>
+                  <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
                   <StyledTableCell>{element.data.Entity}</StyledTableCell>
                   <StyledTableCell>{element.data.Name}</StyledTableCell>
-                  <StyledTableCell>{(element.quantity)}</StyledTableCell>
-                  <StyledTableCell className={styles.radingConditionCell} onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}>
+                  <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{(element.quantity)}</StyledTableCell>
+                  <StyledTableCell
+                    className={styles.radingConditionCell}
+                    onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}
+                  >
                     {!element.children?.length && (
-                      <Stack direction="row" spacing={1}>
+                      <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
                         {[0, 1, 2, 3].map((_, index) => {
                           const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
                           const focusedKey = `${element.data.expressID}-${index}`;
@@ -295,7 +325,6 @@ const StructureElementGrid: React.FC = () => {
                                 }
                               }}
                             />
-
                           ) : (
                             <Item key={focusedKey}>{fieldValue}</Item>
                           );
@@ -304,35 +333,42 @@ const StructureElementGrid: React.FC = () => {
                     )}
                   </StyledTableCell>
                   <StyledTableCell>
-                    <Stack direction={'row'} spacing={2}>
+                    <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                       {!element.children?.length && (
                         <React.Fragment>
                           {(editRowId === element.data.expressID) ?
                             (<React.Fragment>
-                              <Tooltip title="Add assessmentg">
-                                <IconButton
-                                  color="primary"
-                                  onClick={addAssessmentOnClick(element)}>
-                                  <PostAddIcon />
-                                </IconButton>
-                              </Tooltip>
+                              <Stack direction="row" spacing={1}>
+                                <Tooltip title="Add assessment">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={addAssessmentOnClick(element)}
+                                    size={isPortrait ? 'small' : 'medium'}
+                                  >
+                                    <PostAddIcon />
+                                  </IconButton>
+                                </Tooltip>
 
-                              <Tooltip title="Save condition rating">
-                                <IconButton
-                                  color="success"
-                                  onClick={saveOnClick(element)}>
-                                  <SaveIcon />
-                                </IconButton>
-                              </Tooltip>
+                                <Tooltip title="Save condition rating">
+                                  <IconButton
+                                    color="success"
+                                    onClick={saveOnClick(element)}
+                                    size={isPortrait ? 'small' : 'medium'}
+                                  >
+                                    <SaveIcon />
+                                  </IconButton>
+                                </Tooltip>
 
-                              <Tooltip title="Cancel condition rating">
-                                <IconButton
-                                  color="secondary"
-                                  onClick={cancelOnClick(element.data.expressID)}>
-                                  <CancelIcon />
-                                </IconButton>
-                              </Tooltip>
-
+                                <Tooltip title="Cancel condition rating">
+                                  <IconButton
+                                    color="secondary"
+                                    onClick={cancelOnClick(element.data.expressID)}
+                                    size={isPortrait ? 'small' : 'medium'}
+                                  >
+                                    <CancelIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
                             </React.Fragment>)
                             :
                             (
@@ -341,8 +377,10 @@ const StructureElementGrid: React.FC = () => {
                                 color="secondary"
                                 startIcon={<TroubleshootIcon />}
                                 disabled={(!!editRowId && element.data.expressID !== editRowId)}
-                                onClick={editOnClick(element.data.expressID)}>
-                                Add rating
+                                onClick={editOnClick(element.data.expressID)}
+                                size={isPortrait ? 'small' : 'medium'}
+                              >
+                                {isPortrait ? 'Rate' : 'Add rating'}
                               </Button>
                             )
                           }

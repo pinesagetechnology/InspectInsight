@@ -24,15 +24,6 @@ const Viewer: React.FC = () => {
     return (
         <FormPageWrapper isFooterVisible={true}>
             <div style={{ width: '100%' }}>
-                {/* <Stack direction={'row'} spacing={2}>
-                    <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
-                        <DatasetIcon fontSize="inherit" />
-                    </IconButton>
-                    <Typography variant="body1" sx={{ alignSelf: 'center' }}>
-                        Table View
-                    </Typography>
-                    
-                </Stack> */}
                 <Button variant="outlined" startIcon={<DatasetIcon />} onClick={() => handleClick()}>
                     Table View
                 </Button>

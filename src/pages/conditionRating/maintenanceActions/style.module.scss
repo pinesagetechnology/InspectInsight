@@ -2,6 +2,10 @@
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 16px;
+
+    @media (max-width: 600px) {
+        margin-bottom: 8px;
+    }
 }
 
 .input {
@@ -13,9 +17,14 @@
     height: 100px;
     object-fit: cover;
     margin-right: 10px;
+
+    @media (max-width: 600px) {
+        width: 80px;
+        height: 80px;
+        margin-right: 5px;
+    }
 }
 
 .datePicker {
     width: 100%;
-  }
-  
+}
