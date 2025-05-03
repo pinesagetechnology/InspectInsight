@@ -290,22 +290,48 @@ self.addEventListener('activate', (event) => {
 
 // Special fetch handler for offline navigation fallback
 self.addEventListener('fetch', (event) => {
-  // Only handle navigation requests
+  // Handle navigation requests
   if (event.request.mode === 'navigate') {
     event.respondWith(
       (async () => {
         try {
-          // First, try to use the navigation preload response if available
-          const preloadResponse = await event.preloadResponse;
-          if (preloadResponse) return preloadResponse;
+          // Try to get from cache first
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
 
-          // Next, try the network
-          return await fetch(event.request);
+          // Try network if not in cache
+          try {
+            const networkResponse = await fetch(event.request);
+            return networkResponse;
+          } catch (networkError) {
+            // If network fails and it's a navigation request, serve the app shell
+            const cache = await caches.open(CACHE_NAMES.app);
+
+            // First try to get the exact URL from cache
+            let response = await cache.match(event.request);
+            if (response) return response;
+
+            // If not found, try to get index.html (app shell)
+            response = await cache.match('/index.html');
+            if (response) return response;
+
+            // As a last resort, try the offline page
+            const offlineCache = await caches.open('offline-fallbacks');
+            response = await offlineCache.match('/offline.html');
+            return response || Response.error();
+          }
         } catch (error) {
-          console.warn('Fetch failed; returning offline page instead.', error);
-          // If network fails, serve the offline page
-          const cache = await caches.open('offline-fallbacks');
-          return await cache.match('/offline.html') || Response.error();
+          console.error('Navigation request failed:', error);
+          // Return a custom offline response
+          return new Response('You are offline and this page is not cached.', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain',
+            }),
+          });
         }
       })()
     );

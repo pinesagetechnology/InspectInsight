@@ -2,11 +2,11 @@ import { takeLatest, put, select, call } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { getInspection, getPreviousInspectionList, selectedPreviousInspectionData } from '../Inspection/selectors';
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
-import { getRatedElements } from '../ConditionRating/selectors';
+import { getConditionRating, getDisplayElementList, getRatedElements } from '../ConditionRating/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
 import { setLocalStorageFlag, setLocaStorageError } from './slice';
 import { setCurrentInspection, setPreviousInspectionData, setPreviousInspectionListFromSavedState } from '../Inspection/slice';
-import { setReatedElement } from '../ConditionRating/slice';
+import { setDisplayConditionRatingElements, setOriginalConditionRating, setReatedElement } from '../ConditionRating/slice';
 import { setMaintenanceActionList } from '../MaintenanceAction/slice';
 import { db, ReduxApplicationState, ensureDbReady } from '../../helper/db';
 import { StructureElement } from '../../entities/structure';
@@ -32,6 +32,8 @@ export function* saveStateInLocalStorage() {
         const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
         const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
         const ratedElements: StructureElement[] = yield select(getRatedElements);
+        const originalConditionRatingList: StructureElement[] = yield select(getConditionRating);
+        const displayElementList: StructureElement[] = yield select(getDisplayElementList);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
         const inspectionComment: string = yield select(getInspectionComment);
 
@@ -44,6 +46,8 @@ export function* saveStateInLocalStorage() {
             },
             conditionRating: {
                 ratedElements: ratedElements,
+                originalConditionRating: originalConditionRatingList,
+                displayConditionRatingElements: displayElementList
             },
             maintenanceAction: {
                 maintenanceActions: maintenanceActions,
@@ -74,6 +78,8 @@ export function* saveStateInLocalStorage() {
                 const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
                 const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
                 const ratedElements: StructureElement[] = yield select(getRatedElements);
+                const originalConditionRatingList: StructureElement[] = yield select(getConditionRating);
+                const displayElementList: StructureElement[] = yield select(getDisplayElementList);
                 const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
                 const inspectionComment: string = yield select(getInspectionComment);
 
@@ -86,6 +92,8 @@ export function* saveStateInLocalStorage() {
                     },
                     conditionRating: {
                         ratedElements: ratedElements,
+                        originalConditionRating: originalConditionRatingList,
+                        displayConditionRatingElements: displayElementList
                     },
                     maintenanceAction: {
                         maintenanceActions: maintenanceActions,
@@ -136,6 +144,8 @@ export function* mapLocalStorageToState() {
 
             // Map condition rating
             yield put(setReatedElement(savedState.conditionRating.ratedElements));
+            yield put(setOriginalConditionRating(savedState.conditionRating.originalConditionRating));
+            yield put(setDisplayConditionRatingElements(savedState.conditionRating.displayConditionRatingElements));
 
             // Map maintenance action
             yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
