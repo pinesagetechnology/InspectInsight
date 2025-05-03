@@ -1,7 +1,7 @@
 import React from 'react'
 import FormPageWrapper from '../../components/formPageWrapper';
 import StructureElementGrid from './conditionRatingTable';
-import { IconButton, Stack, Typography } from '@mui/material';
+import { Button, IconButton, Stack, Typography } from '@mui/material';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
@@ -16,14 +16,17 @@ const ConditionRating: React.FC = () => {
     return (
         <FormPageWrapper isFooterVisible={true}>
             <div style={{ width: '100%' }}>
-                <Stack direction={'row'} spacing={2}>
+                {/* <Stack direction={'row'} spacing={2}>
                     <IconButton aria-label="delete" size="large" onClick={() => handleClick()}>
                         <ViewInArIcon fontSize="inherit" />
                     </IconButton>
                     <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                         3D View
                     </Typography>
-                </Stack>
+                </Stack> */}
+                <Button variant="outlined" startIcon={<ViewInArIcon />} onClick={() => handleClick()}>
+                    3D View
+                </Button>
                 <StructureElementGrid />
             </div>
         </FormPageWrapper>

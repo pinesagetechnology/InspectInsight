@@ -1,66 +1,51 @@
 {
   "routes": [
     {
-      "route": "/static/*",
+      "route": "/*.js",
       "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
+        "content-type": "application/javascript; charset=utf-8"
       }
     },
     {
-      "route": "/static/js/*",
+      "route": "/*.css",
       "headers": {
-        "content-type": "application/javascript"
+        "content-type": "text/css; charset=utf-8"
       }
     },
     {
-      "route": "/static/css/*",
+      "route": "/*.json",
       "headers": {
-        "content-type": "text/css"
-      }
-    },
-    {
-      "route": "/manifest.json",
-      "headers": {
-        "content-type": "application/json"
+        "content-type": "application/json; charset=utf-8"
       }
     },
     {
       "route": "/*.wasm",
       "headers": {
-        "content-type": "application/wasm",
-        "cache-control": "public, max-age=604800"
+        "content-type": "application/wasm"
       }
     },
     {
       "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
+      "rewrite": "/index.html"
     }
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": [
-      "/static/*",
-      "/*.wasm",
+      "/*.js",
+      "/*.css",
       "/*.json",
+      "/*.wasm",
       "/*.png",
       "/*.jpg",
-      "/*.jpeg",
       "/*.gif",
-      "/*.svg",
-      "/*.css",
-      "/*.js"
+      "/*.svg"
     ]
   },
   "mimeTypes": {
-    ".wasm": "application/wasm",
-    ".json": "application/json",
     ".js": "application/javascript",
     ".css": "text/css",
-    ".html": "text/html"
-  },
-  "globalHeaders": {
-    "content-security-policy": "default-src 'self' cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*; font-src 'self' data:; connect-src 'self' https://* wss://*;",
-    "cache-control": "must-revalidate, max-age=86400"
+    ".json": "application/json",
+    ".wasm": "application/wasm"
   }
 }

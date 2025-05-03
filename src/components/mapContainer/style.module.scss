@@ -1,9 +1,9 @@
+// style.module.scss
 .structureDetailTitleBox {
     margin-top: 16px;
     margin-bottom: 2px;
-    margin-left: 16px; 
+    margin-left: 16px;
 }
-
 
 .structureDetailTitle {
     color: var(--mui-palette-text-secondary);
@@ -11,10 +11,16 @@
 }
 
 .structureDetailSectionBox {
-    padding-left: 16px; /* 'px: 2' => 2 * 8px */
-    padding-right: 16px; /* 'px: 2' => 2 * 8px */
-    padding-bottom: 16px; /* 'pb: 2' => 2 * 8px */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scrolling for overflowing content */
-}
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 16px;
+    height: 100%;
+    overflow: auto;
 
+    // Adjust padding for smaller screens
+    @media (max-width: 600px) {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-bottom: 8px;
+    }
+}

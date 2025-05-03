@@ -1,18 +1,8 @@
 import React from 'react';
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Structure } from '../../entities/structure';
-import { DataGrid, GridCallbackDetails, GridColDef, GridRenderCellParams, GridRowParams, MuiEvent } from '@mui/x-data-grid';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import HistoryIcon from '@mui/icons-material/History';
-import DirectionsIcon from '@mui/icons-material/Directions';
-import { useNavigationManager } from '../../navigation';
-import { useDispatch } from 'react-redux';
-import * as actions from "../../store/Inspection/actions";
-import { PayloadAction } from '@reduxjs/toolkit';
-import { RoutesValueEnum } from '../../enums';
-import { useSelector } from 'react-redux';
-import { getCurrentStructure } from '../../store/Structure/selectors';
 import RowComponent from './rowComponent';
+import MapIcon from '@mui/icons-material/Map';
 
 interface ListModeProps {
     isListView: boolean;
@@ -33,7 +23,8 @@ const ListModeStructure: React.FC<ListModeProps> = ({
 
     return (
         <div>
-            <Button variant="contained" onClick={toggleView} style={{ marginBottom: '16px' }}>
+            {/* <Button variant="contained" onClick={toggleView} style={{ marginBottom: '16px' }}> */}
+            <Button variant="outlined" startIcon={<MapIcon />} onClick={toggleView}>
                 Show Map
             </Button>
             <Box sx={{ height: 400, width: '100%' }}>

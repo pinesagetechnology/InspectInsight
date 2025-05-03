@@ -18,20 +18,24 @@ import {
     MenuItem,
     Paper,
     SwipeableDrawer,
-    Typography
+    Typography,
+    useMediaQuery
 } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Structure } from '../../entities/structure';
 import { FilterModel } from '../../models/map';
 import StructureDetailSection from './structureDetail';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentStructure } from '../../store/Structure/selectors';
 import { DRAWER_BLEEDING } from '../../constants';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import * as structureActions from "../../store/Structure/actions";
 import styles from './style.module.scss';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 // IMPORTANT: adjust these to your design
 const containerStyle = { width: '100%', height: '80vh' };
@@ -56,17 +60,7 @@ const Puller = styled('div')(({ theme }) => ({
     left: 'calc(50% - 15px)',
     ...theme.applyStyles('dark', { backgroundColor: grey[900] }),
 }));
-const SearchBar = styled(Paper)(({ theme }) => ({
-    position: 'absolute',
-    top: 16,
-    right: 150,
-    display: 'flex',
-    alignItems: 'center',
-    padding: '8px 16px',
-    boxShadow: theme.shadows[2],
-    borderRadius: 8,
-    width: '30%',
-}));
+
 const SearchInput = styled(InputBase)({
     flex: 1,
     marginLeft: 8,
@@ -102,10 +96,16 @@ const MapContainer: React.FC<MapComponentProps> = ({
     setIsListView,
     onStartClickHandler
 }) => {
+    const dispatch = useDispatch();
     const selectedStructure = useSelector(getCurrentStructure);
     const [structureList, setStructureList] = useState<Structure[]>(structures || []);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDrawer, setOpenDrawer] = useState(false);
+
+    // Media queries for responsive design
+    const isTablet = useMediaQuery('(max-width:960px)');
+    const isTabletPortrait = useMediaQuery('(max-width:600px)');
+    const isLandscape = useMediaQuery('(orientation: landscape)');
 
     // Keep track of created markers so we can remove them later
     const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -170,6 +170,12 @@ const MapContainer: React.FC<MapComponentProps> = ({
     // List toggle
     const toggleView = () => setIsListView(!isListView);
 
+    const onRefreshMapClick = () => {
+        dispatch({
+            type: structureActions.FETCH_STRUCTURES_DATA
+        } as PayloadAction);
+    }
+
     // Text search
     const onTxtSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.toLowerCase();
@@ -201,7 +207,30 @@ const MapContainer: React.FC<MapComponentProps> = ({
                     }}
                 />
 
-                <Fab color="primary" sx={{ position: 'absolute', top: 16, right: 80 }} onClick={handleMenuOpen}>
+                {/* FAB buttons - responsive positioning */}
+                <Fab
+                    color="primary"
+                    size={isTabletPortrait ? "small" : "medium"}
+                    sx={{
+                        position: 'absolute',
+                        top: isTablet ? 8 : 16,
+                        right: isTabletPortrait ? 60 : 80
+                    }}
+                    onClick={onRefreshMapClick}
+                >
+                    <RefreshIcon />
+                </Fab>
+
+                <Fab
+                    color="primary"
+                    size={isTabletPortrait ? "small" : "medium"}
+                    sx={{
+                        position: 'absolute',
+                        top: isTablet ? 8 : 16,
+                        right: isTabletPortrait ? 116 : 136
+                    }}
+                    onClick={handleMenuOpen}
+                >
                     <FilterListIcon />
                 </Fab>
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
@@ -212,14 +241,57 @@ const MapContainer: React.FC<MapComponentProps> = ({
                     <MenuItem onClick={() => handleMenuItemClick(3)}>Next Month</MenuItem>
                 </Menu>
 
-                <Fab color="primary" sx={{ position: 'absolute', top: 16, right: 16 }} onClick={toggleView}>
+                <Fab
+                    color="primary"
+                    size={isTabletPortrait ? "small" : "medium"}
+                    sx={{
+                        position: 'absolute',
+                        top: isTablet ? 8 : 16,
+                        right: isTabletPortrait ? 8 : 16
+                    }}
+                    onClick={toggleView}
+                >
                     <ListIcon />
                 </Fab>
 
-                <Paper elevation={3} sx={{ position: 'absolute', top: 16, right: 150, display: 'flex', alignItems: 'center', p: '8px 16px', width: '30%' }}>
-                    <SearchIcon fontSize="small" />
-                    <SearchInput placeholder="Search here ..." fullWidth onChange={onTxtSearchInput} />
-                </Paper>
+                {/* Search bar - responsive width and positioning */}
+                {!isTabletPortrait && (
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            position: 'absolute',
+                            top: isTablet ? 8 : 16,
+                            right: isTablet ? 196 : 206,
+                            display: 'flex',
+                            alignItems: 'center',
+                            p: '8px 16px',
+                            width: isTablet ? '40%' : '30%',
+                            maxWidth: isLandscape ? '300px' : '250px'
+                        }}
+                    >
+                        <SearchIcon fontSize="small" />
+                        <SearchInput placeholder="Search here ..." fullWidth onChange={onTxtSearchInput} />
+                    </Paper>
+                )}
+
+                {/* Mobile search - positioned below FABs in portrait mode */}
+                {isTabletPortrait && (
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            position: 'absolute',
+                            top: 60,
+                            left: 16,
+                            right: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            p: '8px 16px'
+                        }}
+                    >
+                        <SearchIcon fontSize="small" />
+                        <SearchInput placeholder="Search here ..." fullWidth onChange={onTxtSearchInput} />
+                    </Paper>
+                )}
             </Box>
 
             {!selectedStructure.name ? (

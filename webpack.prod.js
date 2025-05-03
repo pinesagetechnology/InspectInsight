@@ -10,9 +10,9 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = merge(common, {
     mode: "production",
     output: {
-        filename: '[name].[contenthash].js',
-        chunkFilename: '[name].[contenthash].chunk.js',
         path: path.resolve(__dirname, 'dist'),
+        filename: 'static/js/[name].[contenthash:8].js',
+        chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
         publicPath: '/'
     },
     // Disable code splitting to bundle everything in main.js
