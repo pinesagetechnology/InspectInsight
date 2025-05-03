@@ -13,6 +13,8 @@ export interface ReduxApplicationState {
     },
     conditionRating: {
         ratedElements: StructureElement[];
+        originalConditionRating: StructureElement[];
+        displayConditionRatingElements: StructureElement[];
     },
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];

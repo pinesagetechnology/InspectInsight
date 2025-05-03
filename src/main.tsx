@@ -1,4 +1,3 @@
-// src/main.tsx - Updated with enhanced offline support
 import { useDispatch } from 'react-redux';
 import { AppRouter } from './navigation/routes';
 import React, { Suspense, useEffect, useState } from 'react';
@@ -22,8 +21,10 @@ import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import RoutePreloader from './navigation/RoutePreloader';
+import { useOfflineNavigation } from './navigation';
 
 export const MainComponent: React.FunctionComponent = () => {
+    useOfflineNavigation();
     const dispatch = useDispatch();
 
     const isOnline = useOfflineSync();
