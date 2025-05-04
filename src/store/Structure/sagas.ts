@@ -16,6 +16,8 @@ import { isOnlineSelector } from '../SystemAvailability/selectors';
 import { db, StructureState } from '../../helper/db';
 import { setPreviousInspectionData } from '../Inspection/slice';
 import { InspectionEntity } from '../../entities/inspection';
+import { addDays } from '../../helper/util';
+import { StructureUrgencyEnum } from '../../enums';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -30,7 +32,7 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
 
     yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
 
-    yield put(setPreviousInspectionData(action.payload.previousInspection || {}  as InspectionEntity));
+    yield put(setPreviousInspectionData(action.payload.previousInspection || {} as InspectionEntity));
 }
 
 export function* getStructursData() {
@@ -43,8 +45,25 @@ export function* getStructursData() {
 
         if (isOnline) {
             const structureData: Structure[] = yield call(services.getStructureData);
+            const now = new Date();
 
-            yield put(fetchStructuresDataSuccessful(structureData));
+            const updatedList: Structure[] = structureData.map(item => {
+                const normalCase = addDays(now, 31);
+                const nextMonth = addDays(now, 30);
+
+                const lastInspectionDate = new Date(item.lastInspectionDate);
+                console.log("lastInspectionDate", lastInspectionDate, "now", now)
+                if (lastInspectionDate < normalCase) {
+                    item.urgency = StructureUrgencyEnum.Low
+                } else if (lastInspectionDate > now && lastInspectionDate <= nextMonth) {
+                    item.urgency = StructureUrgencyEnum.Medium
+                } else {
+                    item.urgency = StructureUrgencyEnum.High
+                }
+                return item;
+            });
+
+            yield put(fetchStructuresDataSuccessful(updatedList));
 
             const stateToSave = {
                 id: 'structureState', // fixed key

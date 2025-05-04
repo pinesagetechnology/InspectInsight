@@ -20,6 +20,7 @@ import * as actions from "../../store/Inspection/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ChevronRight, LocationOn, Navigation, History, DirectionsOutlined } from '@mui/icons-material';
 import { defaultDateValue } from '../../constants';
+import { FormatDateOnly } from '../../helper/util';
 
 const DetailLabel = styled(Typography)(({ theme }) => ({
     color: theme.palette.text.secondary,
@@ -114,7 +115,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                 <Grid container spacing={isTabletPortrait ? 1 : 2} mb={2}>
                     <Grid size={{ xs: 6, sm: 4 }}>
                         <DetailLabel>Next Inspection Date</DetailLabel>
-                        <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : ""}</DetailValue>
+                        <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : FormatDateOnly(selectedStructure.previousInspection?.nextInspectionProposedDate || "")}</DetailValue>
                     </Grid>
                     <Grid size={{ xs: 6, sm: 4 }}>
                         <DetailLabel>Code</DetailLabel>
@@ -127,7 +128,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
 
                     <Grid size={{ xs: 6, sm: 4 }}>
                         <DetailLabel>Last Inspection Date</DetailLabel>
-                        <DetailValue>{selectedStructure.lastInspectionDate}</DetailValue>
+                        <DetailValue>{FormatDateOnly(selectedStructure.lastInspectionDate)}</DetailValue>
                     </Grid>
                     <Grid size={{ xs: 6, sm: 4 }}>
                         <DetailLabel>Over</DetailLabel>

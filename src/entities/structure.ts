@@ -18,6 +18,9 @@ export interface Structure {
     metadata?: Metadata;
     elementMetadata: StructureElement[];
     previousInspection?: InspectionEntity;
+    precinct?:string;
+    equipments?:string[];
+    urgency: string;
 }
 
 export interface Location {
