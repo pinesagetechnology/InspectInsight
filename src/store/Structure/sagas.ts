@@ -16,8 +16,8 @@ import { isOnlineSelector } from '../SystemAvailability/selectors';
 import { db, StructureState } from '../../helper/db';
 import { setPreviousInspectionData } from '../Inspection/slice';
 import { InspectionEntity } from '../../entities/inspection';
-import { addDays } from '../../helper/util';
 import { StructureUrgencyEnum } from '../../enums';
+import { defaultDateValue } from '../../constants';
 
 export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
@@ -48,18 +48,34 @@ export function* getStructursData() {
             const now = new Date();
 
             const updatedList: Structure[] = structureData.map(item => {
-                const normalCase = addDays(now, 31);
-                const nextMonth = addDays(now, 30);
+                const nextInspectionDateStr = item.previousInspection?.nextInspectionProposedDate;
+                console.log(item.previousInspection?.nextInspectionProposedDate)
 
-                const lastInspectionDate = new Date(item.lastInspectionDate);
-                console.log("lastInspectionDate", lastInspectionDate, "now", now)
-                if (lastInspectionDate < normalCase) {
-                    item.urgency = StructureUrgencyEnum.Low
-                } else if (lastInspectionDate > now && lastInspectionDate <= nextMonth) {
-                    item.urgency = StructureUrgencyEnum.Medium
-                } else {
-                    item.urgency = StructureUrgencyEnum.High
+                if (!nextInspectionDateStr) {
+                    item.urgency = StructureUrgencyEnum.Low;
+                    return item;
                 }
+
+                const nextInspectionDate = new Date(nextInspectionDateStr);
+                if (isNaN(nextInspectionDate.getTime()) || nextInspectionDateStr === defaultDateValue) {
+                    // invalid date fallback
+                    item.urgency = StructureUrgencyEnum.Low;
+                    return item;
+                }
+
+                const diffMs = nextInspectionDate.getTime() - now.getTime();
+                const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+                if (diffDays < 0) {
+                    item.urgency = StructureUrgencyEnum.Overdue;
+                } else if (diffDays <= 7) {
+                    item.urgency = StructureUrgencyEnum.High;
+                } else if (diffDays <= 30) {
+                    item.urgency = StructureUrgencyEnum.Medium;
+                } else {
+                    item.urgency = StructureUrgencyEnum.Low;
+                }
+
                 return item;
             });
 

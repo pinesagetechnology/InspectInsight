@@ -20,6 +20,7 @@ export interface Structure {
     previousInspection?: InspectionEntity;
     precinct?:string;
     equipments?:string[];
+    ifcfileaddress?:string;
     urgency: string;
 }
 

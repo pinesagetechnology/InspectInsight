@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as ratingActions from "../../store/ConditionRating/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { getStructureElements } from "../../store/Structure/selectors";
+import { getStructureElements, getStructureIFCPath } from "../../store/Structure/selectors";
 import { getRatedElements } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
@@ -26,6 +26,7 @@ const IFCViewerComponent: React.FC = () => {
     const dispatch = useDispatch();
     const structureElements: StructureElement[] = useSelector(getStructureElements) || [];
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
+    const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
 
     // Add theme and media queries for responsive design
     const theme = useTheme();
@@ -186,7 +187,7 @@ const IFCViewerComponent: React.FC = () => {
 
             // Load IFC
             try {
-                const url = 'https://psiassetsapidev.blob.core.windows.net/ifcfiles/ifcBridgeSample.ifc';
+                const url = `https://psiassetsapidev.blob.core.windows.net/${structureIFCPath}`;
                 const resp = await fetch(url);
                 const arrayBuffer = await resp.arrayBuffer();
                 const model = await ifcLoader.load(new Uint8Array(arrayBuffer));

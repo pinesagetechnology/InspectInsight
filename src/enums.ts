@@ -34,5 +34,6 @@ export enum StructureFilterCategory {
 export enum StructureUrgencyEnum {
     High = 'High',
     Medium = 'Medium',
-    Low = 'Low'
+    Low = 'Low',
+    Overdue = 'Overdue'
 }

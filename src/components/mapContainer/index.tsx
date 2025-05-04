@@ -162,7 +162,6 @@ const MapContainer: React.FC<MapComponentProps> = ({
             .then((library: any) => {
                 const { AdvancedMarkerElement } = library;
                 const newMarkers = structureList.map(struct => {
-                    console.log(struct.urgency)
                     const color = getPinColor(struct.urgency);
                     const content = getMarkerContent(color);
 
