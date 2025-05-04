@@ -13,7 +13,7 @@ import { setShowLoading } from '../Common/slice';
 import * as commonActions from '../Common/actions';
 import { addQuantityToElements } from '../../helper/ifcTreeManager';
 import { isOnlineSelector } from '../SystemAvailability/selectors';
-import { db, StructureState } from '../../helper/db';
+import { db, hasIFCFile, StructureState } from '../../helper/db';
 import { setPreviousInspectionData } from '../Inspection/slice';
 import { InspectionEntity } from '../../entities/inspection';
 import { StructureUrgencyEnum } from '../../enums';
@@ -33,6 +33,12 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
     yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
 
     yield put(setPreviousInspectionData(action.payload.previousInspection || {} as InspectionEntity));
+
+    if (action.payload.ifcfileaddress) {
+        const hasLocalFile: boolean = yield call(hasIFCFile, action.payload.id);
+
+        localStorage.setItem(`ifc_downloaded_${action.payload.id}`, hasLocalFile.toString());
+    }
 }
 
 export function* getStructursData() {

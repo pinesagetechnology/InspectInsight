@@ -23,7 +23,6 @@ export interface ReduxApplicationState {
     timestamp?: number; // Optional timestamp for version control
 }
 
-// Add this new interface for captured images
 export interface CapturedImage {
     id: string;
     maintenanceId: string;
@@ -39,20 +38,30 @@ export interface StructureState {
     timestamp?: number; // Optional timestamp for version control
 }
 
+export interface IFCFile {
+    id: string; // Structure ID
+    structureId: string;
+    filename: string;
+    blob: Blob;
+    timestamp: number;
+    size: number;
+}
+
 export class AppDatabase extends Dexie {
     public reduxApplicationState!: Table<ReduxApplicationState, string>;
     public structureState!: Table<StructureState, string>;
     public capturedImages!: Table<CapturedImage, string>;
+    public ifcFiles!: Table<IFCFile, string>;
 
     constructor() {
         super('AppDatabase');
 
         // Define database schema with versioning
-        this.version(4).stores({
+        this.version(5).stores({
             reduxApplicationState: 'id', // define the primary key for the reduxApplicationState table
             structureState: 'id', // define the primary key for the structureState table
-            // Add indexing by both id and maintenanceId
-            capturedImages: 'id, maintenanceId, timestamp, uploaded'
+            capturedImages: 'id, maintenanceId, timestamp, uploaded',
+            ifcFiles: 'id, structureId, filename, timestamp'
         });
 
         // Define ready event handler
@@ -116,7 +125,6 @@ export const getImageById = async (id: string): Promise<CapturedImage | undefine
     }
 }
 
-// Mark an image as uploaded
 export const markImageAsUploaded = async (id: string): Promise<void> => {
     try {
         await db.capturedImages.update(id, { uploaded: true });
@@ -125,7 +133,6 @@ export const markImageAsUploaded = async (id: string): Promise<void> => {
     }
 }
 
-// Delete an image
 export const deleteImage = async (id: string): Promise<void> => {
     try {
         await db.capturedImages.delete(id);
@@ -134,7 +141,6 @@ export const deleteImage = async (id: string): Promise<void> => {
     }
 }
 
-// Get all unuploaded images (useful for sync)
 export const getUnuploadedImages = async (): Promise<CapturedImage[]> => {
     try {
         return await db.capturedImages
@@ -147,10 +153,54 @@ export const getUnuploadedImages = async (): Promise<CapturedImage[]> => {
     }
 }
 
-// Create a singleton instance of the database
+// Add these helper functions
+export const saveIFCFile = async (structureId: string, filename: string, blob: Blob): Promise<void> => {
+    try {
+        await db.ifcFiles.put({
+            id: structureId,
+            structureId,
+            filename,
+            blob,
+            timestamp: Date.now(),
+            size: blob.size
+        });
+        console.log(`IFC file saved locally for structure: ${structureId}`);
+    } catch (error) {
+        console.error('Failed to save IFC file:', error);
+        throw error;
+    }
+}
+
+export const getIFCFile = async (structureId: string): Promise<IFCFile | undefined> => {
+    try {
+        return await db.ifcFiles.get(structureId);
+    } catch (error) {
+        console.error('Failed to retrieve IFC file:', error);
+        return undefined;
+    }
+}
+
+export const hasIFCFile = async (structureId: string): Promise<boolean> => {
+    try {
+        const count = await db.ifcFiles.where('structureId').equals(structureId).count();
+        return count > 0;
+    } catch (error) {
+        console.error('Failed to check IFC file existence:', error);
+        return false;
+    }
+}
+
+export const deleteIFCFile = async (structureId: string): Promise<void> => {
+    try {
+        await db.ifcFiles.delete(structureId);
+        console.log(`IFC file deleted for structure: ${structureId}`);
+    } catch (error) {
+        console.error('Failed to delete IFC file:', error);
+    }
+}
+
 export const db = new AppDatabase();
 
-// Ensure the database is ready for use
 export const ensureDbReady = async (): Promise<void> => {
     try {
         // Check if the database is already open
@@ -205,7 +255,6 @@ export const ensureDbReady = async (): Promise<void> => {
     }
 };
 
-// Add utility function to check database health
 export const checkDatabaseHealth = async (): Promise<boolean> => {
     try {
         if (!db.isOpen()) {

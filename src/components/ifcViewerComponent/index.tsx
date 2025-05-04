@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as ratingActions from "../../store/ConditionRating/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { getStructureElements, getStructureIFCPath } from "../../store/Structure/selectors";
+import { getCurrentStructure, getStructureElements, getStructureIFCPath } from "../../store/Structure/selectors";
 import { getRatedElements } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
@@ -17,6 +17,8 @@ import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme } from "
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
 import CloseIcon from '@mui/icons-material/Close';
+import { getIFCFile } from '../../helper/db';
+import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 
 const selectHighlighterName = "select";
 const Plan = "Plan";
@@ -27,6 +29,8 @@ const IFCViewerComponent: React.FC = () => {
     const structureElements: StructureElement[] = useSelector(getStructureElements) || [];
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
     const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
+    const isOnline = useSelector(isOnlineSelector);
+    const currentStructure = useSelector(getCurrentStructure);
 
     // Add theme and media queries for responsive design
     const theme = useTheme();
@@ -187,9 +191,32 @@ const IFCViewerComponent: React.FC = () => {
 
             // Load IFC
             try {
-                const url = `https://psiassetsapidev.blob.core.windows.net/${structureIFCPath}`;
-                const resp = await fetch(url);
-                const arrayBuffer = await resp.arrayBuffer();
+                let arrayBuffer: ArrayBuffer;
+
+                if (!isOnline) {
+                    // We're offline, try to load from local storage
+                    const localFile = await getIFCFile(currentStructure.id);
+
+                    if (!localFile) {
+                        // No local file available
+                        dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY } as PayloadAction);
+                        alert('3D model is not available offline. Please connect to internet to download the model first.');
+                        return;
+                    }
+
+                    arrayBuffer = await localFile.blob.arrayBuffer();
+                } else {
+                    // We're online, fetch from URL
+                    const url = `https://psiassetsapidev.blob.core.windows.net/${structureIFCPath}`;
+                    const resp = await fetch(url);
+
+                    if (!resp.ok) {
+                        throw new Error(`Failed to fetch IFC file: ${resp.statusText}`);
+                    }
+
+                    arrayBuffer = await resp.arrayBuffer();
+                }
+
                 const model = await ifcLoader.load(new Uint8Array(arrayBuffer));
                 setModel(model);
                 classifierObj.byEntity(model);

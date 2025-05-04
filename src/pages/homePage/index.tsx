@@ -22,6 +22,8 @@ import {
 import styles from "./style.module.scss";
 import { getLocalStorageFlag } from '../../store/LocalStorage/selector';
 import * as localDataActions from "../../store/LocalStorage/actions";
+import IFCDownloadDialog from '../../components/ifcDownloadDialog';
+import { hasIFCFile } from '../../helper/db';
 
 const HomePage: React.FC = () => {
   const { goTo } = useNavigationManager();
@@ -29,11 +31,12 @@ const HomePage: React.FC = () => {
 
   const dispatch = useDispatch();
   const [structureList, setStructureList] = useState<Structure[]>([]);
+  const [showIFCDownloadDialog, setShowIFCDownloadDialog] = useState(false);
+  const [selectedForDownload, setSelectedForDownload] = useState<Structure | null>(null);
 
   const structures = useSelector(getStructures);
   const [isListView, setIsListView] = useState(false);
   const hasLocalData = useSelector(getLocalStorageFlag);
-
 
   useEffect(() => {
     if (hasLocalData) {
@@ -65,7 +68,9 @@ const HomePage: React.FC = () => {
     dispatch({
       payload: structure,
       type: structureActions.SET_SLECTED_STRUCTURE_DATA
-    } as PayloadAction<Structure>)
+    } as PayloadAction<Structure>);
+
+    checkAndPromptIFCDownload(structure);
   }
 
   const applyFilter = (filters: Record<string, string[]>) => {
@@ -152,8 +157,34 @@ const HomePage: React.FC = () => {
     goTo(RoutesValueEnum.InspectionReview);
   };
 
+  const checkAndPromptIFCDownload = async (structure: Structure) => {
+    if (structure.ifcfileaddress && navigator.onLine) {
+      const hasLocalFile = await hasIFCFile(structure.id);
+      if (!hasLocalFile) {
+        setSelectedForDownload(structure);
+        setShowIFCDownloadDialog(true);
+      }
+    }
+  };
+
   return (
     <div className={styles.homeContainer}>
+      {selectedForDownload && (
+        <IFCDownloadDialog
+          open={showIFCDownloadDialog}
+          structureName={selectedForDownload.name}
+          structureId={selectedForDownload.id}
+          ifcPath={selectedForDownload.ifcfileaddress || ''}
+          onClose={() => {
+            setShowIFCDownloadDialog(false);
+            setSelectedForDownload(null);
+          }}
+          onDownloadComplete={() => {
+            // Update local storage to indicate the file is downloaded
+            localStorage.setItem(`ifc_downloaded_${selectedForDownload.id}`, 'true');
+          }}
+        />
+      )}
       <Dialog
         open={modalOpen}
         onClose={handleModalClose}
@@ -189,8 +220,9 @@ const HomePage: React.FC = () => {
           isListView={isListView}
           onSelectStructure={onSelectStructureHandler}
           setIsListView={setIsListViewHandler}
-          structures={structures || []}
+          structures={structureList}
           onStartClickHandler={startInspectionHandler}
+          applyFilter={applyFilter}
         />
       )}
     </div>

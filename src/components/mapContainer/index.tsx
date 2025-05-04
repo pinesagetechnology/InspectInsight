@@ -1,4 +1,3 @@
-// src/components/mapContainer/index.tsx
 import React, {
     ChangeEvent,
     useEffect,
