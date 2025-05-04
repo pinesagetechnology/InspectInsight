@@ -15,3 +15,16 @@ export const getColorForRating = (rating: number): number => {
     return 0x00ff00; // green
   }
 };
+
+export const FormatDateOnly = (value: string) => {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return '';
+
+  return date.toLocaleDateString('en-NZ', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}

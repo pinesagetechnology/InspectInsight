@@ -4,3 +4,4 @@ export const isStructureLoading = (state: RootState) => state.StructureState.isL
 export const getCurrentStructure = (state: RootState) => state.StructureState.currentStructure;
 export const getStructures = (state: RootState) => state.StructureState.structures;
 export const getStructureElements = (state: RootState) => state.StructureState.currentStructure.elementMetadata;
+export const getStructureIFCPath = (state: RootState) => state.StructureState.currentStructure.ifcfileaddress;

@@ -24,3 +24,16 @@ export enum InspectionStatusEnum {
     Completed = 'Completed',
     ToDo = 'ToDo',
 }
+
+export enum StructureFilterCategory {
+    Precinct = 'Precinct',
+    Urgency = 'Urgency',
+    Equipment = 'Equipment'
+}
+
+export enum StructureUrgencyEnum {
+    High = 'High',
+    Medium = 'Medium',
+    Low = 'Low',
+    Overdue = 'Overdue'
+}

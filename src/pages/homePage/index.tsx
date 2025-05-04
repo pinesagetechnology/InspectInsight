@@ -8,11 +8,9 @@ import * as structureActions from "../../store/Structure/actions";
 import * as inspectionActions from "../../store/Inspection/actions";
 import * as stepActions from "../../store/FormSteps/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { FilterModel } from '../../models/map';
-import { addDays } from '../../helper/util';
 import ListModeStructure from '../../components/listStructureComponent';
 import { useNavigationManager } from '../../navigation';
-import { RoutesValueEnum } from "../../enums";
+import { RoutesValueEnum, StructureFilterCategory } from "../../enums";
 import {
   Dialog,
   DialogTitle,
@@ -31,6 +29,7 @@ const HomePage: React.FC = () => {
 
   const dispatch = useDispatch();
   const [structureList, setStructureList] = useState<Structure[]>([]);
+
   const structures = useSelector(getStructures);
   const [isListView, setIsListView] = useState(false);
   const hasLocalData = useSelector(getLocalStorageFlag);
@@ -54,6 +53,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     setStructureList(structures);
+
     dispatch({
       type: stepActions.SET_NEXT_HEADER_BUTTON,
       payload: true
@@ -68,38 +68,53 @@ const HomePage: React.FC = () => {
     } as PayloadAction<Structure>)
   }
 
-  const filterLocationsHandler = (filter: FilterModel) => {
-    const now = new Date();
-    let filteredList: Structure[] = [...structureList || []];
+  const applyFilter = (filters: Record<string, string[]>) => {
+    const isFilterEmpty = Object.values(filters).every(items => items.length === 0);
 
-    switch (filter.dueDateOption) {
-      case 1:
-        filteredList = structureList.filter(structure => {
-          const lastInspectionDate = new Date(structure.lastInspectionDate);
-          return lastInspectionDate < now;
-        });
-        break;
-      case 2:
-        const nextWeek = addDays(now, 7);
-        filteredList = structureList.filter(structure => {
-          const lastInspectionDate = new Date(structure.lastInspectionDate);
-          return lastInspectionDate > now && lastInspectionDate <= nextWeek;
-        });
-        break;
-      case 3:
-        const nextMonth = addDays(now, 30);
-        filteredList = structureList.filter(structure => {
-          const lastInspectionDate = new Date(structure.lastInspectionDate);
-          return lastInspectionDate > now && lastInspectionDate <= nextMonth;
-        });
-        break;
-      default:
-        setStructureList(structures);
-        return;
+    if (isFilterEmpty) {
+      setStructureList(structures);
+      return;
     }
 
+    const selectedFilters = Object.entries(filters).map(([category, items]) => ({
+      category,
+      selected: items,
+    }));
+
+    let filteredList: Structure[] = [...structures];
+
+    selectedFilters.forEach(filter => {
+      if (filter.selected && filter.selected.length > 0) {
+        switch (filter.category) {
+          case StructureFilterCategory.Equipment:
+            filteredList = filteredList.filter(structure =>
+              filter.selected.some(item => {
+                if (item === 'No equipment required') {
+                  return !structure.equipments || structure.equipments.length === 0;
+                }
+                return structure.equipments?.includes(item);
+              })
+            );
+            break;
+          case StructureFilterCategory.Precinct:
+            filteredList = filteredList.filter(structure =>
+              filter.selected.includes(structure.precinct || "")
+            );
+            break;
+          case StructureFilterCategory.Urgency:
+            filteredList = filteredList.filter(structure =>
+              filter.selected.includes(structure.urgency)
+            );
+            break;
+
+          default:
+            break;
+        }
+      }
+    });
+
     setStructureList(filteredList);
-  }
+  };
 
   const setIsListViewHandler = (flag: boolean) => {
     setIsListView(flag);
@@ -165,7 +180,7 @@ const HomePage: React.FC = () => {
           structures={structureList}
           isListView={isListView}
           onSelectStructure={onSelectStructureHandler}
-          onFilterLocations={filterLocationsHandler}
+          applyFilter={applyFilter}
           setIsListView={setIsListViewHandler}
           onStartClickHandler={startInspectionHandler}
         />

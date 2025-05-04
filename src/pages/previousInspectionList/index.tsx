@@ -19,6 +19,7 @@ import { InspectionEntity } from 'entities/inspection';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
+import { FormatDateOnly } from '../../helper/util';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     padding: theme.spacing(1.5),
@@ -68,7 +69,7 @@ const PreviousInspectionListPage: React.FC = () => {
                             <TableRow key={index}>
                                 <StyledTableCell>{row.inspectorName}</StyledTableCell>
                                 <StyledTableCell>{row.engineerName}</StyledTableCell>
-                                <StyledTableCell>{row.inspectionDate}</StyledTableCell>
+                                <StyledTableCell>{FormatDateOnly(row.inspectionDate)}</StyledTableCell>
                                 <StyledTableCell>
                                     <IconButton onClick={() => handleRowClick(row)}>
                                         <ArrowForwardIosIcon />

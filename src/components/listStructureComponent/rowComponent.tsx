@@ -20,6 +20,7 @@ import { RoutesValueEnum } from '../../enums';
 import { useSelector } from 'react-redux';
 import { getCurrentStructure } from '../../store/Structure/selectors';
 import { defaultDateValue } from '../../constants';
+import { FormatDateOnly } from '../../helper/util';
 
 const DetailLabel = styled(Typography)(({ theme }) => ({
     color: theme.palette.text.secondary,
@@ -109,7 +110,7 @@ const RowComponent: React.FC<RowComponentProps> = ({
                 <Grid container spacing={3} mb={3}>
                     <Grid size={4}>
                         <DetailLabel>Next Inspection Date</DetailLabel>
-                        <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : ""}</DetailValue>
+                        <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : FormatDateOnly(selectedStructure.previousInspection?.nextInspectionProposedDate || "")}</DetailValue>
                     </Grid>
                     <Grid size={4}>
                         <DetailLabel>Type</DetailLabel>
@@ -118,7 +119,7 @@ const RowComponent: React.FC<RowComponentProps> = ({
 
                     <Grid size={4}>
                         <DetailLabel>Last Inspection Date</DetailLabel>
-                        <DetailValue>{selectedStructure.lastInspectionDate}</DetailValue>
+                        <DetailValue>{FormatDateOnly(selectedStructure.lastInspectionDate)}</DetailValue>
                     </Grid>
                     <Grid size={4}>
                         <DetailLabel>Overall Length</DetailLabel>
@@ -150,7 +151,7 @@ const RowComponent: React.FC<RowComponentProps> = ({
             </AccordionDetails>
             <AccordionActions>
                 {/* Action Buttons */}
-                <Grid container spacing={2} sx={{width: '100%'}}>
+                <Grid container spacing={2} sx={{ width: '100%' }}>
                     <Grid size={4}>
                         <ActionButton
                             variant="contained"

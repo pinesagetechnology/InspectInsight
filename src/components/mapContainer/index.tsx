@@ -11,9 +11,13 @@ import {
 } from '@react-google-maps/api';
 import {
     Box,
+    Button,
+    Checkbox,
     CssBaseline,
+    Divider,
     Fab,
     InputBase,
+    ListItemText,
     Menu,
     MenuItem,
     Paper,
@@ -31,11 +35,12 @@ import { FilterModel } from '../../models/map';
 import StructureDetailSection from './structureDetail';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentStructure } from '../../store/Structure/selectors';
-import { DRAWER_BLEEDING } from '../../constants';
+import { DRAWER_BLEEDING, filtersByCategory } from '../../constants';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import * as structureActions from "../../store/Structure/actions";
 import styles from './style.module.scss';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { StructureUrgencyEnum } from '../../enums';
 
 // IMPORTANT: adjust these to your design
 const containerStyle = { width: '100%', height: '80vh' };
@@ -83,7 +88,7 @@ interface MapComponentProps {
     structures?: Structure[];
     isListView: boolean;
     onSelectStructure: (structure: Structure) => void;
-    onFilterLocations: (filter: FilterModel) => void;
+    applyFilter: (filters: Record<string, string[]>) => void;
     setIsListView: (flag: boolean) => void;
     onStartClickHandler: () => void;
 }
@@ -92,7 +97,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
     structures,
     isListView,
     onSelectStructure,
-    onFilterLocations,
+    applyFilter,
     setIsListView,
     onStartClickHandler
 }) => {
@@ -101,6 +106,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
     const [structureList, setStructureList] = useState<Structure[]>(structures || []);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDrawer, setOpenDrawer] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<Record<string, string[]>>({});
 
     // Media queries for responsive design
     const isTablet = useMediaQuery('(max-width:960px)');
@@ -123,6 +129,30 @@ const MapContainer: React.FC<MapComponentProps> = ({
     useEffect(() => {
         if (!isLoaded || !mapRef.current) return;
 
+        const getPinColor = (urgency: string | undefined) => {
+            switch (urgency) {
+                case StructureUrgencyEnum.High:
+                    return 'red';
+                case StructureUrgencyEnum.Medium:
+                    return 'orange';
+                case StructureUrgencyEnum.Low:
+                    return 'green';
+                default:
+                    return 'gray';
+            }
+        };
+
+        const getMarkerContent = (color: string) => {
+            const div = document.createElement('div');
+            div.style.backgroundColor = color;
+            div.style.border = '2px solid white';
+            div.style.borderRadius = '50%';
+            div.style.width = '16px';
+            div.style.height = '16px';
+            div.style.boxShadow = '0 0 3px rgba(0,0,0,0.6)';
+            return div;
+        };
+
         // Remove old markers
         markersRef.current.forEach(m => m.map = null);
         markersRef.current = [];
@@ -132,13 +162,17 @@ const MapContainer: React.FC<MapComponentProps> = ({
             .then((library: any) => {
                 const { AdvancedMarkerElement } = library;
                 const newMarkers = structureList.map(struct => {
+                    const color = getPinColor(struct.urgency);
+                    const content = getMarkerContent(color);
+
                     const marker = new AdvancedMarkerElement({
                         map: mapRef.current!,
                         position: {
                             lat: struct.location.latitude,
                             lng: struct.location.longitude
                         },
-                        title: struct.name
+                        title: struct.name,
+                        content
                     });
                     marker.addListener('click', () => {
                         onSelectStructure(struct);
@@ -161,12 +195,6 @@ const MapContainer: React.FC<MapComponentProps> = ({
     const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
 
-    // Filtering
-    const handleMenuItemClick = (opt: number) => {
-        onFilterLocations({ dueDateOption: opt });
-        handleMenuClose();
-    };
-
     // List toggle
     const toggleView = () => setIsListView(!isListView);
 
@@ -184,6 +212,29 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 ? (structures || []).filter(s => s.name.toLowerCase().includes(val))
                 : (structures || [])
         );
+    };
+
+    const onApplyFilterClick = () => {
+        applyFilter(selectedItems);
+        handleMenuClose();
+    }
+
+    const clearFilters = () => {
+        setSelectedItems({});
+        applyFilter({})
+        handleMenuClose();
+    }
+
+    const handleToggle = (category: string, item: string) => {
+        setSelectedItems((prev) => {
+            const current = prev[category] || [];
+            return {
+                ...prev,
+                [category]: current.includes(item)
+                    ? current.filter((i) => i !== item)
+                    : [...current, item],
+            };
+        });
     };
 
     if (loadError) return <div>Error loading Google Maps</div>;
@@ -233,12 +284,33 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 >
                     <FilterListIcon />
                 </Fab>
+
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                    <MenuItem disabled>Due Dates</MenuItem>
-                    <MenuItem onClick={() => handleMenuItemClick(0)}>All</MenuItem>
-                    <MenuItem onClick={() => handleMenuItemClick(1)}>Passed Due Date</MenuItem>
-                    <MenuItem onClick={() => handleMenuItemClick(2)}>Next Week</MenuItem>
-                    <MenuItem onClick={() => handleMenuItemClick(3)}>Next Month</MenuItem>
+                    {filtersByCategory.map((group, index) => (
+                        <div key={group.category}>
+                            {index > 0 && <Divider />}
+                            <Typography sx={{ px: 2, pt: 1, fontWeight: 'bold' }} variant="body2">
+                                {group.category}
+                            </Typography>
+                            {group.items.map((item) => (
+                                <MenuItem key={item} onClick={() => handleToggle(group.category, item)}>
+                                    <Checkbox
+                                        checked={selectedItems[group.category]?.includes(item) || false}
+                                    />
+                                    <ListItemText primary={item} />
+                                </MenuItem>
+                            ))}
+                        </div>
+                    ))}
+                    <Divider sx={{ my: 0.5 }} />
+                    <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1 }}>
+                        <Button variant="outlined" onClick={clearFilters} color="secondary" fullWidth>
+                            Clear
+                        </Button>
+                        <Button variant="contained" onClick={onApplyFilterClick} fullWidth>
+                            Apply
+                        </Button>
+                    </Box>
                 </Menu>
 
                 <Fab

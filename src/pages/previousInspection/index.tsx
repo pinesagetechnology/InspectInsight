@@ -19,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { selectedPreviousInspectionData, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { StructureElement } from '../../entities/structure';
+import { FormatDateOnly } from '../../helper/util';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -66,7 +67,7 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 const PreviousInspectionPage: React.FC = () => {
   const previousInspect = useSelector(selectedPreviousInspectionData);
-  
+
   const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
 
   return (
@@ -97,7 +98,7 @@ const PreviousInspectionPage: React.FC = () => {
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Proposed date of next inspection</DetailLabel>
-                <DetailValue>{previousInspect?.nextInspectionProposedDate}</DetailValue>
+                <DetailValue>{FormatDateOnly(previousInspect?.nextInspectionProposedDate)}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Temperature (degrees)</DetailLabel>

@@ -1,4 +1,6 @@
+import { CategoryOptions } from "./models/structureFilterModel";
 import { MenuItemModel } from "./models/menuItemModel";
+import { StructureFilterCategory } from "./enums";
 
 export const SYSTEM_AVAILABILITY_KEY = "Healthy";
 export const DRAWER_BLEEDING = 56;
@@ -72,5 +74,16 @@ export const ActivityInactionRiskItem = [
     },
 ] as MenuItemModel[];
 
-
 export const defaultDateValue = "0001-01-01T00:00:00";
+
+export const filtersByCategory: CategoryOptions[] = [
+    {
+        category: StructureFilterCategory.Precinct, items: ['Precincts 1', 'Precincts 2']
+    },
+    {
+        category: StructureFilterCategory.Urgency, items: ['High', 'Medium', 'Low']
+    },
+    {
+        category: StructureFilterCategory.Equipment, items: ['No equipment required', 'Elevated work platform', 'Underbridge units', 'Traffic control']
+    }
+];
