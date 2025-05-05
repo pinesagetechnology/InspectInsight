@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import * as structureActions from "../../store/Structure/actions";
 import * as inspectionActions from "../../store/Inspection/actions";
 import * as stepActions from "../../store/FormSteps/actions";
+import * as systemDataActions from "../../store/SystemData/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import ListModeStructure from '../../components/listStructureComponent';
 import { useNavigationManager } from '../../navigation';
@@ -47,6 +48,10 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     dispatch({
       type: structureActions.FETCH_STRUCTURES_DATA
+    } as PayloadAction);
+
+    dispatch({
+      type: systemDataActions.GET_SYSTEM_DATA
     } as PayloadAction);
 
     dispatch({

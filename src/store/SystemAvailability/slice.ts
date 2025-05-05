@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SystemStatus } from "models/systemAvailability";
+import { SystemStatus } from "../../models/systemAvailability";
 import { resetStateAction } from "../Common/actions";
 
 const initialState: SystemStatus = {
