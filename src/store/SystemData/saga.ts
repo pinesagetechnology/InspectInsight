@@ -18,7 +18,7 @@ function* getSystemBaseDataSaga() {
         mmsActivityList?.forEach((item) => {
             mmsActivities.push({
                 text: `${item.code}`,
-                value: item.code
+                value: `${item.code}`
             })
         })
 

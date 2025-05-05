@@ -130,20 +130,15 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     }
 
     const handleMMSActivityChangeChange = (name: string, value: string) => {
-        console.log("selected", {name, value})
-        dispatch({
-            type: actions.SET_MAINTENANCE_FORM_DATA,
-            payload: { ...formData, [name as string]: value }
-        } as PayloadAction<MaintenanceActionModel>);
-
         const activityItem = mmsActivityData.find(item => item.code === Number(value));
-        console.log("found", activityItem)
 
         dispatch({
             type: actions.SET_MAINTENANCE_FORM_DATA,
-            payload: { ...formData, ["activityDescription"]: activityItem?.description }
+            payload: { ...formData, 
+                ["mmsActNo"]: value,
+                ["activityDescription"]: activityItem?.description
+            }
         } as PayloadAction<MaintenanceActionModel>);
-        
     };
 
     return (
