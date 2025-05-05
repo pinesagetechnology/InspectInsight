@@ -1,4 +1,4 @@
-import { Structure, StructureElement } from "../entities/structure";
+import { Structure } from "../entities/structure";
 import api, { setAuthorize } from "../helper/api"
 
 export const getStructureData = async () => {

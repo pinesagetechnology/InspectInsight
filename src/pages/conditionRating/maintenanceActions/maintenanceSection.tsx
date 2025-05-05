@@ -11,7 +11,7 @@ import {
     AccordionSummary,
     AccordionDetails,
     AccordionActions,
-    useMediaQuery
+    useMediaQuery,
 } from '@mui/material';
 import { MaintenanceActionModel } from '../../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,6 +28,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../../store/MaintenanceAction/actions";
 import ImageUpload from '../../../components/imageUploadComponent';
 import { getIsUploadingFlag, getMaintenanceFormData } from '../../../store/MaintenanceAction/selectors';
+import { getMMSActivities, getMMSActivityData } from "../../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
@@ -37,7 +38,9 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
-    const isTablet = useMediaQuery('(max-width:960px)');
+    // const isTablet = useMediaQuery('(max-width:960px)');
+    const mmsActivityData = useSelector(getMMSActivityData);
+    const mmsMnueItems = useSelector(getMMSActivities);
     const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
@@ -126,6 +129,18 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
         }
     }
 
+    const handleMMSActivityChangeChange = (name: string, value: string) => {
+        const activityItem = mmsActivityData.find(item => item.code === Number(value));
+
+        dispatch({
+            type: actions.SET_MAINTENANCE_FORM_DATA,
+            payload: { ...formData, 
+                ["mmsActNo"]: value,
+                ["activityDescription"]: activityItem?.description
+            }
+        } as PayloadAction<MaintenanceActionModel>);
+    };
+
     return (
         <Accordion
             onChange={() => handleAccordionOnChange(maintenanceActionData?.id)}
@@ -186,13 +201,12 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
-                                    label="MMS Act. No."
-                                    name="mmsActNo"
-                                    value={formData.mmsActNo || ""}
-                                    onChange={handleChange}
-                                    variant="outlined"
+                                <SelectComponent
+                                    label='MMS Act. No.'
+                                    name='mmsActNo'
+                                    selectedValue={formData.mmsActNo || ""}
+                                    setSelectedValueHandler={handleMMSActivityChangeChange}
+                                    menuItemList={mmsMnueItems}
                                     disabled={maintenanceActionData.mode === 0}
                                 />
                             </Grid>
@@ -203,11 +217,10 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     label="Activity Description"
                                     name="activityDescription"
                                     value={formData.activityDescription || ""}
-                                    onChange={handleChange}
                                     variant="outlined"
                                     multiline
                                     rows={2}
-                                    disabled={maintenanceActionData.mode === 0}
+                                    disabled={true}
                                 />
                             </Grid>
 

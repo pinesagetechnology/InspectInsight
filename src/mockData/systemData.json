@@ -1,0 +1,510 @@
+{
+    "id": "662bde8f-f153-4230-b686-ce84d2fd7832",
+    "category": "MMSActivityCodes",
+    "data": [
+        {
+            "code": 6000,
+            "description": "JOB SITE CHARGES gang yrs",
+            "inventoryUnit": "gng",
+            "unitOfMeasurement": "moves",
+            "assetCode": "GNGY"
+        },
+        {
+            "code": 6010,
+            "description": "INSPECTION",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "bridges",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 6020,
+            "description": "GENERAL CLEANING",
+            "inventoryUnit": "spans",
+            "unitOfMeasurement": "spans",
+            "assetCode": "SPOR"
+        },
+        {
+            "code": 6030,
+            "description": "SURFACE CLEAN STEEL sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSTO"
+        },
+        {
+            "code": 6040,
+            "description": "TUNNEL WALL CLEAN bridges",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "BRTN"
+        },
+        {
+            "code": 6050,
+            "description": "BOLT TIGHTEN/REPL tim spans",
+            "inventoryUnit": "tim",
+            "unitOfMeasurement": "spans",
+            "assetCode": "SPTI"
+        },
+        {
+            "code": 6060,
+            "description": "COLLISION DAMAGE",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "bridges",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 6070,
+            "description": "BRIDGE MECH SWEEPING bridges",
+            "inventoryUnit": "kerb",
+            "unitOfMeasurement": "kms",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 6080,
+            "description": "CLEAN BRDG/TUN DRAIN",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "drains",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 6090,
+            "description": "OTHER ROUTINE WORK",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "bridges",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 6100,
+            "description": "REH/PRES TIM-AREA sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "TELA"
+        },
+        {
+            "code": 6110,
+            "description": "REH/PRES TIM-ELEMENT",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TELA"
+        },
+        {
+            "code": 6120,
+            "description": "PAINT TIMBER TRUSSES",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SPTT"
+        },
+        {
+            "code": 6220,
+            "description": "REPL PRINC/CHORDS",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TPCH"
+        },
+        {
+            "code": 6210,
+            "description": "REPL STEEL BOT CHORD",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TSBC"
+        },
+        {
+            "code": 6220,
+            "description": "REPL STRUTS/TIES",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TSTT"
+        },
+        {
+            "code": 6230,
+            "description": "REPL BUT/JACK BLOCK",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TBJB"
+        },
+        {
+            "code": 6240,
+            "description": "REPL TRUS CROSS GIRD",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TTCG"
+        },
+        {
+            "code": 6250,
+            "description": "REPL SWAY BRACE",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TSBR"
+        },
+        {
+            "code": 6260,
+            "description": "REPL STRINGER",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TSTR"
+        },
+        {
+            "code": 6270,
+            "description": "REPL METAL SHOE",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TSHO"
+        },
+        {
+            "code": 6300,
+            "description": "REPL OR SPLICE PILE",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TPIL"
+        },
+        {
+            "code": 6310,
+            "description": "REPL CAP/HEAD/SILL",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TCHS"
+        },
+        {
+            "code": 6320,
+            "description": "REPL WALE/BRACE",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TWBR"
+        },
+        {
+            "code": 6330,
+            "description": "REPL ABUT SHT/GRV BD sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "TASG"
+        },
+        {
+            "code": 6340,
+            "description": "REPL CORBEL",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TCOR"
+        },
+        {
+            "code": 6350,
+            "description": "REPL GIRD/CROSS GIRD",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "TGCC"
+        },
+        {
+            "code": 6360,
+            "description": "REPL TRANS DECKING sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "TTDK"
+        },
+        {
+            "code": 6370,
+            "description": "REPL LONG SHEETING sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "TLSH"
+        },
+        {
+            "code": 6380,
+            "description": "REPL KRB/RAL/END PST",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "TKRE"
+        },
+        {
+            "code": 6400,
+            "description": "SEAL OR MINOR PATCH sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "CONC"
+        },
+        {
+            "code": 6410,
+            "description": "CLEAN REO AND PATCH sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "CONC"
+        },
+        {
+            "code": 6420,
+            "description": "REHAB CONC ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "CONC"
+        },
+        {
+            "code": 6430,
+            "description": "REPL CONC ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "CONC"
+        },
+        {
+            "code": 6440,
+            "description": "OTHER CONC WORK sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "CONC"
+        },
+        {
+            "code": 6550,
+            "description": "SURF CLN REST TOP CT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6510,
+            "description": "SPT BLST CLN AND PNT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6520,
+            "description": "REPL PROTECT COAT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6530,
+            "description": "REHAB STEEL ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6540,
+            "description": "REPL STEEL ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6550,
+            "description": "OTHER STEEL WORK sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSLP"
+        },
+        {
+            "code": 6600,
+            "description": "SURF CLN REST TOP CT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6610,
+            "description": "SPT BLST CLN AND PNT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6620,
+            "description": "REPL PROTECT COAT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6630,
+            "description": "REHAB STEEL ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6640,
+            "description": "REPL STEEL ELEMENT sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6650,
+            "description": "OTHER STEEL WORK sq metres",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "SSNL"
+        },
+        {
+            "code": 6700,
+            "description": "REHAB ASSEMBLY JOINT",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "JASS"
+        },
+        {
+            "code": 6710,
+            "description": "REPL ASSEMBLY JOINT",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "JASS"
+        },
+        {
+            "code": 6720,
+            "description": "REHAB OTHER JOINT",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "JOTH"
+        },
+        {
+            "code": 6730,
+            "description": "REPL OTHER JOINT",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "JOTH"
+        },
+        {
+            "code": 6740,
+            "description": "RESET BEARING",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "BEAR"
+        },
+        {
+            "code": 6750,
+            "description": "REHAB/RESET BEARING",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "BEAR"
+        },
+        {
+            "code": 6760,
+            "description": "REPL BEARING",
+            "inventoryUnit": "each",
+            "unitOfMeasurement": "each",
+            "assetCode": "BEAR"
+        },
+        {
+            "code": 6800,
+            "description": "CLEAR WATERWAY",
+            "inventoryUnit": "waterways",
+            "unitOfMeasurement": "waterways",
+            "assetCode": "WWAY"
+        },
+        {
+            "code": 6810,
+            "description": "SCOUR PROTECTION waterways",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "WWAY"
+        },
+        {
+            "code": 6820,
+            "description": "OTHER WATERWAY WORK",
+            "inventoryUnit": "waterways",
+            "unitOfMeasurement": "waterways",
+            "assetCode": "WWAY"
+        },
+        {
+            "code": 6900,
+            "description": "MASONRY/BRICK WORK bridges",
+            "inventoryUnit": "sq",
+            "unitOfMeasurement": "metres",
+            "assetCode": "BRMB"
+        },
+        {
+            "code": 6910,
+            "description": "HRAIL/TRAF BARR PNT",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "BBFB"
+        },
+        {
+            "code": 6920,
+            "description": "REPL GUARDRAIL",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metrees",
+            "assetCode": "BBGR"
+        },
+        {
+            "code": 7000,
+            "description": "BARRIER RAILING",
+            "inventoryUnit": "metres",
+            "unitOfMeasurement": "metres",
+            "assetCode": "BBTO"
+        },
+        {
+            "code": 7010,
+            "description": "STRUCTURAL ELEMENT",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "element",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 7020,
+            "description": "OTHER STRENGTH WORK",
+            "inventoryUnit": "bridges",
+            "unitOfMeasurement": "element",
+            "assetCode": "BRTO"
+        },
+        {
+            "code": 7100,
+            "description": "MAJOR OVERHAUL FERRY ferries",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "FERY"
+        },
+        {
+            "code": 7110,
+            "description": "MECHANICAL MTCE year",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "YEAR"
+        },
+        {
+            "code": 7120,
+            "description": "ELECTRICAL MTCE year",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "YEAR"
+        },
+        {
+            "code": 7130,
+            "description": "BULK REPLACE LIGHTS sites",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "SLIT"
+        },
+        {
+            "code": 7140,
+            "description": "REP CO & FIRE GEAR sites",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "SFVL"
+        },
+        {
+            "code": 7150,
+            "description": "OPERATING WAGES sites",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "SMND"
+        },
+        {
+            "code": 7160,
+            "description": "OPERATING CHARGES",
+            "inventoryUnit": "year",
+            "unitOfMeasurement": "dollars",
+            "assetCode": "YEAR"
+        },
+        {
+            "code": 7170,
+            "description": "FIRE/VENT/LIGHT/GEAR sites",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "SFVL"
+        },
+        {
+            "code": 7180,
+            "description": "OTHER CARE/OP WORK year",
+            "inventoryUnit": "pers",
+            "unitOfMeasurement": "hrs",
+            "assetCode": "YEAR"
+        }
+    ]
+}
