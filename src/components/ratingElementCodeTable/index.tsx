@@ -148,11 +148,15 @@ const ElementsCodeGrid: React.FC = () => {
         }
     }
 
-    const handleEditButton = (id: string) => {
-        setEditRowId(editRowId === id ? null : id);
+    const handleEditButton = (code: string) => {
+        const element = structureElementsCode.find((item) => item.elementCode === code);
+        setOriginalCondition(element?.condition || []);
+
+        setEditRowId(editRowId === code ? null : code);
     }
 
     const handleRowClick = (element: ElementCodeData) => {
+        console.log("Row clicked", element.condition);
         setOriginalCondition(element.condition || []);
         console.log("Row clicked", element);
     }
@@ -190,25 +194,24 @@ const ElementsCodeGrid: React.FC = () => {
         });
     }
 
-    const editOnClick = (elementId: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const editOnClick = (elementCode: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        handleEditButton(elementId)
+        handleEditButton(elementCode)
     }
 
     const saveOnClick = (element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-
+        
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
-            payload: structureElementsCode
-        } as PayloadAction<ElementCodeData[]>);
+        } as PayloadAction);
 
         setEditRowId(null);
     }
 
-    const onRatingCellDoubleClock = (elementId: string) => () => {
-        if (!(!!editRowId && elementId !== editRowId)) {
-            handleEditButton(elementId)
+    const onRatingCellDoubleClock = (elementCode: string) => () => {
+        if (!(!!editRowId && elementCode !== editRowId)) {
+            handleEditButton(elementCode)
         }
     }
 
