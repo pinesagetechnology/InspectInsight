@@ -21,6 +21,7 @@ export interface MaintenanceActionEntity {
     id: string;
     elementId: number;
     elementCode: string;
+    elementDescription: string;
     mmsActNo: string;
     activityDescription: string;
     inspectionComment: string;
@@ -35,7 +36,8 @@ export interface MaintenanceActionEntity {
 
 export interface ConditionRatingEntity {
     conditionRatingId: string;
-    elementId: number;
+    elementId: number | string;
+    elementCode?: string;
     ratings: number[];
 }
 

@@ -3,508 +3,640 @@
     "category": "MMSActivityCodes",
     "data": [
         {
-            "code": 6000,
-            "description": "JOB SITE CHARGES gang yrs",
-            "inventoryUnit": "gng",
-            "unitOfMeasurement": "moves",
-            "assetCode": "GNGY"
+            "code": "202.00",
+            "group": "M9",
+            "description": "Surface Correction Repair [Bridge approaches]",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6010,
-            "description": "INSPECTION",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "bridges",
-            "assetCode": "BRTO"
+            "code": "203.00",
+            "group": "M9",
+            "description": "Surface Texture Repair [Pot holes, rutting etc.]",
+            "unitOfMeasurement": "each"
         },
         {
-            "code": 6020,
-            "description": "GENERAL CLEANING",
-            "inventoryUnit": "spans",
-            "unitOfMeasurement": "spans",
-            "assetCode": "SPOR"
+            "code": "301.00",
+            "group": "M9",
+            "description": "Tree and/or Bush Control",
+            "unitOfMeasurement": "each"
         },
         {
-            "code": 6030,
-            "description": "SURFACE CLEAN STEEL sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSTO"
+            "code": "480.00",
+            "group": "M480",
+            "description": "Amenities, bridge and tunnel cleaning [General cleaning]",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6040,
-            "description": "TUNNEL WALL CLEAN bridges",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "BRTN"
+            "code": "480.01",
+            "group": "M480",
+            "description": "Amenity maintenance",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6050,
-            "description": "BOLT TIGHTEN/REPL tim spans",
-            "inventoryUnit": "tim",
-            "unitOfMeasurement": "spans",
-            "assetCode": "SPTI"
+            "code": "480.02",
+            "group": "M480",
+            "description": "Remove graffiti and banners",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6060,
-            "description": "COLLISION DAMAGE",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "bridges",
-            "assetCode": "BRTO"
+            "code": "480.03",
+            "group": "M480",
+            "description": "Sweep bridge deck and tunnel roadway",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6070,
-            "description": "BRIDGE MECH SWEEPING bridges",
-            "inventoryUnit": "kerb",
-            "unitOfMeasurement": "kms",
-            "assetCode": "BRTO"
+            "code": "480.04",
+            "group": "M480",
+            "description": "Clean scuppers",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6080,
-            "description": "CLEAN BRDG/TUN DRAIN",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "drains",
-            "assetCode": "BRTO"
+            "code": "480.05",
+            "group": "M480",
+            "description": "Clean public thoroughfares",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6090,
-            "description": "OTHER ROUTINE WORK",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "bridges",
-            "assetCode": "BRTO"
+            "code": "480.06",
+            "group": "M480",
+            "description": "Clean tunnel walls",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6100,
-            "description": "REH/PRES TIM-AREA sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "TELA"
+            "code": "480.07",
+            "group": "M480",
+            "description": "Clean tunnel holding tanks",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6110,
-            "description": "REH/PRES TIM-ELEMENT",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TELA"
+            "code": "600.00",
+            "group": "M9",
+            "description": "Delineators (per structure)",
+            "unitOfMeasurement": "each"
         },
         {
-            "code": 6120,
-            "description": "PAINT TIMBER TRUSSES",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SPTT"
+            "code": "611.00",
+            "group": "M9",
+            "description": "Reactive Sign Maintenance (per sign)",
+            "unitOfMeasurement": "each"
         },
         {
-            "code": 6220,
-            "description": "REPL PRINC/CHORDS",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TPCH"
+            "code": "700.00",
+            "group": "M700",
+            "description": "Other Bridge and Tunnel Repairs",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6210,
-            "description": "REPL STEEL BOT CHORD",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TSBC"
+            "code": "701.00",
+            "group": "M700",
+            "description": "(Reserved)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6220,
-            "description": "REPL STRUTS/TIES",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TSTT"
+            "code": "702.00",
+            "group": "M700",
+            "description": "Bearing Maintenance, Minor",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6230,
-            "description": "REPL BUT/JACK BLOCK",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TBJB"
+            "code": "703.00",
+            "group": "M700",
+            "description": "Joint Maintenance, Minor",
+            "unitOfMeasurement": "m"
         },
         {
-            "code": 6240,
-            "description": "REPL TRUS CROSS GIRD",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TTCG"
+            "code": "704.00",
+            "group": "M700",
+            "description": "(Reserved)",
+            "unitOfMeasurement": "m"
         },
         {
-            "code": 6250,
-            "description": "REPL SWAY BRACE",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TSBR"
+            "code": "705.00",
+            "group": "M700",
+            "description": "Clean Steelwork",
+            "unitOfMeasurement": "m"
         },
         {
-            "code": 6260,
-            "description": "REPL STRINGER",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TSTR"
+            "code": "706.00",
+            "group": "M700",
+            "description": "Clear Waterway, Minor",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6270,
-            "description": "REPL METAL SHOE",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TSHO"
+            "code": "707.00",
+            "group": "M700",
+            "description": "Scour Protection, Minor",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6300,
-            "description": "REPL OR SPLICE PILE",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TPIL"
+            "code": "708.00",
+            "group": "M700",
+            "description": "Bolt Tightening and Replacement, Timber Structure",
+            "unitOfMeasurement": ""
         },
         {
-            "code": 6310,
-            "description": "REPL CAP/HEAD/SILL",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TCHS"
+            "code": "709.00",
+            "group": "M700",
+            "description": "Deck and Footway Repairs, Minor",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6320,
-            "description": "REPL WALE/BRACE",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TWBR"
+            "code": "710.00",
+            "group": "M700",
+            "description": "Timber Element Maintenance, Minor Structure",
+            "unitOfMeasurement": ""
         },
         {
-            "code": 6330,
-            "description": "REPL ABUT SHT/GRV BD sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "TASG"
+            "code": "711.00",
+            "group": "M700",
+            "description": "Termite Treatment Structure",
+            "unitOfMeasurement": ""
         },
         {
-            "code": 6340,
-            "description": "REPL CORBEL",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TCOR"
+            "code": "712.00",
+            "group": "M700",
+            "description": "Paint Repairs, Minor",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6350,
-            "description": "REPL GIRD/CROSS GIRD",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "TGCC"
+            "code": "713.00",
+            "group": "M700",
+            "description": "Concrete Repairs, Minor",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6360,
-            "description": "REPL TRANS DECKING sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "TTDK"
+            "code": "714.00",
+            "group": "M700",
+            "description": "Masonry / Brick Repairs, Minor",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6370,
-            "description": "REPL LONG SHEETING sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "TLSH"
+            "code": "715.00",
+            "group": "M700",
+            "description": "Railings / Traffic Barriers Repair, Minor",
+            "unitOfMeasurement": "m"
         },
         {
-            "code": 6380,
-            "description": "REPL KRB/RAL/END PST",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "TKRE"
+            "code": "730.00",
+            "group": "M730",
+            "description": "Bridge and Tunnel Inspection",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6400,
-            "description": "SEAL OR MINOR PATCH sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "CONC"
+            "code": "730.11",
+            "group": "Level",
+            "description": "1 Inspection (Monitoring)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6410,
-            "description": "CLEAN REO AND PATCH sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "CONC"
+            "code": "732.00",
+            "group": "Waterway",
+            "description": "and Culvert Clearing, Major",
+            "unitOfMeasurement": "m3"
         },
         {
-            "code": 6420,
-            "description": "REHAB CONC ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "CONC"
+            "code": "733.00",
+            "group": "Repair",
+            "description": "Scour Protection, Major",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6430,
-            "description": "REPL CONC ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "CONC"
+            "code": "734.00",
+            "group": "Provide",
+            "description": "Scour Protection, Major",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6440,
-            "description": "OTHER CONC WORK sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "CONC"
+            "code": "735.00",
+            "group": "Structural",
+            "description": "Repair to Culverts",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6550,
-            "description": "SURF CLN REST TOP CT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "735.01",
+            "group": "Item",
+            "description": "1 (Structural Repair to Culverts)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6510,
-            "description": "SPT BLST CLN AND PNT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "736.00",
+            "group": "Waterways",
+            "description": "/ Culverts, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6520,
-            "description": "REPL PROTECT COAT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "741.00",
+            "group": "Monitoring",
+            "description": "of Cathodic Protection Works",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6530,
-            "description": "REHAB STEEL ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "743.00",
+            "group": "M743",
+            "description": "Surface preparation and priming",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6540,
-            "description": "REPL STEEL ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "744.00",
+            "group": "M743",
+            "description": "Application of Stripe, Build and Topcoats",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6550,
-            "description": "OTHER STEEL WORK sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSLP"
+            "code": "745.00",
+            "group": "Repaint",
+            "description": "Timber Truss",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6600,
-            "description": "SURF CLN REST TOP CT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "746.00",
+            "group": "Repaint",
+            "description": "Timber Railings / Kerbs",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6610,
-            "description": "SPT BLST CLN AND PNT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "747.00",
+            "group": "Repaint",
+            "description": "/ Galvanise Traffic Barrier / Railings (non-Timber)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6620,
-            "description": "REPL PROTECT COAT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "748.00",
+            "group": "Barrier",
+            "description": "Coating Treatments (Anti-Graffiti / Silane / AAR etc)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 6630,
-            "description": "REHAB STEEL ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "752.00",
+            "group": "M752",
+            "description": "Temporary Sub-Structure / Stabilisation Work",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6640,
-            "description": "REPL STEEL ELEMENT sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "753.00",
+            "group": "M752",
+            "description": "Temporary Bailey Bridge Support",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6650,
-            "description": "OTHER STEEL WORK sq metres",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "SSNL"
+            "code": "754.00",
+            "group": "M752",
+            "description": "Tempoary Pier / Abutment Support",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6700,
-            "description": "REHAB ASSEMBLY JOINT",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "JASS"
+            "code": "755.00",
+            "group": "M752",
+            "description": "Temporary Support Systems, Other",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6710,
-            "description": "REPL ASSEMBLY JOINT",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "JASS"
+            "code": "757.00",
+            "group": "M757",
+            "description": "Replace Timber Truss Elements",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6720,
-            "description": "REHAB OTHER JOINT",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "JOTH"
+            "code": "757.01",
+            "group": "M757",
+            "description": "Replace Principals / Chords (TPCH)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6730,
-            "description": "REPL OTHER JOINT",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "JOTH"
+            "code": "757.02",
+            "group": "M757",
+            "description": "Replace Steel Bottom Chords (TSBC)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6740,
-            "description": "RESET BEARING",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "BEAR"
+            "code": "757.03",
+            "group": "M757",
+            "description": "Replace Struts & Ties (TSTT)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6750,
-            "description": "REHAB/RESET BEARING",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "BEAR"
+            "code": "757.04",
+            "group": "M757",
+            "description": "Replace Ties (Steel, Wrought Iron) (TTIE)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6760,
-            "description": "REPL BEARING",
-            "inventoryUnit": "each",
-            "unitOfMeasurement": "each",
-            "assetCode": "BEAR"
+            "code": "757.05",
+            "group": "M757",
+            "description": "Replace Brace, Undertrussing (TSBR)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6800,
-            "description": "CLEAR WATERWAY",
-            "inventoryUnit": "waterways",
-            "unitOfMeasurement": "waterways",
-            "assetCode": "WWAY"
+            "code": "757.06",
+            "group": "M757",
+            "description": "Replace Metal Shoe (TSHO)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6810,
-            "description": "SCOUR PROTECTION waterways",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "WWAY"
+            "code": "757.07",
+            "group": "M757",
+            "description": "Replace But / Jack Block (TBJB)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6820,
-            "description": "OTHER WATERWAY WORK",
-            "inventoryUnit": "waterways",
-            "unitOfMeasurement": "waterways",
-            "assetCode": "WWAY"
+            "code": "757.08",
+            "group": "M757",
+            "description": "Replace Truss Cross Girder (TTCG)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6900,
-            "description": "MASONRY/BRICK WORK bridges",
-            "inventoryUnit": "sq",
-            "unitOfMeasurement": "metres",
-            "assetCode": "BRMB"
+            "code": "757.09",
+            "group": "M757",
+            "description": "Replace Stringer (TSTR)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6910,
-            "description": "HRAIL/TRAF BARR PNT",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "BBFB"
+            "code": "759.00",
+            "group": "M757",
+            "description": "Strengthen Timber Truss Element",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 6920,
-            "description": "REPL GUARDRAIL",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metrees",
-            "assetCode": "BBGR"
+            "code": "760.00",
+            "group": "M757",
+            "description": "Timber Truss Elements, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7000,
-            "description": "BARRIER RAILING",
-            "inventoryUnit": "metres",
-            "unitOfMeasurement": "metres",
-            "assetCode": "BBTO"
+            "code": "762.00",
+            "group": "M762",
+            "description": "Replace Other Timber Structural Elements",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7010,
-            "description": "STRUCTURAL ELEMENT",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "element",
-            "assetCode": "BRTO"
+            "code": "762.01",
+            "group": "M762",
+            "description": "Replace Girder / Cross Girder (TGCG)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7020,
-            "description": "OTHER STRENGTH WORK",
-            "inventoryUnit": "bridges",
-            "unitOfMeasurement": "element",
-            "assetCode": "BRTO"
+            "code": "762.02",
+            "group": "M762",
+            "description": "Replace Cap/ Head / Sill (TCHS)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7100,
-            "description": "MAJOR OVERHAUL FERRY ferries",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "FERY"
+            "code": "762.03",
+            "group": "M762",
+            "description": "Replace / Splice Pile (TPIL)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7110,
-            "description": "MECHANICAL MTCE year",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "YEAR"
+            "code": "762.04",
+            "group": "M762",
+            "description": "Replace Corbel (TCOR)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7120,
-            "description": "ELECTRICAL MTCE year",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "YEAR"
+            "code": "762.05",
+            "group": "M762",
+            "description": "Replace Wale / Brace (TWBR)",
+            "unitOfMeasurement": "Each"
         },
         {
-            "code": 7130,
-            "description": "BULK REPLACE LIGHTS sites",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "SLIT"
+            "code": "763.01",
+            "group": "M762",
+            "description": "Replace Abutment Sheeting / Gravel Board (TASG)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 7140,
-            "description": "REP CO & FIRE GEAR sites",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "SFVL"
+            "code": "763.02",
+            "group": "M762",
+            "description": "Replace Transverse Deck Plank (TTDK)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 7150,
-            "description": "OPERATING WAGES sites",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "SMND"
+            "code": "763.03",
+            "group": "M762",
+            "description": "Replace Longitudinal Sheeting / Decking (TLSH)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 7160,
-            "description": "OPERATING CHARGES",
-            "inventoryUnit": "year",
-            "unitOfMeasurement": "dollars",
-            "assetCode": "YEAR"
+            "code": "763.04",
+            "group": "M762",
+            "description": "Replace Stress Laminated Deck (TSLD)",
+            "unitOfMeasurement": "m2"
         },
         {
-            "code": 7170,
-            "description": "FIRE/VENT/LIGHT/GEAR sites",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "SFVL"
+            "code": "764.00",
+            "group": "M762",
+            "description": "Replace Kerb / Rail / End Post",
+            "unitOfMeasurement": "m"
         },
         {
-            "code": 7180,
-            "description": "OTHER CARE/OP WORK year",
-            "inventoryUnit": "pers",
-            "unitOfMeasurement": "hrs",
-            "assetCode": "YEAR"
+            "code": "765.00",
+            "group": "M762",
+            "description": "Strengthen Timber Element",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "766.00",
+            "group": "M762",
+            "description": "Rehabilitate and/or Preserve Deck",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "767.00",
+            "group": "M762",
+            "description": "Other Timber Structural Elements, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "769.00",
+            "group": "M769",
+            "description": "Rehabilitation Concrete Structural Elements",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.01",
+            "group": "M769",
+            "description": "Rehab Concrete - Post-tensioned Girder (CPOG)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.05",
+            "group": "M769",
+            "description": "Rehab Concrete - Pier Headstock (CPHS)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.06",
+            "group": "M769",
+            "description": "Rehab Concrete - Pier (excl. any Headstock or Piles) (CPIR)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.07",
+            "group": "M769",
+            "description": "Rehab Concrete - Abutment and Wingwalls (CABW)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.08",
+            "group": "M769",
+            "description": "Rehab Concrete - Pile (CPIL)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.09",
+            "group": "M769",
+            "description": "Rehab Concrete - Deck Slab (CDSL)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "769.10",
+            "group": "M769",
+            "description": "Rehab Concrete - Culvert, Cast-in-place (CCULV)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "770.00",
+            "group": "M769",
+            "description": "Replace Concrete Structural Elements",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "770.09",
+            "group": "M769",
+            "description": "Replace Concrete - Deck Slab (CDSL)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "770.11",
+            "group": "M769",
+            "description": "Replace Concrete - Culvert, Precast (CCULP)",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "771.00",
+            "group": "M769",
+            "description": "Concrete Structural Elements, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "778.00",
+            "group": "M778",
+            "description": "Rehabilitate Structural Steel Element",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "779.00",
+            "group": "M778",
+            "description": "Replace Structural Steel Element",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "781.00",
+            "group": "M778",
+            "description": "Steel Structural Elements, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "783.00",
+            "group": "M783",
+            "description": "Reset Bearing",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "784.00",
+            "group": "M783",
+            "description": "Rehabilitate Bearing",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "784.02",
+            "group": "M783",
+            "description": "Rehab Metal Expansion (Roller, Sliding, etc) Bearing (BEXP)",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "784.04",
+            "group": "M783",
+            "description": "Rehab Enclosed / Concealed Bearing (BENC)",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "785.00",
+            "group": "M783",
+            "description": "Replace Bearing",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "786.00",
+            "group": "M783",
+            "description": "Bearings, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "788.00",
+            "group": "M788",
+            "description": "Rehabilitate Joint",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "788.01",
+            "group": "M788",
+            "description": "Rehab Pourable / Cork Joint Seal (JPOS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "788.02",
+            "group": "M788",
+            "description": "Rehab Compression Joint Seal (JCOS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "788.03",
+            "group": "M788",
+            "description": "Rehab Assembly Joint / Seal (JASS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "788.04",
+            "group": "M788",
+            "description": "Rehab Joint - No Seal (JNOS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "789.00",
+            "group": "M788",
+            "description": "Replace Joint",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "789.01",
+            "group": "M788",
+            "description": "Replace Pourable / Cork Joint Seal (JPOS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "789.03",
+            "group": "M788",
+            "description": "Replace Assembly Joint / Seal (JASS)",
+            "unitOfMeasurement": "m"
+        },
+        {
+            "code": "790.00",
+            "group": "M788",
+            "description": "Joints, Other Specific Maintenance",
+            "unitOfMeasurement": "Each"
+        },
+        {
+            "code": "837.00",
+            "group": "R106",
+            "description": "Reseal bridge surface",
+            "unitOfMeasurement": "m2"
+        },
+        {
+            "code": "873.00",
+            "group": "R116",
+            "description": "Resurface Asphalt Wearing Course",
+            "unitOfMeasurement": "m2"
         }
     ]
 }

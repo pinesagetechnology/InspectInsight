@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StructureElement } from '../../entities/structure';
+import { ElementCodeData, StructureElement } from '../../entities/structure';
 import { resetStateAction } from '../Common/actions';
 
 export interface ConditionRatingState {
@@ -7,7 +7,10 @@ export interface ConditionRatingState {
     displayConditionRatingElements: StructureElement[];
     elementHistory: StructureElement[][];
     selectedStructureElement: StructureElement;
+    selectedElementCode: ElementCodeData;
     ratedElements: StructureElement[];
+    ratedElementCodeData: ElementCodeData[];
+    elementCodeDataList: ElementCodeData[];
     error?: any;
 }
 
@@ -16,7 +19,10 @@ const initialState = {
     displayConditionRatingElements: [],
     elementHistory: [] as StructureElement[][],
     selectedStructureElement: {} as StructureElement,
-    ratedElements: []
+    selectedElementCode: {} as ElementCodeData,
+    ratedElements: [],
+    ratedElementCodeData: [],
+    elementCodeDataList: [],
 } as ConditionRatingState
 
 const ConditionRatingSlice = createSlice({
@@ -35,17 +41,27 @@ const ConditionRatingSlice = createSlice({
         setSelectedStructureElement: (state, action: PayloadAction<StructureElement>) => {
             state.selectedStructureElement = action.payload;
         },
+        setSelectedElementCode: (state, action: PayloadAction<ElementCodeData>) => {
+            state.selectedElementCode = action.payload;
+        },
         setConditionRatingError: (state, action: PayloadAction<any>) => {
             state.error = action.payload;
         },
         setReatedElement: (state, action: PayloadAction<StructureElement[]>) => {
             state.ratedElements = action.payload;
-        }
+        },
+        setReatedElementCode: (state, action: PayloadAction<ElementCodeData[]>) => {
+            state.ratedElementCodeData = action.payload;
+        },
+        setOriginalElementCodeDataList: (state, action: PayloadAction<ElementCodeData[]>) => {
+            state.elementCodeDataList = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
             state.originalConditionRating = [] as StructureElement[];
             state.elementHistory = [] as StructureElement[][];
+            state.elementCodeDataList = [] as ElementCodeData[];
         });
     }
 });
@@ -57,6 +73,9 @@ export const {
     setSelectedStructureElement,
     setConditionRatingError,
     setReatedElement,
+    setSelectedElementCode,
+    setOriginalElementCodeDataList,
+    setReatedElementCode
 } = ConditionRatingSlice.actions;
 
 export default ConditionRatingSlice.reducer;

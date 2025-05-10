@@ -72,22 +72,22 @@ const InstallPrompt: React.FC = () => {
       const lastPromptTime = localStorage.getItem(INSTALL_PROMPT_SHOWN_KEY);
       const miniPromptDismissed = localStorage.getItem(INSTALL_MINI_PROMPT_DISMISSED_KEY);
 
-      // Check if we should show the full dialog (every 7 days max)
-      if (!lastPromptTime || (Date.now() - Number(lastPromptTime)) > 7 * 24 * 60 * 60 * 1000) {
+      // Check if we should show the full dialog (every 4 days max)
+      if (!lastPromptTime || (Date.now() - Number(lastPromptTime)) > 4 * 24 * 60 * 60 * 1000) {
         setTimeout(() => {
           if (!checkIfInstalled()) {
             setShowDialog(true);
             localStorage.setItem(INSTALL_PROMPT_SHOWN_KEY, Date.now().toString());
           }
-        }, 5000); // Wait 5 seconds after page load
+        }, 3000); // Wait 3 seconds after page load
       }
       // Show mini prompt if full dialog isn't shown and mini prompt wasn't dismissed recently
-      else if (!miniPromptDismissed || (Date.now() - Number(miniPromptDismissed)) > 3 * 24 * 60 * 60 * 1000) {
+      else if (!miniPromptDismissed || (Date.now() - Number(miniPromptDismissed)) > 2 * 24 * 60 * 60 * 1000) {
         setTimeout(() => {
           if (!checkIfInstalled()) {
             setShowMiniPrompt(true);
           }
-        }, 5000);
+        }, 3000);
       }
     };
 

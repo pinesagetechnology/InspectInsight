@@ -13,9 +13,9 @@ import {
 } from './slice';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from "../../entities/inspection";
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement } from '../ConditionRating/slice';
-import { getCurrentStructure, getStructureElements } from '../Structure/selectors';
-import { Structure, StructureElement } from '../../entities/structure';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement, setOriginalElementCodeDataList } from '../ConditionRating/slice';
+import { getCurrentStructure, getElementsCodeData, getStructureElements } from '../Structure/selectors';
+import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
@@ -50,12 +50,16 @@ function* getPreviousInspectionValue(inspection?: InspectionEntity) {
     try {
 
         const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
+        const selectedStructureElmemtsCodeData: ElementCodeData[] = yield select(getElementsCodeData);
 
         const previousInspection = (inspection) ? inspection : {} as InspectionEntity;
-        const elementsWithCondition = setPreviousCondirtionrating(selectedStructureElements, (previousInspection?.conditionRatings || []));
+        const elementsWithCondition = getPreviousIFCElementCondirtionrating(selectedStructureElements, (previousInspection?.conditionRatings || []));
+        const elementsCodeWithCondition = getPreviousElementCodeConditionRating(selectedStructureElmemtsCodeData, (previousInspection?.conditionRatings || []));
 
         if (previousInspection?.conditionRatings) {
             yield put(setOriginalConditionRating(elementsWithCondition));
+            
+            yield put(setOriginalElementCodeDataList(elementsCodeWithCondition));
 
             yield put(setDisplayConditionRatingElements(elementsWithCondition));
 
@@ -66,6 +70,8 @@ function* getPreviousInspectionValue(inspection?: InspectionEntity) {
             yield put(setReatedElement(result));
         } else {
             yield put(setOriginalConditionRating(selectedStructureElements));
+
+            yield put(setOriginalElementCodeDataList(selectedStructureElmemtsCodeData));
 
             yield put(setDisplayConditionRatingElements(selectedStructureElements));
         }
@@ -81,11 +87,11 @@ function* getPreviousInspectionValue(inspection?: InspectionEntity) {
     }
 }
 
-const setPreviousCondirtionrating = (selectedStructureElements: StructureElement[], previousConditionRating: ConditionRatingEntity[]) => {
+const getPreviousIFCElementCondirtionrating = (selectedStructureElements: StructureElement[], previousConditionRating: ConditionRatingEntity[]) => {
     if (previousConditionRating) {
         return selectedStructureElements?.map(element => {
             if (element.children && element.children.length > 0) {
-                const updatedChildren: StructureElement[] = setPreviousCondirtionrating(element.children, previousConditionRating);
+                const updatedChildren: StructureElement[] = getPreviousIFCElementCondirtionrating(element.children, previousConditionRating);
                 return { ...element, children: updatedChildren }
             } else {
                 const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
@@ -99,6 +105,20 @@ const setPreviousCondirtionrating = (selectedStructureElements: StructureElement
     }
 
     return selectedStructureElements;
+}
+
+const getPreviousElementCodeConditionRating = (selectedElementsCodeData: ElementCodeData[], previousConditionRating: ConditionRatingEntity[]) => {
+    if (previousConditionRating) {
+        return selectedElementsCodeData?.map(element => {
+            const foundCondition = (previousConditionRating || [])?.find((x) => x.elementCode === element.elementCode);
+            if (foundCondition) {
+                return { ...element, condition: [...foundCondition.ratings] }
+            }
+            return element;
+        });
+    }
+
+    return selectedElementsCodeData;
 }
 
 export function* getPreviousInspectionsList() {

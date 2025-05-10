@@ -1,9 +1,8 @@
 export interface MMSActivity {
-    code: number;
+    code: string;
+    group: string;
     description: string;
-    inventoryUnit: string;
     unitOfMeasurement: string;
-    assetCode: string;
 }
 
 export interface SystemBaseDataEntity {

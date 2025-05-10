@@ -22,7 +22,7 @@ import { useSelector } from 'react-redux';
 import { getInspection } from '../../store/Inspection/selectors';
 import { getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { getInspectionComment } from '../../store/InspectionComment/selectors';
-import { getRatedElements } from '../../store/ConditionRating/selectors';
+import { getRatedElementCodeData, getRatedElements } from '../../store/ConditionRating/selectors';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import { useDispatch } from 'react-redux';
@@ -87,7 +87,8 @@ const ReviewInspectionPage: React.FC = () => {
   const isAllCompleted = useSelector(isAllStepsCompleted);
 
   const inspection = useSelector(getInspection);
-  const ratedElements = useSelector(getRatedElements);
+  const ratedIFCElements = useSelector(getRatedElements);
+  const ratedStructureElements = useSelector(getRatedElementCodeData);
   const maintenanceActions = useSelector(getMaintenanceActions);
   const comments = useSelector(getInspectionComment);
 
@@ -110,7 +111,7 @@ const ReviewInspectionPage: React.FC = () => {
     dispatch({
       type: reviewActions.SUBMIT_DATA,
       payload: () => goTo(RoutesValueEnum.Home)
-      
+
     } as PayloadAction<() => void>);
   }
 
@@ -194,26 +195,52 @@ const ReviewInspectionPage: React.FC = () => {
           </SectionHeader>
           <AccordionDetails>
             <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Name</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {ratedElements?.map((row, index) => (
-                    <TableRow key={index}>
-                      <StyledTableCell>{row.data.Entity}</StyledTableCell>
-                      <StyledTableCell>{row.data.Name}</StyledTableCell>
-                      <StyledTableCell>{row.properties?.Name?.value}</StyledTableCell>
-                      <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+              {ratedIFCElements?.length > 0 && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Name</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Description</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {ratedIFCElements?.map((row, index) => (
+                      <TableRow key={index}>
+                        <StyledTableCell>{row.data.Entity}</StyledTableCell>
+                        <StyledTableCell>{row.data.Name}</StyledTableCell>
+                        <StyledTableCell>{row.properties?.Name?.value}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              {ratedStructureElements?.length > 0 && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Description</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {ratedStructureElements?.map((row, index) => (
+                      <TableRow key={index}>
+                        <StyledTableCell>{row.elementCode}</StyledTableCell>
+                        <StyledTableCell>{row.description}</StyledTableCell>
+                        <StyledTableCell>{row.totalQty}</StyledTableCell>
+                        <StyledTableCell>{row.unit}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </TableContainer>
           </AccordionDetails>
         </ReportSection>

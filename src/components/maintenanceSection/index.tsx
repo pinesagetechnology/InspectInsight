@@ -13,22 +13,22 @@ import {
     AccordionActions,
     useMediaQuery,
 } from '@mui/material';
-import { MaintenanceActionModel } from '../../../models/inspectionModel';
+import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
-import SelectComponent from '../../../components/selectComponent';
-import DatePickerComponent from '../../../components/dataPickerComponent';
+import SelectComponent from '../selectComponent';
+import DatePickerComponent from '../dataPickerComponent';
 import styles from "./style.module.scss";
 import {
     ProbabilityItem,
     ConsequenceOfInteractionItem,
     ActivityInactionRiskItem
-} from '../../../constants';
+} from '../../constants';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { PayloadAction } from '@reduxjs/toolkit';
-import * as actions from "../../../store/MaintenanceAction/actions";
-import ImageUpload from '../../../components/imageUploadComponent';
-import { getIsUploadingFlag, getMaintenanceFormData } from '../../../store/MaintenanceAction/selectors';
-import { getMMSActivities, getMMSActivityData } from "../../../store/SystemData/selectors";
+import * as actions from "../../store/MaintenanceAction/actions";
+import ImageUpload from '../imageUploadComponent';
+import { getIsUploadingFlag, getMaintenanceFormData } from '../../store/MaintenanceAction/selectors';
+import { getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
@@ -63,6 +63,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                 type: actions.ADD_MAINTENANCE_ACTION_DATA
             } as PayloadAction<MaintenanceActionModel>)
         } else {
+            console.log("formData", formData);
             dispatch({
                 payload: formData,
                 type: actions.UPDATE_MAINTENANCE_ACTION_DATA
@@ -130,11 +131,12 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     }
 
     const handleMMSActivityChangeChange = (name: string, value: string) => {
-        const activityItem = mmsActivityData.find(item => item.code === Number(value));
+        const activityItem = mmsActivityData.find(item => item.code === value);
 
         dispatch({
             type: actions.SET_MAINTENANCE_FORM_DATA,
-            payload: { ...formData, 
+            payload: {
+                ...formData,
                 ["mmsActNo"]: value,
                 ["activityDescription"]: activityItem?.description
             }
@@ -191,9 +193,18 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
-                                    label="Elemnt Code"
+                                    label="Element Code"
                                     name="elemntCode"
                                     value={maintenanceActionData.elementCode}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    disabled={true}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="Elemnt Code"
+                                    name="elemntCode"
+                                    value={maintenanceActionData.elementDescription}
                                     onChange={handleChange}
                                     variant="outlined"
                                     disabled={true}

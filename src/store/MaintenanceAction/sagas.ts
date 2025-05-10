@@ -10,7 +10,6 @@ import {
 import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile } from '../../models/inspectionModel';
 import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
 import { v4 as uuidv4 } from 'uuid';
-import { StructureElement } from '../../entities/structure';
 
 export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.ADD_MAINTENANCE_ACTION_DATA, addMaintenanceActionValue);
@@ -25,24 +24,15 @@ export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.SET_SELECTED_MAINTENANCE_ITEM, setSelectedMaintenanceItem);
 }
 
-export function* addNewItem(action: PayloadAction<StructureElement>) {
+export function* addNewItem(action: PayloadAction<MaintenanceActionModel>) {
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
-    const newMaintenanceAction = {
-        id: "-1",
-        isSectionExpanded: true,
-        dateForCompletion: new Date().toISOString(),
-        elementCode: action.payload.properties?.Tag?.value || action.payload.data.Entity,
-        elementId: action.payload.data.expressID,
-        mode: 1
-    } as MaintenanceActionModel;
-
     yield put(setMaintenanceActionList([
-        newMaintenanceAction,
+        action.payload,
         ...(maintenancActions || [])]
     ));
 
-    yield put(setCurrentMaintenanceFormData(newMaintenanceAction));
+    yield put(setCurrentMaintenanceFormData(action.payload));
 }
 
 export function* cancelNewItem() {
@@ -148,7 +138,7 @@ export function* saveMaintenanceImageData(action: PayloadAction<MaintenanceActio
 
         const updatedPayloadPhotos = [] as MaintenanceImageFile[];
         for (const photo of action.payload.photos) {
-            updatedPayloadPhotos.push({ ...photo});
+            updatedPayloadPhotos.push({ ...photo });
         }
 
         yield put(setCurrentMaintenanceFormData({ ...action.payload, photos: updatedPayloadPhotos }));

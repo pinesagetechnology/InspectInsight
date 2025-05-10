@@ -1,25 +1,36 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import MaintenanceSection from './maintenanceSection';
 import { getElementMaintenanceAction } from '../../../store/MaintenanceAction/selectors';
 import { Button, Container, Grid2 as Grid, Stack, useMediaQuery } from '@mui/material';
 import * as actions from '../../../store/MaintenanceAction/actions';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { getSelectedStructureElement } from '../../../store/ConditionRating/selectors';
-import { StructureElement } from '../../../entities/structure';
+import { MaintenanceActionModel } from '../../../models/inspectionModel';
+import MaintenanceSection from '../../../components/maintenanceSection';
 
-const AssessmentFrom: React.FC = () => {
+const IFCElementAssessmentFrom: React.FC = () => {
   const dispatch = useDispatch();
   const isPortrait = useMediaQuery('(max-width:600px)');
   const selectedElemment = useSelector(getSelectedStructureElement);
   const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.properties?.Tag?.value || selectedElemment.data.Entity));
 
   const handleAddNewAction = () => {
+    const newMaintenanceAction = {
+      id: "-1",
+      isSectionExpanded: true,
+      dateForCompletion: new Date().toISOString(),
+      elementCode: selectedElemment.properties?.Tag?.value || selectedElemment.data.Entity,
+      elementDescription: selectedElemment.data.Name || "",
+      elementId: selectedElemment.data.expressID,
+      mode: 1
+    } as MaintenanceActionModel;
+
     dispatch({
       type: actions.ADD_NEW_ITEM,
-      payload: selectedElemment
-    } as PayloadAction<StructureElement>);
+      payload: newMaintenanceAction
+    } as PayloadAction<MaintenanceActionModel>);
   }
+
   const isNewButtonDisabled = maintenanceActions?.some(x => x.id === "-1");
 
   return (
@@ -56,4 +67,4 @@ const AssessmentFrom: React.FC = () => {
   );
 };
 
-export default AssessmentFrom;
+export default IFCElementAssessmentFrom;

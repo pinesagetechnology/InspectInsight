@@ -10,7 +10,7 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import { PayloadAction } from '@reduxjs/toolkit';
-import RMADialog from '../../pages/conditionRating/rmaDialog';
+import RMADialog from '../ratingIFCElementTable/maintenanceActions/rmaDialog';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface AssessmentPanelProps {
