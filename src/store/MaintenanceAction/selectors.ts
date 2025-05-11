@@ -11,7 +11,7 @@ export const getElementMaintenanceAction = (eleCode: string) =>
     });
 
 
-export const getIFCElementMaintenanceAction = (elementId: number) =>
+export const getIFCElementMaintenanceAction = (elementId: string) =>
     createSelector(getMaintenanceActions, (data) => {
         return data.filter(item => item.elementId === elementId)
     });

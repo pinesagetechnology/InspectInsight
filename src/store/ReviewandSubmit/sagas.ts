@@ -1,7 +1,7 @@
 import { takeLatest, select, call, put } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { getCurrentStructure } from '../Structure/selectors';
-import { Structure, StructureElement } from '../../entities/structure';
+import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { 
     ConditionRatingEntity, 
     InspectionEntity, 
@@ -14,7 +14,7 @@ import { getInspection } from '../Inspection/selectors';
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
 import { setInspectionPayload, setReviewAndSubmitResult, setReviewError } from './slice';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
-import { getRatedElements } from '../ConditionRating/selectors';
+import { getRatedElementCodeData, getRatedElements } from '../ConditionRating/selectors';
 import { v4 as uuidv4 } from 'uuid';
 import { getInspectionComment } from '../InspectionComment/selectors';
 import { setShowLoading } from '../Common/slice';
@@ -60,15 +60,33 @@ export function* saveData(action: PayloadAction<()=> void>) {
 
             maintenanceActionsEntity.push({ ...action, photos: [...photos] } as MaintenanceActionEntity)
         }
-        const ratedElements: StructureElement[] = yield select(getRatedElements);
-        const conditionRatingEntity = ratedElements?.map(item => {
-            return {
-                conditionRatingId: uuidv4(),
-                elementId: item.data.expressID,
-                ratings: item.condition
-            } as ConditionRatingEntity
-        });
 
+        const ratedElements: StructureElement[] = yield select(getRatedElements);
+        const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+        let conditionRatingEntity = [] as ConditionRatingEntity[];
+
+        if(ratedElements?.length > 0) {
+            conditionRatingEntity = ratedElements?.map(item => {
+                return {
+                    conditionRatingId: uuidv4(),
+                    elementId: item.data.expressID.toString(),
+                    elementCode: item.data.Name || "",
+                    elementDescription: item.data.Name || "",
+                    ratings: item.condition
+                } as ConditionRatingEntity
+            });
+        } else if (ratedElementCodeData?.length > 0) {
+            conditionRatingEntity = ratedElementCodeData?.map(item => {
+                return {
+                    conditionRatingId: uuidv4(),
+                    elementId: item.id,
+                    elementCode: item.elementCode || "",
+                    elementDescription: item.description || "",
+                    ratings: item.condition
+                } as ConditionRatingEntity
+            });
+        }
+console.log("conditionRatingEntity", conditionRatingEntity);
         const inspectionComment: string = yield select(getInspectionComment)
         const currentInspection: InspectionModel = yield select(getInspection);
         const newInspection =

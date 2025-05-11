@@ -94,7 +94,7 @@ const getPreviousIFCElementCondirtionrating = (selectedStructureElements: Struct
                 const updatedChildren: StructureElement[] = getPreviousIFCElementCondirtionrating(element.children, previousConditionRating);
                 return { ...element, children: updatedChildren }
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
                     return { ...element, condition: [...foundCondition.ratings] }
                 }
@@ -158,7 +158,7 @@ const getPreviousRatedElement = (selectedStructureElements: StructureElement[], 
             if (element.children && element.children.length > 0) {
                 getPreviousRatedElement(element.children, previousConditionRating, output);
             } else {
-                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID);
+                const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
                     output.push({ ...element, condition: [...foundCondition.ratings] })
                 }

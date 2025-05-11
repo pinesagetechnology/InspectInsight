@@ -24,13 +24,13 @@ export interface DeleteImagePayload {
 
 export interface MaintenanceActionModel {
     id: string;
-    elementId: number | string;
+    elementId: string;
     elementCode: string;
     elementDescription: string;
     mmsActNo: string;
     activityDescription: string;
     inspectionComment: string;
-    units: number | string;
+    units: string;
     dateForCompletion: string; // Date in ISO string format
     probability: string;
     consequenceOfInteraction: string;

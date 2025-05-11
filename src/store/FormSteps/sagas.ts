@@ -6,9 +6,9 @@ import { StepModel } from '../../models/steps';
 import { getStepsState, isAllStepsCompleted } from './selectors';
 import { getInspection } from '../Inspection/selectors';
 import { InspectionModel } from '../../models/inspectionModel';
-import { getConditionRating } from '../ConditionRating/selectors';
+import { getOriginalConditionRating, getRatedElementCodeData, getRatedElements } from '../ConditionRating/selectors';
 import { getInspectionComment } from '../InspectionComment/selectors';
-import { StructureElement } from '../../entities/structure';
+import { ElementCodeData, StructureElement } from '../../entities/structure';
 
 export function* stepsRootSaga() {
     yield takeLatest(actions.SET_NEXT_STEP, setNextStepValue);
@@ -72,8 +72,10 @@ function* checkStepDataIsComplete(index: number) {
                 return false;
             }
         case 1:
-            const conditionRating: StructureElement[] = yield select(getConditionRating);
-            if (conditionRating?.length > 0) {
+            const ratedElements: StructureElement[] = yield select(getRatedElements);
+            const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+
+            if (ratedElements?.length > 0 || ratedElementCodeData?.length > 0) {
                 return true;
             }
             return false;

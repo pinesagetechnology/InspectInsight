@@ -88,13 +88,16 @@ export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActi
         else
             return item;
     })
-console.log("addMaintenanceActionValue", updatedList, newMaintenanceActionItem);
+
+    console.log("addMaintenanceActionValue", updatedList, newMaintenanceActionItem);
+
     yield put(setCurrentMaintenanceFormData(newMaintenanceActionItem));
 
     yield put(setMaintenanceActionList(updatedList));
 }
 
 export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceActionModel>) {
+    console.log("updateMaintenanceActionValue", action.payload);
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedMaintenanceActionItem = {
@@ -110,6 +113,7 @@ export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceA
             return item;
     })
 
+    console.log("updateMaintenanceActionValue", updatedList, updatedMaintenanceActionItem);
     yield put(setCurrentMaintenanceFormData(updatedMaintenanceActionItem));
 
     yield put(setMaintenanceActionList([...(updatedList || [])]));

@@ -62,6 +62,8 @@ const ConditionRatingSlice = createSlice({
             state.originalConditionRating = [] as StructureElement[];
             state.elementHistory = [] as StructureElement[][];
             state.elementCodeDataList = [] as ElementCodeData[];
+            state.ratedElementCodeData = [] as ElementCodeData[];
+            state.ratedElements = [] as StructureElement[];
         });
     }
 });

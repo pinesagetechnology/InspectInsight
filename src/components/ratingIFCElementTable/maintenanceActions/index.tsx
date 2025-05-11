@@ -12,7 +12,7 @@ const IFCElementAssessmentFrom: React.FC = () => {
   const dispatch = useDispatch();
   const isPortrait = useMediaQuery('(max-width:600px)');
   const selectedElemment = useSelector(getSelectedStructureElement);
-  const maintenanceActions = useSelector(getIFCElementMaintenanceAction(selectedElemment.data.expressID));
+  const maintenanceActions = useSelector(getIFCElementMaintenanceAction(selectedElemment.data.expressID.toString()));
 
   const handleAddNewAction = () => {
     const newMaintenanceAction = {
@@ -21,7 +21,7 @@ const IFCElementAssessmentFrom: React.FC = () => {
       dateForCompletion: new Date().toISOString(),
       elementCode: "",
       elementDescription: "",
-      elementId: selectedElemment.data.expressID,
+      elementId: selectedElemment.data.expressID.toString(),
       mode: 1
     } as MaintenanceActionModel;
 

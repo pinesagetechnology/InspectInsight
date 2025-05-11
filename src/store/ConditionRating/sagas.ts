@@ -2,7 +2,7 @@ import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ElementCodeData, StructureElement } from '../../entities/structure';
-import { getConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements } from './selectors';
+import { getOriginalConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements } from './selectors';
 import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode } from './slice';
 import { InspectionModel, MaintenanceActionModel } from 'models/inspectionModel';
 import { getInspection } from '../Inspection/selectors';
@@ -19,7 +19,6 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.SET_SELECTED_STRUCTURE_ELEMENT, setSelectedElement);
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
     yield takeLatest(actions.SET_SELECTED_IFC_ELEMENT_ID, setSelectedElementIdSaga);
-    // yield takeLatest(actions.SAVE_CONDITION_RATING_ASSESSMENT_DATA, saveConditionRatingAssessmentData);
     yield takeLatest(actions.SET_SELECTED_ELEMENT_CODE, setSelectedElementCodeSaga);
     yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
     yield takeLatest(actions.SAVE_ELEMENT_CODE_LIST, saveElementCodeListSaga);
@@ -58,7 +57,7 @@ export function* saveConditionRatingValue(action: PayloadAction<StructureElement
 }
 
 function* updateOrginalElementList(updatedItem: StructureElement) {
-    const elementItems: StructureElement[] = yield select(getConditionRating);
+    const elementItems: StructureElement[] = yield select(getOriginalConditionRating);
 
     let reuslt: StructureElement[] = yield call(CheckHierarchyRecusrsivly, elementItems, updatedItem);
 
@@ -149,7 +148,7 @@ export function* saveConditionRatingAssessmentData() {
     try {
         const inspectionData: InspectionModel = yield select(getInspection);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-        const conditionRatings: ConditionRatingEntity[] = yield select(getConditionRating);
+        const conditionRatings: ConditionRatingEntity[] = yield select(getOriginalConditionRating);
 
         const newInspectionEntity = {
             ...inspectionData,
@@ -203,7 +202,7 @@ export function* setSelectedElementIdSaga(action: PayloadAction<number | undefin
     let selectedElement = findElement(ratedElements, action.payload!);
 
     if (!selectedElement) {
-        const originalConditionRating: StructureElement[] = yield select(getConditionRating);
+        const originalConditionRating: StructureElement[] = yield select(getOriginalConditionRating);
         selectedElement = findElement(originalConditionRating, action.payload!);
     }
 

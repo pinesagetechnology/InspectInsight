@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import { Structure, StructureElement } from '../entities/structure';
+import { ElementCodeData, Structure, StructureElement } from '../entities/structure';
 import { InspectionModel, MaintenanceActionModel } from '../models/inspectionModel';
 import { InspectionEntity } from '../entities/inspection';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,6 +15,9 @@ export interface ReduxApplicationState {
         ratedElements: StructureElement[];
         originalConditionRating: StructureElement[];
         displayConditionRatingElements: StructureElement[];
+        
+        ratedElementCodeData: ElementCodeData[];
+        elementCodeDataList: ElementCodeData[];
     },
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];

@@ -6,7 +6,7 @@ import { InspectionModel, MaintenanceActionModel } from '../../models/inspection
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
 import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
-import { getConditionRating } from '../ConditionRating/selectors';
+import { getOriginalConditionRating } from '../ConditionRating/selectors';
 import { getInspectionComment } from './selectors';
 import * as services from "../../services/inspectionService";
 import { InspectionStatusEnum } from '../../enums';
@@ -29,7 +29,7 @@ function* saveInspectionCommentData() {
     try {
         const inspectionData: InspectionModel = yield select(getInspection);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-        const conditionRatings: ConditionRatingEntity[] = yield select(getConditionRating);
+        const conditionRatings: ConditionRatingEntity[] = yield select(getOriginalConditionRating);
         const inspectionComment: string = yield select(getInspectionComment);
 
         const newInspectionEntity = {

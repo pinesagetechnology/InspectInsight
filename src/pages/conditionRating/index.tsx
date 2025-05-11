@@ -6,14 +6,20 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import { useSelector } from 'react-redux';
-import { getCurrentStructure } from '../../store/Structure/selectors';
+import { getCurrentStructure, getStructureElements } from '../../store/Structure/selectors';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import { hasIFCFile } from '../../helper/db';
 import ElementsCodeGrid from '../../components/ratingElementCodeTable';
+import { getOriginalConditionRating, getElementCodeDataList } from '../../store/ConditionRating/selectors';
 
 const ConditionRating: React.FC = () => {
     const { goTo } = useNavigationManager();
     const currentStructure = useSelector(getCurrentStructure);
+
+    const structureElements = useSelector(getOriginalConditionRating);
+    const elementsCodeData = useSelector(getElementCodeDataList);
+console.log('elementsCodeData', elementsCodeData);
+console.log('structureElements', structureElements);
     const isOnline = useSelector(isOnlineSelector);
     const [show3DButton, setShow3DButton] = useState(true);
 
@@ -48,12 +54,14 @@ const ConditionRating: React.FC = () => {
                         3D View
                     </Button>
                 }
-                {
-                    (currentStructure.elementsCodeData?.length > 0) ?
-                        <ElementsCodeGrid />
-                        :
-                        <StructureElementGrid />
+                {structureElements?.length > 0 &&
+                    <StructureElementGrid />
                 }
+
+                {elementsCodeData?.length > 0 &&
+                    <ElementsCodeGrid />
+                }
+
             </div>
         </FormPageWrapper>
     )
