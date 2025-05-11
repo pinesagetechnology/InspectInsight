@@ -1,6 +1,6 @@
 import { SystemBaseDataEntity } from "../entities/systemData";
 import api, { setAuthorize } from "../helper/api"
-import mockData from '../mockData/systemData.json';
+import mockData from '../mockData/MMSData.json';
 
 export const fetchMMSActivityData = async () => {
     await setAuthorize();

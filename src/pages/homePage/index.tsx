@@ -55,6 +55,10 @@ const HomePage: React.FC = () => {
     } as PayloadAction);
 
     dispatch({
+      type: systemDataActions.GET_ELEMENTS_CODE_DATA
+    } as PayloadAction);
+
+    dispatch({
       type: localDataActions.CHECK_LOCAL_STORAGE_EXIST
     } as PayloadAction);
   }, []);

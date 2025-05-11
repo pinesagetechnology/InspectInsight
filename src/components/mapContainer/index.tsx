@@ -115,8 +115,76 @@ const MapContainer: React.FC<MapComponentProps> = ({
     // Keep track of created markers so we can remove them later
     const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
     const mapRef = useRef<google.maps.Map | null>(null);
+    const isMountedRef = useRef(true);
 
-    // 1️⃣ Load Maps JS + marker library + your mapId
+    // Function to create markers - extracted for reusability
+    const createMarkers = async () => {
+        if (!isLoaded || !mapRef.current || !isMountedRef.current) return;
+
+        console.log("Creating markers for", structureList.length, "structures");
+
+        // Clear existing markers first
+        markersRef.current.forEach(m => m.map = null);
+        markersRef.current = [];
+
+        try {
+            // Dynamically import the marker module
+            const markerLib = await google.maps.importLibrary('marker') as any;
+            const { AdvancedMarkerElement } = markerLib;
+
+            const getPinColor = (urgency: string | undefined) => {
+                switch (urgency) {
+                    case StructureUrgencyEnum.High:
+                        return 'red';
+                    case StructureUrgencyEnum.Medium:
+                        return 'orange';
+                    case StructureUrgencyEnum.Low:
+                        return 'green';
+                    case StructureUrgencyEnum.Overdue:
+                        return 'purple';
+                    default:
+                        return 'gray';
+                }
+            };
+
+            const getMarkerContent = (color: string) => {
+                const div = document.createElement('div');
+                div.style.backgroundColor = color;
+                div.style.border = '2px solid white';
+                div.style.borderRadius = '50%';
+                div.style.width = '16px';
+                div.style.height = '16px';
+                div.style.boxShadow = '0 0 3px rgba(0,0,0,0.6)';
+                return div;
+            };
+
+            const newMarkers = structureList.map(struct => {
+                const color = getPinColor(struct.urgency);
+                const content = getMarkerContent(color);
+
+                const marker = new AdvancedMarkerElement({
+                    map: mapRef.current!,
+                    position: {
+                        lat: struct.location.latitude,
+                        lng: struct.location.longitude
+                    },
+                    title: struct.name,
+                    content
+                });
+                marker.addListener('click', () => {
+                    onSelectStructure(struct);
+                    setOpenDrawer(true);
+                });
+                return marker;
+            });
+
+            markersRef.current = newMarkers;
+        } catch (err) {
+            console.error('Marker creation failed', err);
+        }
+    };
+
+    // Load Maps JS + marker library + your mapId
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY!,
         libraries: LIBRARIES,
@@ -124,67 +192,35 @@ const MapContainer: React.FC<MapComponentProps> = ({
         id: LOADER_ID,
     });
 
-    // 2️⃣ When your structures change or map loads, re-create markers
+    // Effect to handle map initialization
     useEffect(() => {
-        if (!isLoaded || !mapRef.current) return;
+        isMountedRef.current = true;
 
-        const getPinColor = (urgency: string | undefined) => {
-            switch (urgency) {
-                case StructureUrgencyEnum.High:
-                    return 'red';
-                case StructureUrgencyEnum.Medium:
-                    return 'orange';
-                case StructureUrgencyEnum.Low:
-                    return 'green';
-                default:
-                    return 'gray';
+        return () => {
+            isMountedRef.current = false;
+            // Clean up markers when component unmounts
+            if (markersRef.current) {
+                markersRef.current.forEach(m => m.map = null);
+                markersRef.current = [];
             }
         };
+    }, []);
 
-        const getMarkerContent = (color: string) => {
-            const div = document.createElement('div');
-            div.style.backgroundColor = color;
-            div.style.border = '2px solid white';
-            div.style.borderRadius = '50%';
-            div.style.width = '16px';
-            div.style.height = '16px';
-            div.style.boxShadow = '0 0 3px rgba(0,0,0,0.6)';
-            return div;
-        };
-
-        // Remove old markers
-        markersRef.current.forEach(m => m.map = null);
-        markersRef.current = [];
-
-        // Dynamically import the marker module
-        google.maps.importLibrary('marker')
-            .then((library: any) => {
-                const { AdvancedMarkerElement } = library;
-                const newMarkers = structureList.map(struct => {
-                    const color = getPinColor(struct.urgency);
-                    const content = getMarkerContent(color);
-
-                    const marker = new AdvancedMarkerElement({
-                        map: mapRef.current!,
-                        position: {
-                            lat: struct.location.latitude,
-                            lng: struct.location.longitude
-                        },
-                        title: struct.name,
-                        content
-                    });
-                    marker.addListener('click', () => {
-                        onSelectStructure(struct);
-                        setOpenDrawer(true);
-                    });
-                    return marker;
-                });
-                markersRef.current = newMarkers;
-            })
-            .catch(err => console.error('Marker import failed', err));
+    // Effect for marker creation
+    useEffect(() => {
+        if (isLoaded && mapRef.current) {
+            createMarkers();
+        }
     }, [isLoaded, structureList, onSelectStructure]);
 
-    // update local copy of structures when prop changes
+    // Additional effect to recreate markers when map reference changes
+    useEffect(() => {
+        if (mapRef.current && isLoaded) {
+            createMarkers();
+        }
+    }, [mapRef.current]);
+
+    // Update local copy of structures when prop changes
     useEffect(() => {
         setStructureList(structures || []);
     }, [structures]);
@@ -249,11 +285,19 @@ const MapContainer: React.FC<MapComponentProps> = ({
                     zoom={8}
                     options={{ mapId: process.env.REACT_APP_GOOGLE_MAPS_MAP_ID!, fullscreenControl: false, mapTypeControl: false }}
                     onLoad={map => {
+                        console.log("Map loaded");
                         mapRef.current = map;
+                        // Create markers immediately after map loads
+                        if (structures && structures.length > 0) {
+                            setTimeout(() => createMarkers(), 100);
+                        }
                     }}
                     onUnmount={() => {
+                        console.log("Map unmounted");
+                        if (markersRef.current) {
+                            markersRef.current.forEach(m => m.map = null);
+                        }
                         mapRef.current = null;
-                        markersRef.current.forEach(m => m.map = null);
                     }}
                 />
 

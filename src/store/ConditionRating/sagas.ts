@@ -1,9 +1,9 @@
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { StructureElement } from '../../entities/structure';
-import { getConditionRating, getDisplayElementList, getElementHistory, getRatedElements } from './selectors';
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement } from './slice';
+import { ElementCodeData, StructureElement } from '../../entities/structure';
+import { getOriginalConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements } from './selectors';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode } from './slice';
 import { InspectionModel, MaintenanceActionModel } from 'models/inspectionModel';
 import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
@@ -18,8 +18,10 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.UPDATE_DISPLAY_LIST_ITEMS, updateDisplayListItem);
     yield takeLatest(actions.SET_SELECTED_STRUCTURE_ELEMENT, setSelectedElement);
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
-    yield takeLatest(actions.SET_SELECTED_ELEMENT, setSelectedElementIdSaga);
-    // yield takeLatest(actions.SAVE_CONDITION_RATING_ASSESSMENT_DATA, saveConditionRatingAssessmentData);
+    yield takeLatest(actions.SET_SELECTED_IFC_ELEMENT_ID, setSelectedElementIdSaga);
+    yield takeLatest(actions.SET_SELECTED_ELEMENT_CODE, setSelectedElementCodeSaga);
+    yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
+    yield takeLatest(actions.SAVE_ELEMENT_CODE_LIST, saveElementCodeListSaga);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -35,7 +37,7 @@ export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
 
         yield put(setElementHistory(updatedList));
 
-        // 2- selt children of selected row as display
+        // 2- set children of selected row as display
         yield put(setDisplayConditionRatingElements(action.payload.children));
     }
 }
@@ -55,7 +57,7 @@ export function* saveConditionRatingValue(action: PayloadAction<StructureElement
 }
 
 function* updateOrginalElementList(updatedItem: StructureElement) {
-    const elementItems: StructureElement[] = yield select(getConditionRating);
+    const elementItems: StructureElement[] = yield select(getOriginalConditionRating);
 
     let reuslt: StructureElement[] = yield call(CheckHierarchyRecusrsivly, elementItems, updatedItem);
 
@@ -146,7 +148,7 @@ export function* saveConditionRatingAssessmentData() {
     try {
         const inspectionData: InspectionModel = yield select(getInspection);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-        const conditionRatings: ConditionRatingEntity[] = yield select(getConditionRating);
+        const conditionRatings: ConditionRatingEntity[] = yield select(getOriginalConditionRating);
 
         const newInspectionEntity = {
             ...inspectionData,
@@ -200,10 +202,34 @@ export function* setSelectedElementIdSaga(action: PayloadAction<number | undefin
     let selectedElement = findElement(ratedElements, action.payload!);
 
     if (!selectedElement) {
-        const originalConditionRating: StructureElement[] = yield select(getConditionRating);
+        const originalConditionRating: StructureElement[] = yield select(getOriginalConditionRating);
         selectedElement = findElement(originalConditionRating, action.payload!);
     }
 
     yield put(setSelectedStructureElement(selectedElement || ({} as StructureElement)));
 }
 
+export function* setSelectedElementCodeSaga(action: PayloadAction<ElementCodeData>) {
+    yield put(setSelectedElementCode(action.payload));
+}
+
+export function* updateElementCodeListSaga(action: PayloadAction<ElementCodeData[]>) {
+    yield put(setOriginalElementCodeDataList(action.payload));
+}
+
+export function* saveElementCodeListSaga() {
+    const originalElementCodeData: ElementCodeData[] = yield select(getElementCodeDataList);
+
+    const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+
+    const litToSave = originalElementCodeData.map(item => {
+        const existingItem = ratedElementCodeData.find(element => element.elementCode === item.elementCode);
+        if (existingItem) {
+            return { ...existingItem, ...item };
+        } else if (item.condition && item.condition.length > 0) {
+            return item;
+        }
+        return null;
+    }).filter(item => item !== null) as ElementCodeData[];
+    yield put(setReatedElementCode(litToSave));
+}

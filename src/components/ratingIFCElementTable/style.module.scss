@@ -1,0 +1,11 @@
+.radingConditionCell {
+    width: 20%;
+
+    @media (max-width: 960px) {
+        width: 30%;
+    }
+
+    @media (max-width: 600px) {
+        width: 40%;
+    }
+}

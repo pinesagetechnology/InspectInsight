@@ -75,6 +75,26 @@ module.exports = {
                     to: 'logo512.png'
                 },
                 {
+                    from: 'public/maskable_icon.png',
+                    to: 'maskable_icon.png'
+                },
+                {
+                    from: 'public/screenshot1.png',
+                    to: 'screenshot1.png'
+                },
+                {
+                    from: 'public/screenshot2.png',
+                    to: 'screenshot2.png'
+                },
+                {
+                    from: 'public/screenshot_mobile1.png',
+                    to: 'screenshot_mobile1.png'
+                },
+                {
+                    from: 'public/screenshot_mobile2.png',
+                    to: 'screenshot_mobile2.png'
+                },
+                {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
                     to: 'web-ifc.wasm'
                 },

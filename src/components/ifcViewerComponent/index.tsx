@@ -150,7 +150,7 @@ const IFCViewerComponent: React.FC = () => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
 
-                dispatch({ type: ratingActions.SET_SELECTED_ELEMENT, payload: id } as PayloadAction<number>);
+                dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
             // Measurement

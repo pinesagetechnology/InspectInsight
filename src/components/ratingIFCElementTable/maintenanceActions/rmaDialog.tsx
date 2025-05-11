@@ -2,7 +2,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, 
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import AssessmentFrom from './maintenanceActions';
+import IFCElementAssessmentFrom from '.';
 
 interface RMADialogProps {
     modalState: boolean;
@@ -60,7 +60,7 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
                     <CloseIcon />
                 </IconButton>
                 <DialogContent dividers>
-                    <AssessmentFrom />
+                    <IFCElementAssessmentFrom />
                 </DialogContent>
                 <DialogActions>
                     <Button autoFocus onClick={SubmitAndClose}>

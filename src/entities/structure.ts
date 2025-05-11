@@ -17,6 +17,7 @@ export interface Structure {
     location: Location;
     metadata?: Metadata;
     elementMetadata: StructureElement[];
+    elementsCodeData: ElementCodeData[];
     previousInspection?: InspectionEntity;
     precinct?:string;
     equipments?:string[];
@@ -64,4 +65,14 @@ export interface StructureElement {
     children: StructureElement[];
     properties?: Property;
     quantity: number;
+}
+
+export interface ElementCodeData {
+    id: string;
+    category: string;
+    elementCode: string;
+    description: string;
+    unit: string;
+    totalQty: string;
+    condition?: number[]
 }

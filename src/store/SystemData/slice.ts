@@ -1,16 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MMSActivity } from "../../entities/systemData";
 import { MenuItemModel } from "../../models/menuItemModel";
+import { ElementCodeData } from "entities/structure";
 
 export interface SystemBaseDataState{
     MMSActivityList: MMSActivity[];
     MMSActivities: MenuItemModel[]
+    ElementsCodeList: ElementCodeData[];
+    ElementsCode: MenuItemModel[]
     error: any;
 } 
 
 const initialState: SystemBaseDataState = {
     MMSActivityList: [],
     MMSActivities: [],
+    ElementsCodeList: [],
+    ElementsCode: [],
     error: ''
 }
 
@@ -18,14 +23,21 @@ const SystemDataSlice = createSlice({
     name: "SystemDataState",
     initialState: initialState,
     reducers: {
-        setMMSActivityData: (state, action: PayloadAction<MMSActivity[]>) => {
+        setMMSActivityListData: (state, action: PayloadAction<MMSActivity[]>) => {
             state.MMSActivityList = action.payload;
             state.error = '';
         },
         setMMSActivities: (state, action: PayloadAction<MenuItemModel[]>) => {
             state.MMSActivities = action.payload;
         },
-        setMMSActivityDataError: (state, action: PayloadAction<any>) => {
+        setElementsCodeListData: (state, action: PayloadAction<ElementCodeData[]>) => {
+            state.ElementsCodeList = action.payload;
+            state.error = '';
+        },
+        setElementsCodes: (state, action: PayloadAction<MenuItemModel[]>) => {
+            state.ElementsCode = action.payload;
+        },
+        setBaseDataError: (state, action: PayloadAction<any>) => {
             state.error = action.payload;
         }
     }
@@ -33,8 +45,10 @@ const SystemDataSlice = createSlice({
 
 export const {
     setMMSActivities,
-    setMMSActivityData,
-    setMMSActivityDataError
+    setMMSActivityListData,
+    setElementsCodeListData,
+    setElementsCodes,
+    setBaseDataError
 } = SystemDataSlice.actions;
 
 export default SystemDataSlice.reducer;

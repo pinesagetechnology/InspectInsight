@@ -55,7 +55,6 @@ export function* getStructursData() {
 
             const updatedList: Structure[] = structureData.map(item => {
                 const nextInspectionDateStr = item.previousInspection?.nextInspectionProposedDate;
-                console.log(item.previousInspection?.nextInspectionProposedDate)
 
                 if (!nextInspectionDateStr) {
                     item.urgency = StructureUrgencyEnum.Low;

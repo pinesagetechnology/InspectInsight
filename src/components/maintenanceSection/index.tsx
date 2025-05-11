@@ -13,22 +13,22 @@ import {
     AccordionActions,
     useMediaQuery,
 } from '@mui/material';
-import { MaintenanceActionModel } from '../../../models/inspectionModel';
+import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
-import SelectComponent from '../../../components/selectComponent';
-import DatePickerComponent from '../../../components/dataPickerComponent';
+import SelectComponent from '../selectComponent';
+import DatePickerComponent from '../dataPickerComponent';
 import styles from "./style.module.scss";
 import {
     ProbabilityItem,
     ConsequenceOfInteractionItem,
     ActivityInactionRiskItem
-} from '../../../constants';
+} from '../../constants';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { PayloadAction } from '@reduxjs/toolkit';
-import * as actions from "../../../store/MaintenanceAction/actions";
-import ImageUpload from '../../../components/imageUploadComponent';
-import { getIsUploadingFlag, getMaintenanceFormData } from '../../../store/MaintenanceAction/selectors';
-import { getMMSActivities, getMMSActivityData } from "../../../store/SystemData/selectors";
+import * as actions from "../../store/MaintenanceAction/actions";
+import ImageUpload from '../imageUploadComponent';
+import { getIsUploadingFlag, getMaintenanceFormData } from '../../store/MaintenanceAction/selectors';
+import { getElementsCodeListData, getElementsCodes, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
@@ -38,9 +38,10 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
-    // const isTablet = useMediaQuery('(max-width:960px)');
     const mmsActivityData = useSelector(getMMSActivityData);
+    const elementCodeListData = useSelector(getElementsCodeListData);
     const mmsMnueItems = useSelector(getMMSActivities);
+    const elementCodeItems = useSelector(getElementsCodes);
     const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
@@ -48,6 +49,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
     useEffect(() => {
+        console.log("maintenanceActionData", maintenanceActionData, currentMaintenanceFormData);
         if (maintenanceActionData.mode === 0) {
             setFormData(maintenanceActionData);
         } else {
@@ -130,13 +132,27 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     }
 
     const handleMMSActivityChangeChange = (name: string, value: string) => {
-        const activityItem = mmsActivityData.find(item => item.code === Number(value));
+        const activityItem = mmsActivityData.find(item => item.code === value);
 
         dispatch({
             type: actions.SET_MAINTENANCE_FORM_DATA,
-            payload: { ...formData, 
+            payload: {
+                ...formData,
                 ["mmsActNo"]: value,
                 ["activityDescription"]: activityItem?.description
+            }
+        } as PayloadAction<MaintenanceActionModel>);
+    };
+
+    const handleElementCodeChangeChange = (name: string, value: string) => {
+        const elementItem = elementCodeListData.find(item => item.elementCode === value);
+
+        dispatch({
+            type: actions.SET_MAINTENANCE_FORM_DATA,
+            payload: {
+                ...formData,
+                ["elementCode"]: value,
+                ["elementDescription"]: elementItem?.description
             }
         } as PayloadAction<MaintenanceActionModel>);
     };
@@ -189,14 +205,13 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Elemnt Code"
-                                    name="elemntCode"
-                                    value={maintenanceActionData.elementCode}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    disabled={true}
+                                <SelectComponent
+                                    label='Element Code'
+                                    name='elemntCode'
+                                    selectedValue={formData.elementCode || ""}
+                                    setSelectedValueHandler={handleElementCodeChangeChange}
+                                    menuItemList={elementCodeItems}
+                                    disabled={maintenanceActionData.mode === 0}
                                 />
                             </Grid>
 

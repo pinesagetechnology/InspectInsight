@@ -1,13 +1,14 @@
+import { ElementCodeData } from "./structure";
+
 export interface MMSActivity {
-    code: number;
+    code: string;
+    group: string;
     description: string;
-    inventoryUnit: string;
     unitOfMeasurement: string;
-    assetCode: string;
 }
 
 export interface SystemBaseDataEntity {
     id: string;
     category: string;
-    data: MMSActivity[];
+    data: MMSActivity[] | ElementCodeData[] | any[];
 }
