@@ -15,7 +15,6 @@ const ElementCodeAssessmentFrom: React.FC = () => {
   const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.elementCode));
 
   const handleAddNewAction = () => {
-    console.log("selectedElemment", selectedElemment);
     const newMaintenanceAction = {
       id: "-1",
       isSectionExpanded: true,
@@ -32,7 +31,7 @@ const ElementCodeAssessmentFrom: React.FC = () => {
     } as PayloadAction<MaintenanceActionModel>);
 
   }
-  
+
   const isNewButtonDisabled = maintenanceActions?.some(x => x.id === "-1");
 
   return (

@@ -232,6 +232,5 @@ export function* saveElementCodeListSaga() {
         }
         return null;
     }).filter(item => item !== null) as ElementCodeData[];
-    console.log("litToSave", litToSave);
     yield put(setReatedElementCode(litToSave));
 }

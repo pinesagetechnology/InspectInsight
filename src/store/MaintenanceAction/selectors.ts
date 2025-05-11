@@ -10,4 +10,10 @@ export const getElementMaintenanceAction = (eleCode: string) =>
         return data.filter(item => item.elementCode === eleCode)
     });
 
+
+export const getIFCElementMaintenanceAction = (elementId: number) =>
+    createSelector(getMaintenanceActions, (data) => {
+        return data.filter(item => item.elementId === elementId)
+    });
+
 export const getAllMaintenanceActionState = (state: RootState) => state.MaintenanceActionState;

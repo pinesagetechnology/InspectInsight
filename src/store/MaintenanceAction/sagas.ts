@@ -26,12 +26,11 @@ export function* maintenanceActionRootSaga() {
 
 export function* addNewItem(action: PayloadAction<MaintenanceActionModel>) {
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
-
     yield put(setMaintenanceActionList([
         action.payload,
         ...(maintenancActions || [])]
     ));
-
+    
     yield put(setCurrentMaintenanceFormData(action.payload));
 }
 
@@ -89,7 +88,7 @@ export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActi
         else
             return item;
     })
-
+console.log("addMaintenanceActionValue", updatedList, newMaintenanceActionItem);
     yield put(setCurrentMaintenanceFormData(newMaintenanceActionItem));
 
     yield put(setMaintenanceActionList(updatedList));

@@ -156,9 +156,7 @@ const ElementsCodeGrid: React.FC = () => {
     }
 
     const handleRowClick = (element: ElementCodeData) => {
-        console.log("Row clicked", element.condition);
         setOriginalCondition(element.condition || []);
-        console.log("Row clicked", element);
     }
 
     const handleClose = () => {

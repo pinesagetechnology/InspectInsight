@@ -28,7 +28,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/MaintenanceAction/actions";
 import ImageUpload from '../imageUploadComponent';
 import { getIsUploadingFlag, getMaintenanceFormData } from '../../store/MaintenanceAction/selectors';
-import { getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
+import { getElementsCodeListData, getElementsCodes, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
@@ -38,9 +38,10 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
-    // const isTablet = useMediaQuery('(max-width:960px)');
     const mmsActivityData = useSelector(getMMSActivityData);
+    const elementCodeListData = useSelector(getElementsCodeListData);
     const mmsMnueItems = useSelector(getMMSActivities);
+    const elementCodeItems = useSelector(getElementsCodes);
     const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
@@ -48,6 +49,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
     useEffect(() => {
+        console.log("maintenanceActionData", maintenanceActionData, currentMaintenanceFormData);
         if (maintenanceActionData.mode === 0) {
             setFormData(maintenanceActionData);
         } else {
@@ -63,7 +65,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                 type: actions.ADD_MAINTENANCE_ACTION_DATA
             } as PayloadAction<MaintenanceActionModel>)
         } else {
-            console.log("formData", formData);
             dispatch({
                 payload: formData,
                 type: actions.UPDATE_MAINTENANCE_ACTION_DATA
@@ -143,6 +144,19 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
         } as PayloadAction<MaintenanceActionModel>);
     };
 
+    const handleElementCodeChangeChange = (name: string, value: string) => {
+        const elementItem = elementCodeListData.find(item => item.elementCode === value);
+
+        dispatch({
+            type: actions.SET_MAINTENANCE_FORM_DATA,
+            payload: {
+                ...formData,
+                ["elementCode"]: value,
+                ["elementDescription"]: elementItem?.description
+            }
+        } as PayloadAction<MaintenanceActionModel>);
+    };
+
     return (
         <Accordion
             onChange={() => handleAccordionOnChange(maintenanceActionData?.id)}
@@ -191,23 +205,13 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Element Code"
-                                    name="elemntCode"
-                                    value={maintenanceActionData.elementCode}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    disabled={true}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Elemnt Code"
-                                    name="elemntCode"
-                                    value={maintenanceActionData.elementDescription}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    disabled={true}
+                                <SelectComponent
+                                    label='Element Code'
+                                    name='elemntCode'
+                                    selectedValue={formData.elementCode || ""}
+                                    setSelectedValueHandler={handleElementCodeChangeChange}
+                                    menuItemList={elementCodeItems}
+                                    disabled={maintenanceActionData.mode === 0}
                                 />
                             </Grid>
 

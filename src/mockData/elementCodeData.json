@@ -1,0 +1,782 @@
+{
+    "id": "2bc7ac79-21f6-4f6f-8233-af93f93dbf7f",
+    "category": "ElementsCode",
+    "data": [
+        {
+            "id": "e31de51b-872b-4d24-b02a-518b8a1e2b1d",
+            "category": "CONCRETE",
+            "description": "Concrete-Post-tensioned Girder",
+            "elementCode": "CPOG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "6b443cb5-91b7-4c18-8943-d48289d5b0eb",
+            "category": "CONCRETE",
+            "description": "Concrete-Pre-tensioned Girder",
+            "elementCode": "CPRG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "03f66bcd-f1ff-496b-a397-364de7924568",
+            "category": "CONCRETE",
+            "description": "Concrete-Reinforced Beam",
+            "elementCode": "CRBM",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "5c694d62-0ec9-40ec-bd5a-917ef31ea69c",
+            "category": "CONCRETE",
+            "description": "Concrete-Cross Girder / Diaphragm",
+            "elementCode": "CCGD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "f01868b4-6527-4b48-8d7b-e8f1a2e4385b",
+            "category": "CONCRETE",
+            "description": "Concrete-Pier Headstock",
+            "elementCode": "CPHS",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "ac82aad3-f061-4076-81c3-57ed397ac529",
+            "category": "CONCRETE",
+            "description": "Concrete-Pier (excl. any Headstock or Piles)",
+            "elementCode": "CPIR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "fb361db4-9631-4b23-af28-a16a71568c65",
+            "category": "CONCRETE",
+            "description": "Concrete-Abutment and Wingwalls",
+            "elementCode": "CABW",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "f0ef8cc3-4118-426c-8d9a-3b04d52c4be6",
+            "category": "CONCRETE",
+            "description": "Concrete-Pile",
+            "elementCode": "CPIL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "3ffc1ee7-ccb8-41d6-aaca-705e847ba41e",
+            "category": "CONCRETE",
+            "description": "Concrete-Deck Slab",
+            "elementCode": "CDSL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "5a1d4c87-b98a-417f-913f-c85068b880c8",
+            "category": "CONCRETE",
+            "description": "Concrete-Culvert, Cast-in-place",
+            "elementCode": "CCUL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "84297936-94eb-4b81-82f5-5c71d255e597",
+            "category": "CONCRETE",
+            "description": "Concrete - Culvert, Precast",
+            "elementCode": "CCUP",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "42c465d4-1640-4bff-b5d9-dde506fa7c1f",
+            "category": "STEEL",
+            "description": "Steel - Truss Principal",
+            "elementCode": "STPR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "10a8ccc4-b872-41f3-9356-7e9ec14cede7",
+            "category": "STEEL",
+            "description": "Steel - Truss Bottom Chord",
+            "elementCode": "STBC",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "c61e0518-467d-41ad-ae36-920152ccec61",
+            "category": "STEEL",
+            "description": "Steel - Truss Top Chord",
+            "elementCode": "STTC",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "f3e90723-4a5b-4d05-aa21-8aedca3412d8",
+            "category": "STEEL",
+            "description": "Steel - Truss Diagonals",
+            "elementCode": "STDG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "91d1310c-0db4-4ebd-97fb-429e5d67c2d5",
+            "category": "STEEL",
+            "description": "Steel - Truss Connection Gusset Plates",
+            "elementCode": "STGP",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "25f3481e-bc52-429b-bd6a-5efeef851989",
+            "category": "STEEL",
+            "description": "Steel - Truss Stringers",
+            "elementCode": "STST",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "62db1ba5-96fd-4420-89bb-ca19e2ee8b9b",
+            "category": "STEEL",
+            "description": "Steel - Truss Top Bracing",
+            "elementCode": "STTB",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "d66cb462-60fb-4b44-a7a4-14f572c6ebe9",
+            "category": "STEEL",
+            "description": "Steel - Truss Verticals",
+            "elementCode": "STVT",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "642485c0-543b-488d-8dcd-482c5aea6e3d",
+            "category": "STEEL",
+            "description": "Steel - Truss Bottom Bracings",
+            "elementCode": "STBB",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "f6080fba-081a-4455-b02f-c27bfc9b894e",
+            "category": "STEEL",
+            "description": "Steel - Truss Cross Girder",
+            "elementCode": "STCG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "741aacad-4ba8-4815-a878-2fd50537fc83",
+            "category": "STEEL",
+            "description": "Steel - Lift Span Support Structure",
+            "elementCode": "SLST",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "2088e5f1-e5f3-459a-829c-677b792ec7a6",
+            "category": "STEEL",
+            "description": "Steel - Beam / Girder (Load Bearing)",
+            "elementCode": "SBGI",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "ecc0dcb0-0e89-472a-89ba-8a85a61e7a00",
+            "category": "STEEL",
+            "description": "Steel - Diaphragm / Bracing / Secondary Member",
+            "elementCode": "SDBR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "12cc9238-fe7a-41db-bfa5-bbe1085857f7",
+            "category": "STEEL",
+            "description": "Steel -Pier (excl.any Piles & Secondary Members)",
+            "elementCode": "SPIR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "33683dd2-aeb9-4bc6-afe9-bc56ed938965",
+            "category": "STEEL",
+            "description": "Steel - Pile",
+            "elementCode": "SPIL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "e3e8e8c5-ca6e-4e3e-b742-e98ab20c66f4",
+            "category": "STEEL",
+            "description": "Steel - Cables/Hangers/Tension Ties (Not Embedded in Conc.)",
+            "elementCode": "SCBT",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "0cb02e18-410e-40c0-b3b7-e957894b9a2f",
+            "category": "STEEL",
+            "description": "Steel - Abutment Sheeting / Gravel Board",
+            "elementCode": "SASG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "e62f711e-266d-4ed1-bd0a-0db40738f2cc",
+            "category": "STEEL",
+            "description": "Steel - Open Grid Deck",
+            "elementCode": "SOGD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "6b661acc-7be5-41d0-80cc-980045f992c8",
+            "category": "STEEL",
+            "description": "Steel - Buckle Plate Deck",
+            "elementCode": "SBPD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "0364c105-160e-4a92-b066-f542b6aecccb",
+            "category": "STEEL",
+            "description": "Steel/Aluminium - Corrugated/Orthotropic/etc Deck",
+            "elementCode": "SCOD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "c862268e-14c5-4dbe-bcae-88d9d7e12d32",
+            "category": "STEEL",
+            "description": "Steel - Culvert",
+            "elementCode": "SCUL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "37277ab5-7d8e-48db-a59d-3601aaad2f3a",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Principal",
+            "elementCode": "PTPR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "03e6e602-11bc-46f5-83e3-332d95835811",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Top Chord",
+            "elementCode": "PTTC",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "492cf95e-67a5-4b3d-8c6f-8038d71b224b",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Bottom Chord",
+            "elementCode": "PTBC",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "6173efdf-8bc2-481c-a25e-da30e3df6304",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Diagonals",
+            "elementCode": "PTDG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "e1d5d6a2-00bb-4e63-a5b5-31e6cb0db794",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Verticals",
+            "elementCode": "PTVT",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "8aa02aba-7867-4d8b-ab49-aa0d5d573afa",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Connection Gusset Plates",
+            "elementCode": "PTGP",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "ff35f5fe-3722-40f3-b3ad-0ec6677beea2",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Top Bracings",
+            "elementCode": "PTTB",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "153d8397-c98b-4b45-ad7d-e32a2f22bfae",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Bottom Bracings",
+            "elementCode": "PTBB",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "6f6526f1-3a2f-4983-aa33-3ef47c2b5779",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Cross Girder",
+            "elementCode": "PTCG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "c6810843-ded1-4bc3-a231-11dc1a82e2e7",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Stringers",
+            "elementCode": "PTST",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "3e1183ac-f263-46a8-b352-d5d637ed3c8d",
+            "category": "STEEL",
+            "description": "Protective Coating – Truss – Lift Span Support Structure",
+            "elementCode": "PLST",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "53d480b8-1dc7-43f4-bb13-d174a1c558ff",
+            "category": "STEEL",
+            "description": "Protective Coating - Beam / Girder (Load bearing)",
+            "elementCode": "PBGI",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "92c10771-3842-4b5e-bf4a-03299956633b",
+            "category": "STEEL",
+            "description": "Protective Coating - Diaphragm/Bracing/Secondary member",
+            "elementCode": "PDBR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "a325fae2-ba18-43a5-9aff-a78b1efb2d27",
+            "category": "STEEL",
+            "description": "Protective Coating - Pier (excluding any piles and secondary members)",
+            "elementCode": "PPIR",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "4b4e192f-c79a-4cbd-b19f-9a13f5f11de7",
+            "category": "STEEL",
+            "description": "Protective Coating - Pile (including steel cased concrete pile or caisson)",
+            "elementCode": "PPIL",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "1608148a-8b23-423d-a95c-869f8fd13702",
+            "category": "STEEL",
+            "description": "Protective Coating - Cables/Hangers/Tension Ties (Not Embedded in Conc.)",
+            "elementCode": "PCBT",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "aadd03ff-5c67-408a-9aa1-d9212323c9e4",
+            "category": "STEEL",
+            "description": "Protective Coating – Abutment Sheeting / Gravel Board",
+            "elementCode": "PASG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "2d858284-a50c-4720-9ef4-2bbca4a481dc",
+            "category": "STEEL",
+            "description": "Protective Coating - Open Grid Deck",
+            "elementCode": "POGD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "95a3a868-12c5-4ac5-a752-0585dc5c860c",
+            "category": "STEEL",
+            "description": "Protective Coating - Buckle Plate Deck",
+            "elementCode": "PBPD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "05496971-4f78-4b88-a9a6-42b50dd64c1a",
+            "category": "STEEL",
+            "description": "Protective Coating - Corrugated/Orthotropic/Etc. Deck",
+            "elementCode": "PCOD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "383bca00-a9fd-4955-94ed-5fca5f11bf3d",
+            "category": "STEEL",
+            "description": "TRUSS",
+            "elementCode": "TIMBER",
+            "totalQty": 0,
+            "unit": "ELEMENTS"
+        },
+        {
+            "id": "2905611d-0917-4152-9e1f-1ac7a34d2a69",
+            "category": "STEEL",
+            "description": "Timber Truss-Principal / Top Chord / Bottom Chord",
+            "elementCode": "TPCH",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "02012b7d-50b5-442d-b74d-db69fa326eaf",
+            "category": "STEEL",
+            "description": "Timber Truss-Bottom Chord (Steel)",
+            "elementCode": "TSBC",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "05f03ba7-34c3-41c3-b636-287da04146ba",
+            "category": "STEEL",
+            "description": "Timber Truss-Strut",
+            "elementCode": "TSTT",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "44f85794-3457-4ea8-9745-6f41385df6d6",
+            "category": "STEEL",
+            "description": "Timber Truss-Tie (Steel, Wrought Iron)",
+            "elementCode": "TTIE",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "ed59ea8c-0945-47a2-afff-6041a167f6b5",
+            "category": "STEEL",
+            "description": "Timber Truss-Brace / Undertrussing",
+            "elementCode": "TSBR",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "2ca77c1c-b8f5-42ef-8eba-2853977acb2e",
+            "category": "STEEL",
+            "description": "Timber Truss-Metal Shoe",
+            "elementCode": "TSHO",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "4cc0cfd8-38d0-4294-a0cb-1e1720ec2dcf",
+            "category": "STEEL",
+            "description": "Timber Truss-Butting Block / Jacking Block",
+            "elementCode": "TBJB",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "bb81dde7-42fd-46b1-9e62-5099dd6c5387",
+            "category": "STEEL",
+            "description": "Timber Truss-Paintwork",
+            "elementCode": "TPTT",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "4832ed66-b1fa-40c3-beaf-1ed8cc6fe651",
+            "category": "STEEL",
+            "description": "Timber Truss-Cross Girder",
+            "elementCode": "TTCG",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "989753df-2e85-4de0-9cb9-14e90cdda798",
+            "category": "STEEL",
+            "description": "Timber Truss-Stringer",
+            "elementCode": "TSTR",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "6ac16978-f91b-40ba-8584-bec5d0f62ccb",
+            "category": "STEEL",
+            "description": "TIMBER",
+            "elementCode": "OTHER",
+            "totalQty": 0,
+            "unit": "ELEMENTS"
+        },
+        {
+            "id": "1ec368b4-96b2-48fc-a956-7950ebe22adb",
+            "category": "STEEL",
+            "description": "Timber-Girder / Cross Girder",
+            "elementCode": "TGCG",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "6b0ac38e-e829-4cba-905d-ebcebd80f2ab",
+            "category": "STEEL",
+            "description": "Timber-Capwales / Headstock / Sill",
+            "elementCode": "TCHS",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "dec02368-81ab-4c5e-8909-526da81ebd99",
+            "category": "STEEL",
+            "description": "Timber-Pile",
+            "elementCode": "TPIL",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "ebc262f2-521e-4ca6-bc26-ad52f168af5f",
+            "category": "STEEL",
+            "description": "Timber-Corbel",
+            "elementCode": "TCOR",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "cb9a4563-fda2-46da-813b-60d7e13e3ad8",
+            "category": "STEEL",
+            "description": "Timber-Wale / Brace",
+            "elementCode": "TWBR",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "cdaaa090-eed6-4e15-94c8-0cd79497ac69",
+            "category": "STEEL",
+            "description": "Timber-Abutment Sheeting / Gravel Board",
+            "elementCode": "TASG",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "2f9db16f-883a-4069-9526-d1c48eeab686",
+            "category": "STEEL",
+            "description": "Timber-Transverse Deck Plank",
+            "elementCode": "TTDK",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "caffa200-5450-4356-a7ee-2bd73080162e",
+            "category": "STEEL",
+            "description": "Timber-Longitudinal Sheeting / Decking",
+            "elementCode": "TLSH",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "aebc2ad0-35c9-4ece-b4ec-8c6cc69bbcd8",
+            "category": "STEEL",
+            "description": "Timber-Stress Laminated Deck",
+            "elementCode": "TSLD",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "e1fe3729-11b3-480c-a435-aae054d04b7b",
+            "category": "STEEL",
+            "description": "Timber-Deck Bolts",
+            "elementCode": "TDBO",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "b753ab82-9db5-4bf8-808b-e3adfd4f98be",
+            "category": "STEEL",
+            "description": "Fibre Reinforced Plastic Element",
+            "elementCode": "FRPE",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "110319cd-1d92-494f-9516-11bde7ca3843",
+            "category": "JOINTS",
+            "description": "Pourable / Cork Joint Seal",
+            "elementCode": "JPOS",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "d4e2cda2-63ca-4395-8516-f251bb9e3990",
+            "category": "JOINTS",
+            "description": "Compression Joint Seal",
+            "elementCode": "JCOS",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "6ee948a8-721e-4ea1-a031-cba4872ccefe",
+            "category": "JOINTS",
+            "description": "Assembly Joint / Seal",
+            "elementCode": "JASS",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "d435ea74-54b1-4202-af3d-fcd8ea2a8fe9",
+            "category": "JOINTS",
+            "description": "Joint - No Seal",
+            "elementCode": "JNOS",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "0dd4d1b6-b76b-433e-b41b-baa474707f3d",
+            "category": "BEARINGS",
+            "description": "Elastomeric Bearing Pad",
+            "elementCode": "BELA",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "9c1b6146-3501-4e85-a8da-fd51e69f164f",
+            "category": "BEARINGS",
+            "description": "Metal Expansion (Roller, Sliding, etc) Bearing",
+            "elementCode": "BEXP",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "a412a7a4-5e16-4b87-96d8-e98d5f8fe3ca",
+            "category": "BEARINGS",
+            "description": "Metal Fixed Bearing",
+            "elementCode": "BFIX",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "c89841f8-340c-4081-9566-da47bad1681a",
+            "category": "BEARINGS",
+            "description": "Enclosed / Concealed Bearing",
+            "elementCode": "BENC",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "31ba637c-68dc-4ab9-857b-ced0b4b84126",
+            "category": "BEARINGS",
+            "description": "Metal Railing",
+            "elementCode": "RMET",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "322cde36-fb83-41ad-a4a5-660cb760b082",
+            "category": "BEARINGS",
+            "description": "Concrete Railing / End Posts",
+            "elementCode": "RCON",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "ae774703-d151-4c11-97f1-3d839017a9f5",
+            "category": "BEARINGS",
+            "description": "Timber Railing",
+            "elementCode": "RTIM",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "d3acb348-810b-4a88-9ca1-3d1731f1d753",
+            "category": "BEARINGS",
+            "description": "Miscellaneous Railing including Guardfence",
+            "elementCode": "RMIS",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "df02c6e5-f460-4a9d-ba86-ed8f9019f643",
+            "category": "BEARINGS",
+            "description": "Railing Paint work",
+            "elementCode": "RPNT",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "58803e59-2ae0-4dc2-9aac-2ffd3c38e8c0",
+            "category": "MISCELLANEOUS",
+            "description": "Brick / Masonry / Reinforced Earth",
+            "elementCode": "MMAS",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "5fcd5e5a-e767-46ef-9e5a-3cfe90bff335",
+            "category": "MISCELLANEOUS",
+            "description": "Batter protection",
+            "elementCode": "MBAT",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "81a16ffd-5dcd-4cb9-a32b-e3c62107c9c1",
+            "category": "MISCELLANEOUS",
+            "description": "Wearing surface",
+            "elementCode": "MWES",
+            "totalQty": 0,
+            "unit": "m2"
+        },
+        {
+            "id": "19415b9b-813d-4983-a616-8f6b793f627a",
+            "category": "MISCELLANEOUS",
+            "description": "Approach Carriageway",
+            "elementCode": "MAPP",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "5fe4950c-0d12-4976-a8bb-873b38120c78",
+            "category": "MISCELLANEOUS",
+            "description": "Waterway",
+            "elementCode": "MWWY",
+            "totalQty": 0,
+            "unit": "ea"
+        },
+        {
+            "id": "e63cb759-04a0-45cd-b554-9186dd34849e",
+            "category": "MISCELLANEOUS",
+            "description": "Stormwater System",
+            "elementCode": "MSWS",
+            "totalQty": 0,
+            "unit": "Item"
+        },
+        {
+            "id": "ae171753-fca4-4da7-877b-e0cc04fcdf85",
+            "category": "MISCELLANEOUS",
+            "description": "Safety Screen",
+            "elementCode": "MSCR",
+            "totalQty": 0,
+            "unit": "m"
+        },
+        {
+            "id": "453a3eb4-7220-4778-8af3-0c448f7e9f94",
+            "category": "MISCELLANEOUS",
+            "description": "Miscellaneous Attachments",
+            "elementCode": "MATT",
+            "totalQty": 0,
+            "unit": "Item"
+        },
+        {
+            "id": "85eeb982-a670-42c6-9fb6-47ff271a458a",
+            "category": "MISCELLANEOUS",
+            "description": "General Cleaning",
+            "elementCode": "MGCL",
+            "totalQty": 0,
+            "unit": "ea"
+        }
+    ]
+}

@@ -1,3 +1,5 @@
+import { ElementCodeData } from "./structure";
+
 export interface MMSActivity {
     code: string;
     group: string;
@@ -8,5 +10,5 @@ export interface MMSActivity {
 export interface SystemBaseDataEntity {
     id: string;
     category: string;
-    data: MMSActivity[];
+    data: MMSActivity[] | ElementCodeData[] | any[];
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getElementMaintenanceAction } from '../../../store/MaintenanceAction/selectors';
+import { getElementMaintenanceAction, getIFCElementMaintenanceAction } from '../../../store/MaintenanceAction/selectors';
 import { Button, Container, Grid2 as Grid, Stack, useMediaQuery } from '@mui/material';
 import * as actions from '../../../store/MaintenanceAction/actions';
 import { PayloadAction } from '@reduxjs/toolkit';
@@ -12,15 +12,15 @@ const IFCElementAssessmentFrom: React.FC = () => {
   const dispatch = useDispatch();
   const isPortrait = useMediaQuery('(max-width:600px)');
   const selectedElemment = useSelector(getSelectedStructureElement);
-  const maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.properties?.Tag?.value || selectedElemment.data.Entity));
+  const maintenanceActions = useSelector(getIFCElementMaintenanceAction(selectedElemment.data.expressID));
 
   const handleAddNewAction = () => {
     const newMaintenanceAction = {
       id: "-1",
       isSectionExpanded: true,
       dateForCompletion: new Date().toISOString(),
-      elementCode: selectedElemment.properties?.Tag?.value || selectedElemment.data.Entity,
-      elementDescription: selectedElemment.data.Name || "",
+      elementCode: "",
+      elementDescription: "",
       elementId: selectedElemment.data.expressID,
       mode: 1
     } as MaintenanceActionModel;
