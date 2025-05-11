@@ -18,7 +18,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Button
+  Button,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import styles from "./style.module.scss";
 import { getLocalStorageFlag } from '../../store/LocalStorage/selector';
@@ -38,6 +40,7 @@ const HomePage: React.FC = () => {
   const structures = useSelector(getStructures);
   const [isListView, setIsListView] = useState(false);
   const hasLocalData = useSelector(getLocalStorageFlag);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
 
   useEffect(() => {
     if (hasLocalData) {
@@ -176,6 +179,14 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') return;
+    setOpenSnackBar(false);
+  };
+
   return (
     <div className={styles.homeContainer}>
       {selectedForDownload && (
@@ -191,6 +202,7 @@ const HomePage: React.FC = () => {
           onDownloadComplete={() => {
             // Update local storage to indicate the file is downloaded
             localStorage.setItem(`ifc_downloaded_${selectedForDownload.id}`, 'true');
+            setOpenSnackBar(true);
           }}
         />
       )}
@@ -234,6 +246,16 @@ const HomePage: React.FC = () => {
           applyFilter={applyFilter}
         />
       )}
+      <Snackbar
+        open={openSnackBar}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+          Download successful!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
