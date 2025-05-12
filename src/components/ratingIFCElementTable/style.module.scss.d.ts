@@ -1,1 +1,1 @@
-export const radingConditionCell: string;
+export const ratingConditionCell: string;

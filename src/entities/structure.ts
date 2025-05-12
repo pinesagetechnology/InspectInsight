@@ -65,6 +65,7 @@ export interface StructureElement {
     children: StructureElement[];
     properties?: Property;
     quantity: number;
+    ifcElementRatingValue?: string;
 }
 
 export interface ElementCodeData {

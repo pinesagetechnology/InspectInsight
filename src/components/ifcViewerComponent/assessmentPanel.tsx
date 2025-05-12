@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StructureElement } from "entities/structure";
-import { Divider, IconButton, Paper, Stack, Typography, TextField, styled, Tooltip, Box } from "@mui/material";
+import { Divider, IconButton, Paper, Stack, Typography, TextField, styled, Tooltip, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import classNames from 'classnames';
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
@@ -41,11 +41,11 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
         }
     }, [structureElement])
 
-    const updateStructureElement = (newConditions: number[]) => {
-        const updatedElement = { ...currentStructureElelement, condition: newConditions };
+    const updateStructureElement = (newConditions: number[], ifcElementRatingValue: string) => {
+        const updatedElement = { ...currentStructureElelement, condition: newConditions, ifcElementRatingValue: ifcElementRatingValue };
         const newData = displayElements.map((item) => {
             if (item.data.expressID === updatedElement.data.expressID) {
-                return { ...item, condition: newConditions };
+                return { ...item, condition: newConditions, ifcElementRatingValue: ifcElementRatingValue };
             }
             return item;
         });
@@ -58,37 +58,6 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
             return updatedElement;
         });
     }
-
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        index: number
-    ) => {
-        const { value } = event.target;
-
-        // Remove non-digit characters
-        const onlyNums = value.replace(/[^0-9]/g, "");
-
-        if (onlyNums) {
-            const num = parseInt(onlyNums, 10);
-            if (num >= 1 && num <= 4) {
-                // Create new conditions array with updated value at the target index
-                const newConditions = [0, 1, 2, 3].map((i) =>
-                    i === index
-                        ? num
-                        : currentStructureElelement.condition && currentStructureElelement.condition[i]
-                            ? currentStructureElelement.condition[i]
-                            : 0
-                );
-                updateStructureElement(newConditions);
-            }
-        } else {
-            // Input cleared or invalid: update only the specified index to 0
-            const currentConditions = currentStructureElelement.condition || [0, 0, 0, 0];
-            const newConditions = [...currentConditions];
-            newConditions[index] = 0;
-            updateStructureElement(newConditions);
-        }
-    };
 
     const saveOnClick = () => {
         if (!currentStructureElelement) return;
@@ -122,6 +91,23 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const handleClose = () => {
         setOpen(false);
     }
+
+    const handleOnRatingChange = (
+        event: React.MouseEvent<HTMLElement>,
+        value: string,
+        elementId: number
+    ) => {
+        const newRating = [0, 0, 0, 0];
+        newRating[parseInt(value) - 1] = 1;
+
+        const newData = displayElements.map((item) => {
+            if (item.data.expressID === elementId) {
+                return { ...item, ifcElementRatingValue: value, condition: newRating };
+            }
+            return item;
+        });
+        updateStructureElement(newRating, value);
+    };
 
     return (
         <React.Fragment>
@@ -157,26 +143,27 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
 
-                <Stack direction="row" spacing={1}>
-                    {[0, 1, 2, 3].map((_, index) => {
-                        const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;
-                        const focusedKey = `${currentStructureElelement?.data?.expressID}-${index}`;
-                        return (<TextField
-                            key={focusedKey}
-                            size="small"
-                            variant="outlined"
-                            margin="none"
-                            value={fieldValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                handleConditionChange(e, index)
-                            }
-                            className={styles.conditionTextBox}
-                            disabled={!isSelected}
-                        />)
-                    })}
-                </Stack>
+                <ToggleButtonGroup value={currentStructureElelement.ifcElementRatingValue}
+                    onChange={(event: React.MouseEvent<HTMLElement>,
+                        value: string,) => handleOnRatingChange(event, value, currentStructureElelement.data.expressID)}
+                    aria-label="Medium sizes"
+                    exclusive={true}>
+                    <ToggleButton value="1" key="CS1">
+                        CS1
+                    </ToggleButton>,
+                    <ToggleButton value="2" key="CS2">
+                        CS2
+                    </ToggleButton>,
+                    <ToggleButton value="3" key="CS3">
+                        CS3
+                    </ToggleButton>,
+                    <ToggleButton value="4" key="CS4">
+                        CS4
+                    </ToggleButton>,
+                </ToggleButtonGroup>
 
                 <Divider orientation="horizontal" flexItem />
+                
                 <React.Fragment>
                     <IconButton
                         color="success"

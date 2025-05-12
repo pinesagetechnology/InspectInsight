@@ -17,7 +17,9 @@ import {
     Grid2 as Grid,
     useMediaQuery,
     useTheme,
-    Box
+    Box,
+    ToggleButtonGroup,
+    ToggleButton
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -115,53 +117,6 @@ const StructureElementGrid: React.FC = () => {
         setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
     }, [elementHistory])
 
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        elementId: number,
-        index: number
-    ) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums) {
-            const num = parseInt(onlyNums, 10);
-            if (num >= 1 && num <= 4) {
-                const newData = displayElements.map((item) => {
-                    if (item.data.expressID === elementId) {
-                        const newConditions: number[] = [0, 0, 0, 0];
-                        [0, 1, 2, 3].forEach(x => {
-                            if (index === x) {
-                                newConditions[x] = num;
-                            } else if (item.condition && item.condition![x]) {
-                                newConditions[x] = item.condition![x];
-                            } else {
-                                newConditions[x] = 0;
-                            }
-                        });
-                        return { ...item, condition: newConditions };
-                    }
-                    return item;
-                });
-                
-                dispatch({
-                    payload: newData,
-                    type: actions.UPDATE_DISPLAY_LIST_ITEMS
-                });
-            }
-        } else {
-            const newData = displayElements.map((item) => {
-                if (item.data.expressID === elementId) {
-                    const newConditions = [...(item.condition || [])];
-                    newConditions[index] = 0;
-                    return { ...item, condition: newConditions };
-                }
-                return item;
-            });
-            dispatch({
-                payload: newData,
-                type: actions.UPDATE_DISPLAY_LIST_ITEMS
-            });
-        }
-    }
-
     const handleSaveButton = (item: StructureElement) => {
         dispatch({
             type: actions.SAVE_CONDITION_RATING_DATA,
@@ -202,7 +157,7 @@ const StructureElementGrid: React.FC = () => {
         e.stopPropagation();
 
         setEditRowId(null);
-        
+
         const newData = displayElements.map((item) => {
             if (item.data.expressID === elementId) {
                 return { ...item, condition: originalCondition };
@@ -226,17 +181,32 @@ const StructureElementGrid: React.FC = () => {
         handleSaveButton(element);
     }
 
-    const onRatingCellDoubleClock = (elementId: number) => () => {
-        if (!(!!editRowId && elementId !== editRowId)) {
-            handleEditButton(elementId)
-        }
-    }
-
     const handleBack = () => {
         dispatch({
             type: actions.HANDLE_BACK_CLICK_SAGA
         } as PayloadAction);
     }
+
+    const handleOnRatingChange = (
+        event: React.MouseEvent<HTMLElement>,
+        value: string,
+        elementId: number
+    ) => {
+        const newRating = [0,0,0,0];
+        newRating[parseInt(value) - 1] = 1;
+
+        const newData = displayElements.map((item) => {
+            if (item.data.expressID === elementId) {
+                return { ...item, ifcElementRatingValue: value, condition: newRating };
+            }
+            return item;
+        });
+
+        dispatch({
+            payload: newData,
+            type: actions.UPDATE_DISPLAY_LIST_ITEMS
+        });
+    };
 
     return (
         <React.Fragment>
@@ -297,39 +267,32 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell>{element.data.Entity}</StyledTableCell>
                                     <StyledTableCell>{element.data.Name}</StyledTableCell>
                                     <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{(element.quantity)}</StyledTableCell>
-                                    <StyledTableCell
-                                        className={styles.radingConditionCell}
-                                        onDoubleClick={onRatingCellDoubleClock(element.data.expressID || 0)}
-                                    >
-                                        {!element.children?.length && (
-                                            <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
-                                                {[0, 1, 2, 3].map((_, index) => {
-                                                    const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                                                    const focusedKey = `${element.data.expressID}-${index}`;
-                                                    return (editRowId === element.data.expressID) ? (
-                                                        <RatingInput
-                                                            key={focusedKey}
-                                                            variant="outlined"
-                                                            value={fieldValue}
-                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                                const newValue = parseInt(e.target.value) || 0;
-                                                                if (newValue >= 0 && newValue <= 4) {
-                                                                    handleConditionChange(e, element.data.expressID, index)
-                                                                }
-                                                            }}
-                                                            slotProps={{
-                                                                input: {
-                                                                    type: 'number'
-                                                                }
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <Item key={focusedKey}>{fieldValue}</Item>
-                                                    );
-                                                })}
+                                    {!element.children?.length && (
+                                        <StyledTableCell className={styles.ratingConditionCell}>
+                                            <Stack spacing={2} sx={{ alignItems: 'center' }}>
+
+                                                <ToggleButtonGroup value={element.ifcElementRatingValue}
+                                                    onChange={(event: React.MouseEvent<HTMLElement>,
+                                                        value: string,) => handleOnRatingChange(event, value, element.data.expressID)}
+                                                    aria-label="Medium sizes"
+                                                    exclusive={true}>
+                                                    <ToggleButton value="1" key="CS1" disabled={editRowId !== element.data.expressID}>
+                                                        CS1
+                                                    </ToggleButton>,
+                                                    <ToggleButton value="2" key="CS2" disabled={editRowId !== element.data.expressID}>
+                                                        CS2
+                                                    </ToggleButton>,
+                                                    <ToggleButton value="3" key="CS3" disabled={editRowId !== element.data.expressID}>
+                                                        CS3
+                                                    </ToggleButton>,
+                                                    <ToggleButton value="4" key="CS4" disabled={editRowId !== element.data.expressID}>
+                                                        CS4
+                                                    </ToggleButton>,
+                                                </ToggleButtonGroup>
+
                                             </Stack>
-                                        )}
-                                    </StyledTableCell>
+                                        </StyledTableCell>
+                                    )}
                                     <StyledTableCell>
                                         <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                                             {!element.children?.length && (

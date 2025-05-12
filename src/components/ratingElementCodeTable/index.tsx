@@ -16,7 +16,8 @@ import {
     Tooltip,
     Grid2 as Grid,
     useMediaQuery,
-    Box
+    Box,
+    Typography
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
@@ -30,6 +31,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
+import { validateConditionRating } from '../../helper/util';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -94,7 +96,7 @@ const ElementsCodeGrid: React.FC = () => {
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
- 
+
     useEffect(() => {
         if (searchQuery) {
             const filterd = structureElementsCode.map(item => {
@@ -122,13 +124,18 @@ const ElementsCodeGrid: React.FC = () => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');
         if (onlyNums) {
             const num = parseInt(onlyNums, 10);
-            if (num >= 1 && num <= 4) {
+            if (num >= 0) {
                 const newData = structureElementsCode.map((item) => {
                     if (item.elementCode === elementCode) {
                         const newConditions: number[] = [0, 0, 0, 0];
                         [0, 1, 2, 3].forEach(x => {
                             if (index === x) {
-                                newConditions[x] = num;
+                                const threshold = parseInt(item.totalQty, 10);
+                                if (validateConditionRating(item.condition || [], index, num, threshold)) {
+                                    newConditions[x] = num;
+                                } else {
+                                    newConditions[x] = item.condition![x];
+                                }
                             } else if (item.condition && item.condition![x]) {
                                 newConditions[x] = item.condition![x];
                             } else {
@@ -199,7 +206,7 @@ const ElementsCodeGrid: React.FC = () => {
 
     const saveOnClick = (element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        
+
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
         } as PayloadAction);
@@ -249,8 +256,8 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Code</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
+                                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
@@ -263,33 +270,41 @@ const ElementsCodeGrid: React.FC = () => {
                                     <StyledTableCell>{element.unit}</StyledTableCell>
 
                                     <StyledTableCell
-                                        className={styles.radingConditionCell}
+                                        className={styles.ratingConditionCell}
                                         onDoubleClick={onRatingCellDoubleClock(element.elementCode || "")}
                                     >
                                         <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
                                             {[0, 1, 2, 3].map((_, index) => {
                                                 const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
                                                 const focusedKey = `${element.elementCode}-${index}`;
-                                                return (editRowId === element.elementCode) ? (
-                                                    <RatingInput
-                                                        key={focusedKey}
-                                                        variant="outlined"
-                                                        value={fieldValue}
-                                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                            const newValue = parseInt(e.target.value) || 0;
-                                                            if (newValue >= 0 && newValue <= 4) {
-                                                                handleConditionChange(e, element.elementCode, index)
+                                                return (
+                                                    <Grid container key={`stack-${focusedKey}`} >
+                                                        <Grid size={3} >
+                                                            <p className={styles.conditionRatingHeader}>{`CS${index}`}</p>
+                                                            {(editRowId === element.elementCode) ? (
+                                                                <RatingInput
+                                                                    key={focusedKey}
+                                                                    variant="outlined"
+                                                                    value={fieldValue}
+                                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                                        const newValue = parseInt(e.target.value) || 0;
+                                                                        if (newValue >= 0 && newValue <= 4) {
+                                                                            handleConditionChange(e, element.elementCode, index)
+                                                                        }
+                                                                    }}
+                                                                    slotProps={{
+                                                                        input: {
+                                                                            type: 'number'
+                                                                        }
+                                                                    }}
+                                                                />)
+                                                                :
+                                                                (<Item key={focusedKey}>{fieldValue}</Item>)
                                                             }
-                                                        }}
-                                                        slotProps={{
-                                                            input: {
-                                                                type: 'number'
-                                                            }
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <Item key={focusedKey}>{fieldValue}</Item>
-                                                );
+                                                        </Grid>
+
+                                                    </Grid>
+                                                )
                                             })}
                                         </Stack>
                                     </StyledTableCell>

@@ -1,4 +1,4 @@
-.radingConditionCell {
+.ratingConditionCell {
     width: 20%;
 
     @media (max-width: 960px) {
@@ -8,4 +8,8 @@
     @media (max-width: 600px) {
         width: 40%;
     }
+}
+
+.conditionRatingHeader {
+    margin-left: 15px;
 }
