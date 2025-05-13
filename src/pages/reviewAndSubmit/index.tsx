@@ -34,6 +34,10 @@ import { useOfflineSync } from '../../systemAvailability/useOfflineSync';
 import { isAllStepsCompleted } from '../../store/FormSteps/selectors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { FormatDateOnly } from '../../helper/util';
+import { getIFCCalculatedElementCodeData } from '../../store/Structure/selectors';
+import { getRatingDistribution } from '../../helper/ifcTreeManager';
+import { IFCPopulatedConditionRating } from '../../entities/inspection';
+import { SubmitDatapayload } from '../../models/submitDataModel';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -82,16 +86,24 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 const ReviewInspectionPage: React.FC = () => {
   const dispatch = useDispatch();
   const isOnline = useOfflineSync();
-
   const { goTo } = useNavigationManager();
 
-  const isAllCompleted = useSelector(isAllStepsCompleted);
+  const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = React.useState<IFCPopulatedConditionRating[]>([]);
 
+  const isAllCompleted = useSelector(isAllStepsCompleted);
   const inspection = useSelector(getInspection);
   const ratedIFCElements = useSelector(getRatedElements);
+  const ifcCalculatedElementCodeData = useSelector(getIFCCalculatedElementCodeData);
   const ratedStructureElements = useSelector(getRatedElementCodeData);
   const maintenanceActions = useSelector(getMaintenanceActions);
   const comments = useSelector(getInspectionComment);
+
+  useEffect(() => {
+    if (ifcCalculatedElementCodeData) {
+      setIFCPopulatedConditionRating(getRatingDistribution(ifcCalculatedElementCodeData, ratedIFCElements));
+    }
+
+  }, [ratedIFCElements, ifcCalculatedElementCodeData])
 
   useEffect(() => {
     dispatch({
@@ -111,9 +123,11 @@ const ReviewInspectionPage: React.FC = () => {
   const handleSubmitOnclick = () => {
     dispatch({
       type: reviewActions.SUBMIT_DATA,
-      payload: () => goTo(RoutesValueEnum.Home)
-
-    } as PayloadAction<() => void>);
+      payload: {
+        ifcPopulatedConditionRating: ifcPopulatedConditionRating,
+        callback: () => goTo(RoutesValueEnum.Home)
+      }
+    } as PayloadAction<SubmitDatapayload>);
   }
 
   return (
@@ -200,19 +214,20 @@ const ReviewInspectionPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Name</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Description</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                      {/* <StyledTableHeaderCell>Description</StyledTableHeaderCell> */}
+                      <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
+                      {/* <StyledTableHeaderCell>Unit</StyledTableHeaderCell> */}
+                      <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {ratedIFCElements?.map((row, index) => (
+                    {ifcPopulatedConditionRating?.map((row, index) => (
                       <TableRow key={index}>
-                        <StyledTableCell>{row.data.Entity}</StyledTableCell>
-                        <StyledTableCell>{row.data.Name}</StyledTableCell>
-                        <StyledTableCell>{row.properties?.Name?.value}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                        <StyledTableCell>{row.elementCode}</StyledTableCell>
+                        {/* <StyledTableCell>{row.elementDescription}</StyledTableCell> */}
+                        <StyledTableCell>{row.quantity}</StyledTableCell>
+                        <StyledTableCell>{row.totalRating?.join(',')}</StyledTableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -226,7 +241,7 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Condition rating (cs1, cs2, cs3, cs4)</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

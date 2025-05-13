@@ -166,7 +166,7 @@ const HomePage: React.FC = () => {
 
     setModalOpen(false);
 
-    goTo(RoutesValueEnum.InspectionReview);
+    goTo(RoutesValueEnum.InspectionDetail);
   };
 
   const checkAndPromptIFCDownload = async (structure: Structure) => {

@@ -6,22 +6,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface ReduxApplicationState {
     id: 'appState', // fixed key
+    currentStructure: Structure;
     inspectionData: {
         currentInspection: InspectionModel;
         previoustInspection: InspectionEntity;
         previoustInspectionsList: InspectionEntity[];
-    },
+    };
     conditionRating: {
         ratedElements: StructureElement[];
         originalConditionRating: StructureElement[];
         displayConditionRatingElements: StructureElement[];
-        
+
         ratedElementCodeData: ElementCodeData[];
         elementCodeDataList: ElementCodeData[];
-    },
+    };
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];
-    },
+    };
     inspectionComment: string;
     timestamp?: number; // Optional timestamp for version control
 }

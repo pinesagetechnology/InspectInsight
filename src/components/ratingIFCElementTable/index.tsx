@@ -224,7 +224,7 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{textAlign: 'center'}} >Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
@@ -234,9 +234,11 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
                                     <StyledTableCell>{element.data.Entity}</StyledTableCell>
                                     <StyledTableCell>{element.data.Name}</StyledTableCell>
-                                    {element.children?.length &&
-                                        (<StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{(element.quantity)}</StyledTableCell>)
-                                    }
+                                    <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
+                                        {element.children?.length > 0 &&
+                                            (element.quantity)
+                                        }
+                                    </StyledTableCell>
 
                                     {!element.children?.length && (
                                         <StyledTableCell className={styles.ratingConditionCell}>

@@ -237,7 +237,7 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{textAlign: 'center'}}>Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
