@@ -28,3 +28,13 @@ export const setUpAuthAPIEnv = () => {
 
     return;
 }
+
+export const setUpgenAIAPIEnv = () => {
+    if (process.env.REACT_APP_USE_MOCK === 'true') {
+        window.GEN_API_URL = process.env.REACT_APP_GEN_API_LOCAL_URL
+    } else {
+        window.GEN_API_URL = process.env.REACT_APP_GEN_API_URL
+    }
+
+    return;
+}
