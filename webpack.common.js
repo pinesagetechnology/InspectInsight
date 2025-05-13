@@ -116,6 +116,8 @@ module.exports = {
             'process.env.REACT_APP_USER_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_USER_API_LOCAL_URL),
             'process.env.REACT_APP_USER_API_URL': JSON.stringify(process.env.REACT_APP_USER_API_URL),
             'process.env.REACT_APP_SUBSCRIPTION_KEY': JSON.stringify(process.env.REACT_APP_SUBSCRIPTION_KEY),
+            'process.env.REACT_APP_GEN_API_URL': JSON.stringify(process.env.REACT_APP_GEN_API_URL),
+            'process.env.REACT_APP_GEN_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_GEN_API_LOCAL_URL),
 
         })
     ]
