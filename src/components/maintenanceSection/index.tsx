@@ -49,7 +49,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
     useEffect(() => {
-        console.log("maintenanceActionData", maintenanceActionData, currentMaintenanceFormData);
         if (maintenanceActionData.mode === 0) {
             setFormData(maintenanceActionData);
         } else {

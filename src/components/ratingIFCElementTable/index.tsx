@@ -97,7 +97,6 @@ const StructureElementGrid: React.FC = () => {
     const handleEditButton = (id: number) => {
         setEditRowId(editRowId === id ? null : id);
         const selectedElement = displayElements.find(el => el.data.expressID === id);
-        console.log('selectedElement', selectedElement);
         if (selectedElement) {
             setSelectedElement(selectedElement);
         }
@@ -129,7 +128,6 @@ const StructureElementGrid: React.FC = () => {
         e.stopPropagation();
 
         setEditRowId(null);
-        console.log('cancelOnClick', selectedElement);
         const newData = displayElements.map((item) => {
             if (item.data.expressID === elementId) {
                 return { ...item, condition: selectedElement.condition, ifcElementRatingValue: selectedElement.ifcElementRatingValue };

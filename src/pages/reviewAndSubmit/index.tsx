@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Typography,
   Grid2 as Grid,
@@ -88,7 +88,7 @@ const ReviewInspectionPage: React.FC = () => {
   const isOnline = useOfflineSync();
   const { goTo } = useNavigationManager();
 
-  const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = React.useState<IFCPopulatedConditionRating[]>([]);
+  const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
 
   const isAllCompleted = useSelector(isAllStepsCompleted);
   const inspection = useSelector(getInspection);

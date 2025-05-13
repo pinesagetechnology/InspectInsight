@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -18,14 +18,17 @@ import * as actions from "../../store/InspectionComment/actions";
 import AIChatBot from '../../components/aiChatBot';
 import { genAIService } from '../../services/genAIService';
 import { getInspection } from '../../store/Inspection/selectors';
-import { getCurrentStructure } from '../../store/Structure/selectors';
+import { getCurrentStructure, getIFCCalculatedElementCodeData } from '../../store/Structure/selectors';
 import { getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { getRatedElementCodeData, getRatedElements } from '../../store/ConditionRating/selectors';
-import AISummaryDisplay from '../../components/summaryComponent';
-import mockData from "../../mockData/aiResponse.json";
+import * as commonActions from "../../store/Common/actions";
+import { InspectionReport } from '../../entities/genAIModel';
+import { IFCPopulatedConditionRating } from '../../entities/inspection';
+import { getRatingDistribution } from '../../helper/ifcTreeManager';
 
 const InspectorCommentForm: React.FC = () => {
   const dispatch = useDispatch();
+  const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
 
   const commentValue = useSelector(getInspectionComment);
   const validationError = useSelector(getInspectCommentFormValidation);
@@ -34,12 +37,20 @@ const InspectorCommentForm: React.FC = () => {
   const currentInspection = useSelector(getInspection);
   const currentStructure = useSelector(getCurrentStructure);
   const maintenanceActions = useSelector(getMaintenanceActions);
-  const ratedElements = useSelector(getRatedElements);
+  const ratedIFCElements = useSelector(getRatedElements);
+  const ifcCalculatedElementCodeData = useSelector(getIFCCalculatedElementCodeData);
   const ratedElementCodeData = useSelector(getRatedElementCodeData);
 
   // Local state for AI operations
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    if (ifcCalculatedElementCodeData) {
+      setIFCPopulatedConditionRating(getRatingDistribution(ifcCalculatedElementCodeData, ratedIFCElements));
+    }
+  }, [ratedIFCElements, ifcCalculatedElementCodeData]);
 
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({
@@ -49,6 +60,7 @@ const InspectorCommentForm: React.FC = () => {
   };
 
   const handleGenerateAI = async () => {
+    dispatch({ type: commonActions.SHOW_LOADING_OVERLAY } as PayloadAction);
     setIsGeneratingAI(true);
     setAiError(null);
 
@@ -69,19 +81,20 @@ const InspectorCommentForm: React.FC = () => {
           inspectorName: currentInspection.inspectorName,
           engineerName: currentInspection.engineerName
         },
-        conditionRatings: {
-          ifcElements: ratedElements.map(element => ({
-            name: element.data.Name,
-            entity: element.data.Entity,
-            condition: element.condition,
-            rating: element.ifcElementRatingValue
-          })),
-          elementCodes: ratedElementCodeData.map(element => ({
-            code: element.elementCode,
+        conditionRatings: (ratedElementCodeData && ratedElementCodeData.length) ?
+          ratedElementCodeData.map(element => ({
+            elementCode: element.elementCode,
             description: element.description,
-            condition: element.condition
+            condition: element.condition,
+            quantity: element.totalQty,
           }))
-        },
+          :
+          ifcPopulatedConditionRating.map(element => ({
+            elementCode: element.elementCode,
+            condition: element.totalRating,
+            quantity: element.quantity,
+          }))
+        ,
         maintenanceActions: maintenanceActions.map(action => ({
           elementCode: action.elementCode,
           activityDescription: action.activityDescription,
@@ -91,15 +104,15 @@ const InspectorCommentForm: React.FC = () => {
           risk: action.activityInactionRisk
         }))
       };
-      console.log('Inspection Context:', inspectionContext);
+
       // Call the completion API
       const contextJson = JSON.stringify(inspectionContext);
-      const aiComment = await genAIService.getCompletion(contextJson);
+      const aiComment: InspectionReport = await genAIService.getCompletion(contextJson);
 
       // Update the comment field with AI generated content
       dispatch({
         type: actions.SET_INSPECTION_COMMENT_DATA,
-        payload: aiComment
+        payload: aiComment.response
       } as PayloadAction<string>);
 
     } catch (error) {
@@ -107,11 +120,14 @@ const InspectorCommentForm: React.FC = () => {
       setAiError('Failed to generate AI comment. Please try again.');
     } finally {
       setIsGeneratingAI(false);
+      dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY } as PayloadAction);
+
     }
   };
 
   // Handle chat completion for the chatbot
-  const handleChatCompletion = async (contextJson: string): Promise<string> => {
+  //might need to remove it
+  const handleChatCompletion = async (contextJson: string): Promise<InspectionReport> => {
     // For chat, we might want to include additional context
     const chatContext = {
       currentComment: commentValue,
@@ -156,7 +172,7 @@ const InspectorCommentForm: React.FC = () => {
               <TextField
                 fullWidth
                 multiline
-                rows={6}
+                rows={20}
                 variant="outlined"
                 placeholder="Enter your comment here..."
                 value={commentValue}

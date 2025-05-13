@@ -1,16 +1,16 @@
-import { ChatRequest } from 'entities/genAIModel';
+import { ChatRequest, InspectionReport } from '../entities/genAIModel';
 import { setUpgenAIAPIEnv } from '../configuration';
 import { setAuthorize } from '../helper/genAPI';
 
 class GenAIService {
-    
+
     constructor() {
         setUpgenAIAPIEnv();
     }
 
     private readonly baseUrl = window.GEN_API_URL;
 
-    public async getCompletion(contextJson: string): Promise<string> {
+    public async getCompletion(contextJson: string): Promise<InspectionReport> {
         await setAuthorize();
 
         try {
@@ -31,7 +31,7 @@ class GenAIService {
             }
 
             // Assuming the API returns just a string response
-            const result = await response.text();
+            const result = (await response.json()) as InspectionReport;
             return result;
         } catch (error) {
             console.error('Error calling GenAI completion API:', error);
@@ -42,7 +42,7 @@ class GenAIService {
     /**
      * Send chat message to AI (used by chat interface)
      */
-    public async sendChatMessage(prompt: string, contextJson: string): Promise<string> {
+    public async sendChatMessage(prompt: string, contextJson: string): Promise<InspectionReport> {
         await setAuthorize();
 
         try {
@@ -68,7 +68,7 @@ class GenAIService {
             }
 
             // Assuming the API returns just a string response
-            const result = await response.text();
+            const result = (await response.json()) as InspectionReport;
             return result;
         } catch (error) {
             console.error('Error calling GenAI chat API:', error);

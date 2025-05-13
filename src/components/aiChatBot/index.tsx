@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { genAIService } from '../../services/genAIService';
+import { InspectionReport } from '../../entities/genAIModel';
 
 interface Message {
     id: string;
@@ -33,7 +34,7 @@ interface Message {
 }
 
 interface AIChatBotProps {
-    onGetCompletion?: (contextJson: string) => Promise<string>;
+    onGetCompletion?: (contextJson: string) => Promise<InspectionReport>;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -171,7 +172,7 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
 
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                content: response,
+                content: response.response,
                 role: 'assistant',
                 timestamp: new Date(),
             };
