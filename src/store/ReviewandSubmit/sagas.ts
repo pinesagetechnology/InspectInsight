@@ -86,7 +86,7 @@ export function* saveData(action: PayloadAction<()=> void>) {
                 } as ConditionRatingEntity
             });
         }
-console.log("conditionRatingEntity", conditionRatingEntity);
+
         const inspectionComment: string = yield select(getInspectionComment)
         const currentInspection: InspectionModel = yield select(getInspection);
         const newInspection =

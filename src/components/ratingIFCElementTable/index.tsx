@@ -16,7 +16,6 @@ import {
     Tooltip,
     Grid2 as Grid,
     useMediaQuery,
-    useTheme,
     Box,
     ToggleButtonGroup,
     ToggleButton
@@ -36,19 +35,6 @@ import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { filterTree } from '../../helper/ifcTreeManager';
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(0.5),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    width: '50px',
-    '@media (max-width: 600px)': {
-        width: '40px',
-        fontSize: '0.75rem'
-    }
-}));
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -71,25 +57,7 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
     whiteSpace: 'nowrap'
 }));
 
-const RatingInput = styled(TextField)(({ theme }) => ({
-    '& .MuiOutlinedInput-root': {
-        width: '50px',
-        height: '35px',
-        '& input': {
-            padding: '4px',
-            textAlign: 'center',
-        }
-    },
-    '@media (max-width: 600px)': {
-        '& .MuiOutlinedInput-root': {
-            width: '40px',
-            height: '30px',
-        }
-    }
-}));
-
 const StructureElementGrid: React.FC = () => {
-    const theme = useTheme();
     const displayElements = useSelector(getDisplayElementList);
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const [open, setOpen] = useState<boolean>(false);
@@ -192,7 +160,7 @@ const StructureElementGrid: React.FC = () => {
         value: string,
         elementId: number
     ) => {
-        const newRating = [0,0,0,0];
+        const newRating = [0, 0, 0, 0];
         newRating[parseInt(value) - 1] = 1;
 
         const newData = displayElements.map((item) => {
@@ -266,7 +234,10 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
                                     <StyledTableCell>{element.data.Entity}</StyledTableCell>
                                     <StyledTableCell>{element.data.Name}</StyledTableCell>
-                                    <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{(element.quantity)}</StyledTableCell>
+                                    {element.children?.length &&
+                                        (<StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{(element.quantity)}</StyledTableCell>)
+                                    }
+
                                     {!element.children?.length && (
                                         <StyledTableCell className={styles.ratingConditionCell}>
                                             <Stack spacing={2} sx={{ alignItems: 'center' }}>

@@ -83,27 +83,23 @@ const IFCViewerComponent: React.FC = () => {
     const highlightRatedElements = () => {
         if (model && fragMgrRef.current && ratedElements.length > 0 && highlighterRef.current) {
             ratedElements.forEach((item) => {
-                if (item.ifcElementRatingValue && parseInt(item.ifcElementRatingValue) > 0) {
-
+                if (item.ifcElementRatingValue) {
                     let color: THREE.Color | undefined;
-                    item.condition?.forEach((condition, index) => {
-                        if (condition === 1) {
-                            switch (index) {
-                                case 1:
-                                    color = new THREE.Color(0x00ff00);
-                                    break;
-                                case 2:
-                                    color = new THREE.Color(0xffff00);
-                                    break;
-                                case 3:
-                                    color = new THREE.Color(0xff9900);
-                                    break;
-                                case 4:
-                                    color = new THREE.Color(0xff0000);
-                                    break;
-                            }
-                        }
-                    });
+
+                    switch (item.ifcElementRatingValue) {
+                        case "1":
+                            color = new THREE.Color(0x00ff00);
+                            break;
+                        case "2":
+                            color = new THREE.Color(0xffff00);
+                            break;
+                        case "3":
+                            color = new THREE.Color(0xff9900);
+                            break;
+                        case "4":
+                            color = new THREE.Color(0xff0000);
+                            break;
+                    }
 
                     const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
                     if (fragmentIDMap) {

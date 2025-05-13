@@ -33,6 +33,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useOfflineSync } from '../../systemAvailability/useOfflineSync';
 import { isAllStepsCompleted } from '../../store/FormSteps/selectors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { FormatDateOnly } from '../../helper/util';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -153,7 +154,7 @@ const ReviewInspectionPage: React.FC = () => {
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Proposed date of next inspection</DetailLabel>
-                <DetailValue>{inspection?.nextInspectionProposedDate}</DetailValue>
+                <DetailValue>{FormatDateOnly(inspection?.nextInspectionProposedDate)}</DetailValue>
               </Grid>
               <Grid size={6}>
                 <DetailLabel>Temperature (degrees)</DetailLabel>
@@ -225,7 +226,7 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Condition rating (cs1, cs2, cs3, cs4)</StyledTableHeaderCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -235,7 +236,7 @@ const ReviewInspectionPage: React.FC = () => {
                         <StyledTableCell>{row.description}</StyledTableCell>
                         <StyledTableCell>{row.totalQty}</StyledTableCell>
                         <StyledTableCell>{row.unit}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(' , ')}</StyledTableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -288,7 +289,7 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.activityDescription}</StyledTableCell>
                       <StyledTableCell>{row.inspectionComment}</StyledTableCell>
                       <StyledTableCell>{row.units}</StyledTableCell>
-                      <StyledTableCell>{row.dateForCompletion}</StyledTableCell>
+                      <StyledTableCell>{FormatDateOnly(row.dateForCompletion)}</StyledTableCell>
                       <StyledTableCell>{row.probability}</StyledTableCell>
                       <StyledTableCell>{row.consequenceOfInteraction}</StyledTableCell>
                       <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>

@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
-import { selectedPreviousInspectionData, getPreviousInspectionRatedElement } from '../../store/Inspection/selectors';
+import { selectedPreviousInspectionData, getPreviousInspectionRatedElement, getPreviousInspectionIFCRatedElement } from '../../store/Inspection/selectors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { StructureElement } from '../../entities/structure';
 import { FormatDateOnly } from '../../helper/util';
@@ -68,7 +68,8 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 const PreviousInspectionPage: React.FC = () => {
   const previousInspect = useSelector(selectedPreviousInspectionData);
 
-  const ratedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
+  const previousRatedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
+  const previousInspectionIFCRatedElement = useSelector(getPreviousInspectionIFCRatedElement);
 
   return (
     <FormPageWrapper isFooterVisible={false}>
@@ -134,23 +135,32 @@ const PreviousInspectionPage: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <StyledTableHeaderCell>ID</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                    {/* <StyledTableHeaderCell>ID</StyledTableHeaderCell> */}
+                    <StyledTableHeaderCell>Element Code</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Condition rating (1,2,3,4)</StyledTableHeaderCell>
+                    <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ratedElements?.map((row, index) => (
-                    <TableRow key={index}>
-                      <StyledTableCell>{row.data.expressID}</StyledTableCell>
-                      <StyledTableCell>{row.data.Entity}</StyledTableCell>
-                      <StyledTableCell>{row.data.Name}</StyledTableCell>
-                      <StyledTableCell>{row.quantity}</StyledTableCell>
-                      <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
-                    </TableRow>
-                  ))}
+                  {previousRatedElements?.length > 0 &&
+                    (previousRatedElements?.map((row, index) => (
+                      <TableRow key={index}>
+                        <StyledTableCell>{row.data.Entity}</StyledTableCell>
+                        <StyledTableCell>{row.data.Name}</StyledTableCell>
+                        <StyledTableCell>{row.quantity}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                      </TableRow>
+                    )))}
+                  {previousInspectionIFCRatedElement?.length > 0 &&
+                    (previousInspectionIFCRatedElement?.map((row, index) => (
+                      <TableRow key={index}>
+                        <StyledTableCell>{row.elementCode}</StyledTableCell>
+                        <StyledTableCell>{row.description}</StyledTableCell>
+                        <StyledTableCell>{row.totalQty}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                      </TableRow>
+                    )))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -191,7 +201,7 @@ const PreviousInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.activityDescription}</StyledTableCell>
                       <StyledTableCell>{row.inspectionComment}</StyledTableCell>
                       <StyledTableCell>{row.units}</StyledTableCell>
-                      <StyledTableCell>{row.dateForCompletion}</StyledTableCell>
+                      <StyledTableCell>{FormatDateOnly(row.dateForCompletion)}</StyledTableCell>
                       <StyledTableCell>{row.probability}</StyledTableCell>
                       <StyledTableCell>{row.consequenceOfInteraction}</StyledTableCell>
                       <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>
