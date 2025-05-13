@@ -62,7 +62,7 @@ const StructureElementGrid: React.FC = () => {
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const [open, setOpen] = useState<boolean>(false);
 
-    const [originalCondition, setOriginalCondition] = useState<number[]>([]);
+    const [selectedElement, setSelectedElement] = useState<StructureElement>({} as StructureElement);
     const [editRowId, setEditRowId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
@@ -96,7 +96,10 @@ const StructureElementGrid: React.FC = () => {
     const handleEditButton = (id: number) => {
         setEditRowId(editRowId === id ? null : id);
         const selectedElement = displayElements.find(el => el.data.expressID === id);
-        setOriginalCondition(selectedElement?.condition || []);
+        console.log('selectedElement', selectedElement);
+        if (selectedElement) {
+            setSelectedElement(selectedElement);
+        }
     }
 
     const handleRowClick = (element: StructureElement) => {
@@ -125,10 +128,10 @@ const StructureElementGrid: React.FC = () => {
         e.stopPropagation();
 
         setEditRowId(null);
-
+        console.log('cancelOnClick', selectedElement);
         const newData = displayElements.map((item) => {
             if (item.data.expressID === elementId) {
-                return { ...item, condition: originalCondition };
+                return { ...item, condition: selectedElement.condition, ifcElementRatingValue: selectedElement.ifcElementRatingValue };
             }
             return item;
         });
@@ -224,7 +227,7 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{textAlign: 'center'}} >Rating</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ textAlign: 'center' }} >Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>

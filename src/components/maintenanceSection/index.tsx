@@ -204,7 +204,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            <Grid size={{ xs: 12, sm: 12 }}>
+                            {/* <Grid size={{ xs: 12, sm: 12 }}>
                                 {!maintenanceActionData.elementCode &&
                                     <SelectComponent
                                         label='Element Code'
@@ -215,7 +215,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                         disabled={maintenanceActionData.mode === 0}
                                     />
                                 }
-                            </Grid>
+                            </Grid> */}
 
                             <Grid size={{ xs: 12, sm: 12 }}>
                                 <SelectComponent
