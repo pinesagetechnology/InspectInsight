@@ -9,8 +9,8 @@ import { useSelector } from 'react-redux';
 import { getCurrentStructure, getStructureElements } from '../../store/Structure/selectors';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import { hasIFCFile } from '../../helper/db';
-import ElementsCodeGrid from '../../components/ratingElementCodeTable';
 import { getOriginalConditionRating, getElementCodeDataList } from '../../store/ConditionRating/selectors';
+import ElementsCodeGrid from '../../components/ratingElementCodeTable';
 
 const ConditionRating: React.FC = () => {
     const { goTo } = useNavigationManager();

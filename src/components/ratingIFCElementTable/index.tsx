@@ -18,7 +18,8 @@ import {
     useMediaQuery,
     Box,
     ToggleButtonGroup,
-    ToggleButton
+    ToggleButton,
+    Typography
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -227,7 +228,14 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ textAlign: 'center' }} >Rating</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ textAlign: 'center' }} >
+                                    <Stack direction={'column'}>
+                                        Rating
+                                        <Typography variant="caption">
+                                            CS1, CS2, CS3, CS4
+                                        </Typography>
+                                    </Stack>
+                                </StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>

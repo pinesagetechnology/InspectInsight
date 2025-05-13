@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -10,14 +10,13 @@ import {
     Paper,
     Button,
     Stack,
-    TextField,
-    styled,
     IconButton,
     Tooltip,
     Grid2 as Grid,
     useMediaQuery,
     Box,
-    Typography
+    Typography,
+    styled
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
@@ -31,7 +30,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
-import { validateConditionRating } from '../../helper/util';
+import RatingInputField from '../ratingInputField';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -67,138 +66,124 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
     whiteSpace: 'nowrap'
 }));
 
-const RatingInput = styled(TextField)(({ theme }) => ({
-    '& .MuiOutlinedInput-root': {
-        width: '50px',
-        height: '35px',
-        '& input': {
-            padding: '4px',
-            textAlign: 'center',
-        }
-    },
-    '@media (max-width: 600px)': {
-        '& .MuiOutlinedInput-root': {
-            width: '40px',
-            height: '30px',
-        }
-    }
-}));
-
 const ElementsCodeGrid: React.FC = () => {
+    const dispatch = useDispatch();
     const structureElementsCode = useSelector(getElementCodeDataList);
-    const [open, setOpen] = useState<boolean>(false);
 
+    // Local state for editing
+    const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [filteredElementCodeData, setFilteredElementCodeData] = useState<ElementCodeData[]>(structureElementsCode);
-    const [originalCondition, setOriginalCondition] = useState<number[]>([]);
+    const [open, setOpen] = useState<boolean>(false);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
 
-    useEffect(() => {
-        if (searchQuery) {
-            const filterd = structureElementsCode.map(item => {
-                const isMatch = item.elementCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    item.description.toLocaleLowerCase().includes(searchQuery.toLowerCase());
-                if (isMatch) {
-                    return item;
-                }
-                return null;
-            }).filter(element => element !== null) as ElementCodeData[];
-            setFilteredElementCodeData(filterd);
+    // Memoize filtered data
+    const filteredElementCodeData = useMemo(() => {
+        if (!searchQuery) return structureElementsCode;
 
-        } else {
-            setFilteredElementCodeData(structureElementsCode);
-        }
-    }, [searchQuery, structureElementsCode])
-
-    const dispatch = useDispatch();
-
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        element: ElementCodeData,
-        index: number
-    ) => {
-        const num = parseInt(event.target.value, 10);
-        const currentCondition = element.condition ? [...element.condition] : [0, 0, 0, 0];
-
-        const isValid = validateConditionRating(
-            currentCondition,
-            index,
-            num,
-            parseInt(element.totalQty, 10)
+        return structureElementsCode.filter(item =>
+            item.elementCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase())
         );
+    }, [structureElementsCode, searchQuery]);
 
-        currentCondition[index] = isValid ? num : 0;
+    // Get current data for an element (either from editing state or original)
+    const getCurrentElementData = useCallback((elementCode: string): ElementCodeData => {
+        if (editRowId === elementCode && editingElements.has(elementCode)) {
+            return editingElements.get(elementCode)!;
+        }
+        return structureElementsCode.find(item => item.elementCode === elementCode) ||
+            filteredElementCodeData.find(item => item.elementCode === elementCode)!;
+    }, [editRowId, editingElements, structureElementsCode, filteredElementCodeData]);
 
-        const updatedData = structureElementsCode.map((item) =>
-            item.elementCode === element.elementCode
-                ? { ...item, condition: currentCondition }
-                : item
+    const handleConditionChange = useCallback((element: ElementCodeData, index: number, value: number) => {
+        const currentElement = editRowId === element.elementCode && editingElements.has(element.elementCode)
+            ? editingElements.get(element.elementCode)!
+            : element;
+
+        const newCondition = [...(currentElement.condition || [0, 0, 0, 0])];
+        newCondition[index] = value;
+
+        const updatedElement = { ...currentElement, condition: newCondition };
+        setEditingElements(prev => new Map(prev).set(element.elementCode, updatedElement));
+    }, [editRowId, editingElements]);
+
+    const handleEditButton = useCallback((code: string) => {
+        if (editRowId === code) {
+            // Cancel editing
+            setEditRowId(null);
+            setEditingElements(prev => {
+                const newMap = new Map(prev);
+                newMap.delete(code);
+                return newMap;
+            });
+        } else {
+            // Start editing
+            setEditRowId(code);
+            const element = structureElementsCode.find(item => item.elementCode === code);
+            if (element) {
+                setEditingElements(prev => new Map(prev).set(code, { ...element }));
+            }
+        }
+    }, [editRowId, structureElementsCode]);
+
+    const handleSave = useCallback((elementCode: string) => {
+        const editedElement = editingElements.get(elementCode);
+        if (!editedElement) return;
+
+        // Update the global state with all changes
+        const updatedData = structureElementsCode.map(item =>
+            item.elementCode === elementCode ? editedElement : item
         );
 
         dispatch({
             type: actions.UPDATE_ELEMENT_CODE_LIST,
             payload: updatedData
         });
-    }
 
-    const handleEditButton = (code: string) => {
-        const element = structureElementsCode.find((item) => item.elementCode === code);
-        setOriginalCondition(element?.condition || []);
+        // Clean up local state
+        setEditRowId(null);
+        setEditingElements(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(elementCode);
+            return newMap;
+        });
+    }, [editingElements, structureElementsCode, dispatch]);
 
-        setEditRowId(editRowId === code ? null : code);
-    }
+    const handleCancel = useCallback((elementCode: string) => {
+        setEditRowId(null);
+        setEditingElements(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(elementCode);
+            return newMap;
+        });
+    }, []);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setOpen(false);
-    }
+    }, []);
 
-    const addAssessmentOnClick = (element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const addAssessmentOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-
         dispatch({
             type: actions.SET_SELECTED_ELEMENT_CODE,
             payload: element
         } as PayloadAction<ElementCodeData>);
-
         setOpen(true);
-    }
+    }, [dispatch]);
 
-    const cancelOnClick = (elementId: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const saveOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
+        handleSave(element.elementCode);
 
-        setEditRowId(null);
-        
-        const updatedElement = structureElementsCode.map((item) => {
-            if (elementId === item.elementCode) {
-                return { ...item, condition: [...originalCondition] };
-            }
-            return item;
-        })
-
-        dispatch({
-            payload: updatedElement,
-            type: actions.UPDATE_ELEMENT_CODE_LIST
-        });
-    }
-
-    const editOnClick = (elementCode: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        handleEditButton(elementCode)
-    }
-
-    const saveOnClick = (element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-
+        // Dispatch save action for persistence
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
         } as PayloadAction);
-
-        setEditRowId(null);
-    }
+    }, [handleSave, dispatch]);
 
     return (
         <React.Fragment>
@@ -220,7 +205,6 @@ const ElementsCodeGrid: React.FC = () => {
                             <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
                         </Box>
                     </Grid>
-
                 </Grid>
 
                 <TableContainer
@@ -237,57 +221,65 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{textAlign: 'center'}}>Rating</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ textAlign: 'center' }}>
+                                    <Stack direction={'column'}>
+                                        Rating
+                                        <Typography variant="caption">
+                                            CS1, CS2, CS3, CS4
+                                        </Typography>
+                                    </Stack>
+                                </StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredElementCodeData?.map((element: ElementCodeData) => (
-                                <TableRow key={element.elementCode} style={{ cursor: 'pointer' }}>
-                                    <StyledTableCell>{element.elementCode}</StyledTableCell>
-                                    <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.description}</StyledTableCell>
-                                    <StyledTableCell>{(element.totalQty)}</StyledTableCell>
-                                    <StyledTableCell>{element.unit}</StyledTableCell>
+                            {filteredElementCodeData?.map((element: ElementCodeData) => {
+                                const currentData = getCurrentElementData(element.elementCode);
+                                const isEditing = editRowId === element.elementCode;
 
-                                    <StyledTableCell className={styles.ratingConditionCell}>
-                                        <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
-                                            {[0, 1, 2, 3].map((_, index) => {
-                                                const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
-                                                const focusedKey = `${element.elementCode}-${index}`;
-                                                return (
-                                                    <Grid container key={`stack-${focusedKey}`} >
-                                                        <Grid size={3} >
-                                                            <p className={styles.conditionRatingHeader}>{`CS${index}`}</p>
-                                                            {(editRowId === element.elementCode) ? (
-                                                                <RatingInput
-                                                                    key={focusedKey}
-                                                                    variant="outlined"
-                                                                    value={fieldValue}
-                                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                                        handleConditionChange(e, element, index)
-                                                                    }}
-                                                                    slotProps={{
-                                                                        input: {
-                                                                            type: 'number',
-                                                                            inputProps: { min: 0 },
-                                                                        }
-                                                                    }}
-                                                                />)
-                                                                :
-                                                                (<Item key={focusedKey}>{fieldValue}</Item>)
-                                                            }
+                                return (
+                                    <TableRow key={element.elementCode} style={{ cursor: 'pointer' }}>
+                                        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
+                                            {element.elementCode}
+                                        </StyledTableCell>
+                                        <StyledTableCell>{element.description}</StyledTableCell>
+                                        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
+                                            {element.totalQty}
+                                        </StyledTableCell>
+                                        <StyledTableCell>{element.unit}</StyledTableCell>
+
+                                        <StyledTableCell className={styles.ratingConditionCell}>
+                                            <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
+                                                {[0, 1, 2, 3].map((index) => {
+                                                    const fieldValue = (currentData.condition && currentData.condition[index]) ? currentData.condition[index] : 0;
+                                                    const otherValues = currentData.condition || [0, 0, 0, 0];
+
+                                                    return (
+                                                        <Grid container key={`stack-${element.elementCode}-${index}`}>
+                                                            <Grid size={3}>
+                                                                {isEditing ? (
+                                                                    <RatingInputField
+                                                                        value={fieldValue}
+                                                                        onChange={(value) => handleConditionChange(element, index, value)}
+                                                                        index={index}
+                                                                        elementCode={element.elementCode}
+                                                                        totalQty={parseInt(element.totalQty, 10)}
+                                                                        otherValues={otherValues}
+                                                                    />
+                                                                ) : (
+                                                                    <Item>{fieldValue}</Item>
+                                                                )}
+                                                            </Grid>
                                                         </Grid>
+                                                    );
+                                                })}
+                                            </Stack>
+                                        </StyledTableCell>
 
-                                                    </Grid>
-                                                )
-                                            })}
-                                        </Stack>
-                                    </StyledTableCell>
-                                    <StyledTableCell>
-                                        <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
-                                            <React.Fragment>
-                                                {(editRowId === element.elementCode) ?
-                                                    (<React.Fragment>
+                                        <StyledTableCell>
+                                            <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
+                                                {isEditing ? (
+                                                    <React.Fragment>
                                                         <Stack direction="row" spacing={1}>
                                                             <Tooltip title="Add assessment">
                                                                 <IconButton
@@ -312,33 +304,37 @@ const ElementsCodeGrid: React.FC = () => {
                                                             <Tooltip title="Cancel condition rating">
                                                                 <IconButton
                                                                     color="secondary"
-                                                                    onClick={cancelOnClick(element.elementCode)}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleCancel(element.elementCode);
+                                                                    }}
                                                                     size={isPortrait ? 'small' : 'medium'}
                                                                 >
                                                                     <CancelIcon />
                                                                 </IconButton>
                                                             </Tooltip>
                                                         </Stack>
-                                                    </React.Fragment>)
-                                                    :
-                                                    (
-                                                        <Button
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            startIcon={<TroubleshootIcon />}
-                                                            disabled={(!!editRowId && element.elementCode !== editRowId)}
-                                                            onClick={editOnClick(element.elementCode)}
-                                                            size={isPortrait ? 'small' : 'medium'}
-                                                        >
-                                                            {isPortrait ? 'Rate' : 'Add rating'}
-                                                        </Button>
-                                                    )
-                                                }
-                                            </React.Fragment>
-                                        </Stack>
-                                    </StyledTableCell>
-                                </TableRow>
-                            ))}
+                                                    </React.Fragment>
+                                                ) : (
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        startIcon={<TroubleshootIcon />}
+                                                        disabled={!!editRowId && element.elementCode !== editRowId}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditButton(element.elementCode);
+                                                        }}
+                                                        size={isPortrait ? 'small' : 'medium'}
+                                                    >
+                                                        {isPortrait ? 'Rate' : 'Add rating'}
+                                                    </Button>
+                                                )}
+                                            </Stack>
+                                        </StyledTableCell>
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </TableContainer>
