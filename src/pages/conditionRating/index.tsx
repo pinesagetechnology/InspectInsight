@@ -18,8 +18,7 @@ const ConditionRating: React.FC = () => {
 
     const structureElements = useSelector(getOriginalConditionRating);
     const elementsCodeData = useSelector(getElementCodeDataList);
-console.log('elementsCodeData', elementsCodeData);
-console.log('structureElements', structureElements);
+
     const isOnline = useSelector(isOnlineSelector);
     const [show3DButton, setShow3DButton] = useState(true);
 

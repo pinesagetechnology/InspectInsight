@@ -15,6 +15,7 @@ export interface InspectionEntity {
     maintenanceActions: MaintenanceActionEntity[];
     conditionRatings?: ConditionRatingEntity[];
     inspectionStatus: string;
+    ifcPopulatedConditionRatingData?: IFCPopulatedConditionRating[];
 }
 
 export interface MaintenanceActionEntity {
@@ -52,4 +53,10 @@ export interface MaintenanceImageFileEntity {
 export interface uploadAPIResponse {
     id: string;
     name: string;
+}
+
+export interface IFCPopulatedConditionRating {
+  elementCode: string;
+  quantity: number;
+  totalRating: [number, number, number, number];
 }

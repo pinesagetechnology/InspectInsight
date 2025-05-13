@@ -2,7 +2,8 @@ import * as FRAGS from "@thatopen/fragments";
 import * as OBC from "@thatopen/components";
 import * as BUI from "@thatopen/ui";
 import * as WEBIFC from "web-ifc";
-import { StructureElement } from "../entities/structure";
+import { ClaculatedIFCElementCodeData, StructureElement } from "../entities/structure";
+import { IFCPopulatedConditionRating } from "../entities/inspection";
 
 const getDecompositionTree = async (
     indexer: OBC.IfcRelationsIndexer,
@@ -163,4 +164,71 @@ export const filterTree = (nodes: StructureElement[], query: string): StructureE
             return null;
         })
         .filter((node) => node !== null) as StructureElement[];
+}
+
+export const getMetaDataFromIFCStructureElement = (ifcStructureElemeents: StructureElement[]): ClaculatedIFCElementCodeData[] => {
+    const counts: Record<string, number> = {};
+
+    const traverse = (node: StructureElement) => {
+        if (node.children?.length === 0) {
+            const name = node.data.Name;
+            if (name) {
+                // strip off the final colon‐segment (numeric tag)
+                const parts = name.split(':');
+                const code = parts.length > 1
+                    ? parts.slice(0, -1).join(':')
+                    : name;
+
+                counts[code] = (counts[code] || 0) + 1;
+            }
+        }
+        node.children?.forEach(traverse);
+    }
+
+    ifcStructureElemeents.forEach(traverse);
+
+    const result: ClaculatedIFCElementCodeData[] = Object.entries(counts).map(([code, count]) => ({
+        elementCode: code,
+        totalQty: count,
+    } as ClaculatedIFCElementCodeData));
+
+    return result;
+}
+
+export const getRatingDistribution = (metaDataList: ClaculatedIFCElementCodeData[], ifcRatedElement: StructureElement[]) => {
+    const distMap: Record<string, [number, number, number, number]> = {};
+    const ifcRatedElementDist: IFCPopulatedConditionRating[] = []
+    metaDataList.forEach(({ elementCode, totalQty }) => {
+        distMap[elementCode] = [0, 0, 0, 0];
+        ifcRatedElementDist.push({
+            elementCode,
+            quantity: totalQty,
+            totalRating: [0, 0, 0, 0],
+        });
+    });
+
+    for (const el of ifcRatedElement) {
+        const parts = el.data.Name?.split(':') || [];
+        const code = parts.length > 1 ? parts.slice(0, -1).join(':') : el.data.Name;
+
+        if (!code) continue;
+        const bucket = distMap[code];
+
+        if (!bucket) continue;
+
+        el.condition?.forEach((val, i) => {
+            if (val > 0) {
+                bucket[i] += 1;
+            }
+        });
+    }
+
+    return ifcRatedElementDist.map((item) => {
+        const foundItem = Object.entries(distMap).find(([key]) => key === item.elementCode);
+        return {
+            ...item,
+            totalRating: foundItem ? foundItem[1] : [0, 0, 0, 0],
+        } as IFCPopulatedConditionRating;
+    })
+
 }

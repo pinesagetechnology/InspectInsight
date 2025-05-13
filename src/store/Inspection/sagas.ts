@@ -8,12 +8,13 @@ import {
     fetchPreviousInspectionsListSuccessful,
     setPreviousInspectionData,
     setInspectionDataFailure,
-    setPreviousRatedElements,
-    setInspectionFormValidationFlag
+    setInspectionFormValidationFlag,
+    setPreviousInspectionRatedIFCElements,
+    setPreviousInspectionRatedElement,
 } from './slice';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from "../../entities/inspection";
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement, setOriginalElementCodeDataList } from '../ConditionRating/slice';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement, setOriginalElementCodeDataList, setSelectedStructureElement } from '../ConditionRating/slice';
 import { getCurrentStructure, getElementsCodeData, getStructureElements } from '../Structure/selectors';
 import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
@@ -58,14 +59,14 @@ function* getPreviousInspectionValue(inspection?: InspectionEntity) {
 
         if (previousInspection?.conditionRatings) {
             yield put(setOriginalConditionRating(elementsWithCondition));
-            
+
             yield put(setOriginalElementCodeDataList(elementsCodeWithCondition));
 
             yield put(setDisplayConditionRatingElements(elementsWithCondition));
 
             const result = [] as StructureElement[];
 
-            yield call(getPreviousRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
+            yield call(getPreviousIFCRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
 
             yield put(setReatedElement(result));
         } else {
@@ -96,7 +97,8 @@ const getPreviousIFCElementCondirtionrating = (selectedStructureElements: Struct
             } else {
                 const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
-                    return { ...element, condition: [...foundCondition.ratings] }
+                    const index = foundCondition.ratings?.findIndex(x => x === 1) || 0;
+                    return { ...element, condition: [...foundCondition.ratings], ifcElementRatingValue: index.toString() } as StructureElement
                 }
             }
 
@@ -131,37 +133,60 @@ export function* getPreviousInspectionsList() {
     const inspections: InspectionEntity[] = yield call(services.fetchListOfPreviousInspections, selectedStructure.id);
 
     yield put(fetchPreviousInspectionsListSuccessful(inspections));
-    
+
     yield put(setShowLoading(false));
 }
 
 export function* getPreviousInspection(action: PayloadAction<string>) {
     const inspectionId = action.payload;
 
-    var listofInspections: InspectionEntity[] = yield select(getPreviousInspectionList); 
+    var listofInspections: InspectionEntity[] = yield select(getPreviousInspectionList);
 
     const selectedInspection = listofInspections.find(x => x.id === inspectionId) || {} as InspectionEntity;
 
     const selectedStructureElements: StructureElement[] = yield select(getStructureElements);
-    const result = [] as StructureElement[];
+    const selectedStructureElmemtsCodeData: ElementCodeData[] = yield select(getElementsCodeData);
 
-    yield call(getPreviousRatedElement, selectedStructureElements, (selectedInspection.conditionRatings || []), result);
+    const ifcElementResult = [] as StructureElement[];
+    const elementsCodeWithCondition = [] as ElementCodeData[];
 
-    yield put(setPreviousRatedElements(result));
+    if (selectedStructureElements && selectedStructureElements.length > 0) {
+
+        yield call(getPreviousIFCRatedElement, selectedStructureElements, (selectedInspection.conditionRatings || []), ifcElementResult);
+
+        yield put(setPreviousInspectionRatedIFCElements(ifcElementResult));
+    } else if (selectedStructureElmemtsCodeData && selectedStructureElmemtsCodeData.length > 0) {
+        yield call(previousRatedElementData, selectedStructureElmemtsCodeData, (selectedInspection.conditionRatings || []), elementsCodeWithCondition);
+
+        yield put(setPreviousInspectionRatedElement(elementsCodeWithCondition));
+    }
 
     yield put(setPreviousInspectionData(selectedInspection));
 }
 
-const getPreviousRatedElement = (selectedStructureElements: StructureElement[], previousConditionRating: ConditionRatingEntity[], output: StructureElement[]) => {
+const getPreviousIFCRatedElement = (selectedStructureElements: StructureElement[], previousConditionRating: ConditionRatingEntity[], output: StructureElement[]) => {
     if (previousConditionRating.length > 0) {
         for (const element of selectedStructureElements) {
             if (element.children && element.children.length > 0) {
-                getPreviousRatedElement(element.children, previousConditionRating, output);
+                getPreviousIFCRatedElement(element.children, previousConditionRating, output);
             } else {
                 const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
-                    output.push({ ...element, condition: [...foundCondition.ratings] })
+                    const index = foundCondition.ratings?.findIndex(x => x === 1) || 0;
+                    output.push({ ...element, condition: [...foundCondition.ratings], ifcElementRatingValue: index.toString() })
                 }
+            }
+        }
+    }
+    return output;
+}
+
+const previousRatedElementData = (selectedStructureElmemtsCodeData: ElementCodeData[], previousConditionRating: ConditionRatingEntity[], output: ElementCodeData[]) => {
+    if (previousConditionRating.length > 0) {
+        for (const element of selectedStructureElmemtsCodeData) {
+            const foundCondition = (previousConditionRating || [])?.find((x) => x.elementCode === element.elementCode);
+            if (foundCondition) {
+                output.push({ ...element, condition: [...foundCondition.ratings] })
             }
         }
     }

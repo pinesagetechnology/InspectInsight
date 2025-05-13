@@ -1,7 +1,7 @@
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { Structure } from '../../entities/structure';
+import { ClaculatedIFCElementCodeData, Structure } from '../../entities/structure';
 import {
     fetchStructuresData,
     setCurrentStructure,
@@ -11,7 +11,7 @@ import {
 import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
 import * as commonActions from '../Common/actions';
-import { addQuantityToElements } from '../../helper/ifcTreeManager';
+import { addQuantityToElements, getMetaDataFromIFCStructureElement } from '../../helper/ifcTreeManager';
 import { isOnlineSelector } from '../SystemAvailability/selectors';
 import { db, hasIFCFile, StructureState } from '../../helper/db';
 import { setPreviousInspectionData } from '../Inspection/slice';
@@ -29,8 +29,13 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
     yield put(commonActions.resetStateAction());
 
     const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
+    
+    let calculatedElementCodeData: ClaculatedIFCElementCodeData[] = [];
+    if (action.payload.elementMetadata.length > 0) {
+        calculatedElementCodeData = getMetaDataFromIFCStructureElement(action.payload.elementMetadata);
+    }
 
-    yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata }));
+    yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata, ifcCalculatedElementCodeData: calculatedElementCodeData }));
 
     yield put(setPreviousInspectionData(action.payload.previousInspection || {} as InspectionEntity));
 

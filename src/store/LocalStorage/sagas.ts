@@ -9,10 +9,12 @@ import { setCurrentInspection, setPreviousInspectionData, setPreviousInspectionL
 import { setDisplayConditionRatingElements, setOriginalConditionRating, setOriginalElementCodeDataList, setReatedElement, setReatedElementCode } from '../ConditionRating/slice';
 import { setMaintenanceActionList } from '../MaintenanceAction/slice';
 import { db, ReduxApplicationState, ensureDbReady } from '../../helper/db';
-import { ElementCodeData, StructureElement } from '../../entities/structure';
+import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { getInspectionComment } from '../InspectionComment/selectors';
 import { setInspectionComment } from '../InspectionComment/slice';
 import { setShowLoading } from '../Common/slice';
+import { getCurrentStructure } from '../Structure/selectors';
+import { setCurrentStructure } from '../Structure/slice';
 
 export function* locaStorageRootSaga() {
     yield takeLatest(actions.SAVE_IN_LOCAL_STORAGE, saveStateInLocalStorage);
@@ -28,6 +30,8 @@ export function* saveStateInLocalStorage() {
         // Ensure database is ready
         yield call(ensureDbReady);
 
+        const currentStructure: Structure = yield select(getCurrentStructure);
+
         const inspectionState: InspectionModel = yield select(getInspection);
         const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
         const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
@@ -39,9 +43,10 @@ export function* saveStateInLocalStorage() {
 
         const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
         const elementCodeDataList: ElementCodeData[] = yield select(getElementCodeDataList);
-        
+
         const stateToSave = {
             id: 'appState', // fixed key
+            currentStructure: currentStructure,
             inspectionData: {
                 currentInspection: inspectionState,
                 previoustInspection: previousInspection,
@@ -79,6 +84,8 @@ export function* saveStateInLocalStorage() {
                 yield call(delay, 500);
 
                 // Get fresh state
+                const currentStructure: Structure = yield select(getCurrentStructure);
+
                 const inspectionState: InspectionModel = yield select(getInspection);
                 const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
                 const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
@@ -94,6 +101,7 @@ export function* saveStateInLocalStorage() {
 
                 const stateToSave = {
                     id: 'appState',
+                    currentStructure: currentStructure,
                     inspectionData: {
                         currentInspection: inspectionState,
                         previoustInspection: previousInspection,
@@ -148,6 +156,7 @@ export function* mapLocalStorageToState() {
         );
 
         if (savedState) {
+            yield put(setCurrentStructure(savedState.currentStructure));
             // Map inspection
             yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
             yield put(setPreviousInspectionData(savedState.inspectionData.previoustInspection));

@@ -204,18 +204,20 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                                <SelectComponent
-                                    label='Element Code'
-                                    name='elemntCode'
-                                    selectedValue={formData.elementCode || ""}
-                                    setSelectedValueHandler={handleElementCodeChangeChange}
-                                    menuItemList={elementCodeItems}
-                                    disabled={maintenanceActionData.mode === 0}
-                                />
-                            </Grid>
+                            {/* <Grid size={{ xs: 12, sm: 12 }}>
+                                {!maintenanceActionData.elementCode &&
+                                    <SelectComponent
+                                        label='Element Code'
+                                        name='elemntCode'
+                                        selectedValue={formData.elementCode || ""}
+                                        setSelectedValueHandler={handleElementCodeChangeChange}
+                                        menuItemList={elementCodeItems}
+                                        disabled={maintenanceActionData.mode === 0}
+                                    />
+                                }
+                            </Grid> */}
 
-                            <Grid size={{ xs: 12, sm: 6 }}>
+                            <Grid size={{ xs: 12, sm: 12 }}>
                                 <SelectComponent
                                     label='MMS Act. No.'
                                     name='mmsActNo'

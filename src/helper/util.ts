@@ -28,3 +28,17 @@ export const FormatDateOnly = (value: string) => {
     day: 'numeric',
   });
 }
+
+export const validateConditionRating = (
+  condition: number[],
+  index: number,
+  newValue: number,
+  threshold: number) => {
+  if (index < 0 || index > 3) {
+    return false;
+  }
+
+  const conditionSum = condition.reduce((sum, val, i) => sum + (i === index ? newValue : val), 0);
+
+  return conditionSum <= threshold;
+}

@@ -23,6 +23,7 @@ export interface Structure {
     equipments?:string[];
     ifcfileaddress?:string;
     urgency: string;
+    ifcCalculatedElementCodeData?: ClaculatedIFCElementCodeData[];
 }
 
 export interface Location {
@@ -65,6 +66,7 @@ export interface StructureElement {
     children: StructureElement[];
     properties?: Property;
     quantity: number;
+    ifcElementRatingValue?: string;
 }
 
 export interface ElementCodeData {
@@ -75,4 +77,9 @@ export interface ElementCodeData {
     unit: string;
     totalQty: string;
     condition?: number[]
+}
+
+export interface ClaculatedIFCElementCodeData{
+    elementCode: string;
+    totalQty: number;
 }

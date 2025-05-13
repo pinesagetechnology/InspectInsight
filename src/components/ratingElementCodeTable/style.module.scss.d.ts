@@ -1,1 +1,2 @@
-export const radingConditionCell: string;
+export const ratingConditionCell: string;
+export const conditionRatingHeader: string;

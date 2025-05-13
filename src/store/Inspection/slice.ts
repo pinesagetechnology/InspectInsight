@@ -2,13 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { InspectionModel } from '../../models/inspectionModel';
 import { InspectionEntity } from '../../entities/inspection';
 import { resetStateAction } from '../Common/actions';
-import { StructureElement } from '../../entities/structure';
+import { ElementCodeData, StructureElement } from '../../entities/structure';
 
 export interface InspectionState {
     currentInspection: InspectionModel;
     previoustInspection: InspectionEntity;
     previoustInspectionsList: InspectionEntity[];
     previousInspectionRatedElement: StructureElement[];
+    previousInspectionIFCRatedElement: ElementCodeData[];
     isLoading: boolean;
     error: any;
     validationErrors: string[];
@@ -46,8 +47,11 @@ const InspectionSlice = createSlice({
         setInspectionProcessLoading: (state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload;
         },
-        setPreviousRatedElements: (state, action: PayloadAction<StructureElement[]>) => {
+        setPreviousInspectionRatedIFCElements: (state, action: PayloadAction<StructureElement[]>) => {
             state.previousInspectionRatedElement = action.payload;
+        },
+        setPreviousInspectionRatedElement: (state, action: PayloadAction<ElementCodeData[]>) => {
+            state.previousInspectionIFCRatedElement = action.payload;
         },
         setInspectionFormValidationFlag: (state, action: PayloadAction<string[]>) => {
             state.validationErrors = action.payload;
@@ -77,8 +81,9 @@ export const {
     setPreviousInspectionData,
     setInspectionDataFailure,
     setInspectionProcessLoading,
-    setPreviousRatedElements,
-    setInspectionFormValidationFlag
+    setInspectionFormValidationFlag,
+    setPreviousInspectionRatedIFCElements,
+    setPreviousInspectionRatedElement
 } = InspectionSlice.actions;
 
 export default InspectionSlice.reducer;

@@ -1,2 +1,2 @@
 export const conditionTextBox: string;
-export const radingConditionCell: string;
+export const ratingConditionCell: string;

@@ -16,7 +16,8 @@ import {
     Tooltip,
     Grid2 as Grid,
     useMediaQuery,
-    Box
+    Box,
+    Typography
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
@@ -30,6 +31,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
+import { validateConditionRating } from '../../helper/util';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -94,7 +96,7 @@ const ElementsCodeGrid: React.FC = () => {
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
- 
+
     useEffect(() => {
         if (searchQuery) {
             const filterd = structureElementsCode.map(item => {
@@ -116,36 +118,31 @@ const ElementsCodeGrid: React.FC = () => {
 
     const handleConditionChange = (
         event: React.ChangeEvent<HTMLInputElement>,
-        elementCode: string,
+        element: ElementCodeData,
         index: number
     ) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums) {
-            const num = parseInt(onlyNums, 10);
-            if (num >= 1 && num <= 4) {
-                const newData = structureElementsCode.map((item) => {
-                    if (item.elementCode === elementCode) {
-                        const newConditions: number[] = [0, 0, 0, 0];
-                        [0, 1, 2, 3].forEach(x => {
-                            if (index === x) {
-                                newConditions[x] = num;
-                            } else if (item.condition && item.condition![x]) {
-                                newConditions[x] = item.condition![x];
-                            } else {
-                                newConditions[x] = 0;
-                            }
-                        });
-                        return { ...item, condition: newConditions };
-                    }
-                    return item;
-                });
+        const num = parseInt(event.target.value, 10);
+        const currentCondition = element.condition ? [...element.condition] : [0, 0, 0, 0];
 
-                dispatch({
-                    payload: newData,
-                    type: actions.UPDATE_ELEMENT_CODE_LIST
-                });
-            }
-        }
+        const isValid = validateConditionRating(
+            currentCondition,
+            index,
+            num,
+            parseInt(element.totalQty, 10)
+        );
+
+        currentCondition[index] = isValid ? num : 0;
+
+        const updatedData = structureElementsCode.map((item) =>
+            item.elementCode === element.elementCode
+                ? { ...item, condition: currentCondition }
+                : item
+        );
+
+        dispatch({
+            type: actions.UPDATE_ELEMENT_CODE_LIST,
+            payload: updatedData
+        });
     }
 
     const handleEditButton = (code: string) => {
@@ -153,10 +150,6 @@ const ElementsCodeGrid: React.FC = () => {
         setOriginalCondition(element?.condition || []);
 
         setEditRowId(editRowId === code ? null : code);
-    }
-
-    const handleRowClick = (element: ElementCodeData) => {
-        setOriginalCondition(element.condition || []);
     }
 
     const handleClose = () => {
@@ -178,7 +171,7 @@ const ElementsCodeGrid: React.FC = () => {
         e.stopPropagation();
 
         setEditRowId(null);
-
+        
         const updatedElement = structureElementsCode.map((item) => {
             if (elementId === item.elementCode) {
                 return { ...item, condition: [...originalCondition] };
@@ -199,18 +192,12 @@ const ElementsCodeGrid: React.FC = () => {
 
     const saveOnClick = (element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        
+
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
         } as PayloadAction);
 
         setEditRowId(null);
-    }
-
-    const onRatingCellDoubleClock = (elementCode: string) => () => {
-        if (!(!!editRowId && elementCode !== editRowId)) {
-            handleEditButton(elementCode)
-        }
     }
 
     return (
@@ -249,47 +236,50 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Code</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{textAlign: 'center'}}>Rating</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredElementCodeData?.map((element: ElementCodeData) => (
-                                <TableRow key={element.elementCode} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
+                                <TableRow key={element.elementCode} style={{ cursor: 'pointer' }}>
                                     <StyledTableCell>{element.elementCode}</StyledTableCell>
                                     <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.description}</StyledTableCell>
                                     <StyledTableCell>{(element.totalQty)}</StyledTableCell>
                                     <StyledTableCell>{element.unit}</StyledTableCell>
 
-                                    <StyledTableCell
-                                        className={styles.radingConditionCell}
-                                        onDoubleClick={onRatingCellDoubleClock(element.elementCode || "")}
-                                    >
+                                    <StyledTableCell className={styles.ratingConditionCell}>
                                         <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
                                             {[0, 1, 2, 3].map((_, index) => {
                                                 const fieldValue = (element.condition && element.condition[index]) ? element.condition[index] : 0;
                                                 const focusedKey = `${element.elementCode}-${index}`;
-                                                return (editRowId === element.elementCode) ? (
-                                                    <RatingInput
-                                                        key={focusedKey}
-                                                        variant="outlined"
-                                                        value={fieldValue}
-                                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                            const newValue = parseInt(e.target.value) || 0;
-                                                            if (newValue >= 0 && newValue <= 4) {
-                                                                handleConditionChange(e, element.elementCode, index)
+                                                return (
+                                                    <Grid container key={`stack-${focusedKey}`} >
+                                                        <Grid size={3} >
+                                                            <p className={styles.conditionRatingHeader}>{`CS${index}`}</p>
+                                                            {(editRowId === element.elementCode) ? (
+                                                                <RatingInput
+                                                                    key={focusedKey}
+                                                                    variant="outlined"
+                                                                    value={fieldValue}
+                                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                                        handleConditionChange(e, element, index)
+                                                                    }}
+                                                                    slotProps={{
+                                                                        input: {
+                                                                            type: 'number',
+                                                                            inputProps: { min: 0 },
+                                                                        }
+                                                                    }}
+                                                                />)
+                                                                :
+                                                                (<Item key={focusedKey}>{fieldValue}</Item>)
                                                             }
-                                                        }}
-                                                        slotProps={{
-                                                            input: {
-                                                                type: 'number'
-                                                            }
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <Item key={focusedKey}>{fieldValue}</Item>
-                                                );
+                                                        </Grid>
+
+                                                    </Grid>
+                                                )
                                             })}
                                         </Stack>
                                     </StyledTableCell>

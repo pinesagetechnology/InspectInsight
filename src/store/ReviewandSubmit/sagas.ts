@@ -22,12 +22,13 @@ import { removeStateFromLocalStorage } from '../LocalStorage/sagas';
 import * as assetService from '../../services/assetManagementService';
 import { CapturedImage, getImageById } from '../../helper/db';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { SubmitDatapayload } from '../../models/submitDataModel';
 
 export function* reviewAndSubmitRootSaga() {
     yield takeLatest(actions.SUBMIT_DATA, saveData);
 }
 
-export function* saveData(action: PayloadAction<()=> void>) {
+export function* saveData(action: PayloadAction<SubmitDatapayload>) {
     try {
         yield put(setShowLoading(true));
 
@@ -86,7 +87,7 @@ export function* saveData(action: PayloadAction<()=> void>) {
                 } as ConditionRatingEntity
             });
         }
-console.log("conditionRatingEntity", conditionRatingEntity);
+
         const inspectionComment: string = yield select(getInspectionComment)
         const currentInspection: InspectionModel = yield select(getInspection);
         const newInspection =
@@ -95,6 +96,7 @@ console.log("conditionRatingEntity", conditionRatingEntity);
                 structureId: selectedStructure?.id,
                 maintenanceActions: [...maintenanceActionsEntity],
                 conditionRatings: [...conditionRatingEntity],
+                ifcPopulatedConditionRatingData: action.payload.ifcPopulatedConditionRating,
                 comment: inspectionComment
             } as InspectionEntity
 
@@ -107,8 +109,8 @@ console.log("conditionRatingEntity", conditionRatingEntity);
 
         yield call(removeStateFromLocalStorage);
 
-        if(action.payload)
-            yield call(action.payload);
+        if(action.payload.callback)
+            yield call(action.payload.callback);
     }
     catch (error: any) {
         if (error instanceof Error) {

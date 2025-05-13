@@ -83,29 +83,37 @@ const IFCViewerComponent: React.FC = () => {
     const highlightRatedElements = () => {
         if (model && fragMgrRef.current && ratedElements.length > 0 && highlighterRef.current) {
             ratedElements.forEach((item) => {
-                if (item.condition && item.condition.length) {
-                    const valid = item.condition.filter(c => c > 0);
-                    if (valid.length) {
-                        const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
+                if (item.ifcElementRatingValue) {
+                    let color: THREE.Color | undefined;
 
-                        const color = avg <= 1.5 ? new THREE.Color(0x00ff00)
-                            : avg <= 2.5 ? new THREE.Color(0xffff00)
-                                : avg <= 3.5 ? new THREE.Color(0xff9900)
-                                    : new THREE.Color(0xff0000);
-                        const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
-                        if (fragmentIDMap) {
-                            if (fragMgrRef.current?.list) {
-                                Object.keys(fragmentIDMap).forEach(fragmentId => {
-                                    const fragment = fragMgrRef.current?.list.get(fragmentId);
-                                    if (fragment) {
-                                        fragment.mesh.material[0] = new THREE.MeshBasicMaterial({
-                                            color: color,
-                                            transparent: true,
-                                            opacity: 0.5,
-                                        });
-                                    }
-                                })
-                            }
+                    switch (item.ifcElementRatingValue) {
+                        case "1":
+                            color = new THREE.Color(0x00ff00);
+                            break;
+                        case "2":
+                            color = new THREE.Color(0xffff00);
+                            break;
+                        case "3":
+                            color = new THREE.Color(0xff9900);
+                            break;
+                        case "4":
+                            color = new THREE.Color(0xff0000);
+                            break;
+                    }
+
+                    const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
+                    if (fragmentIDMap) {
+                        if (fragMgrRef.current?.list) {
+                            Object.keys(fragmentIDMap).forEach(fragmentId => {
+                                const fragment = fragMgrRef.current?.list.get(fragmentId);
+                                if (fragment && color) {
+                                    fragment.mesh.material[0] = new THREE.MeshBasicMaterial({
+                                        color: color,
+                                        transparent: true,
+                                        opacity: 0.5,
+                                    });
+                                }
+                            })
                         }
                     }
                 }

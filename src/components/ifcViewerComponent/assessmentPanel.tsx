@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { StructureElement } from "entities/structure";
-import { Divider, IconButton, Paper, Stack, Typography, TextField, styled, Tooltip, Box } from "@mui/material";
+import {
+    Divider,
+    IconButton,
+    Paper,
+    Stack,
+    Typography,
+    Box,
+    ToggleButtonGroup,
+    ToggleButton
+} from "@mui/material";
 import classNames from 'classnames';
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
-import { getDisplayElementList, getSelectedStructureElement } from '../../store/ConditionRating/selectors';
+import { getSelectedStructureElement } from '../../store/ConditionRating/selectors';
 import * as actions from "../../store/ConditionRating/actions";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -31,64 +40,14 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const [currentStructureElelement, setCurrentStructureElement] = useState<StructureElement>({} as StructureElement);
     const [open, setOpen] = useState<boolean>(false);
 
-    const displayElements = useSelector(getDisplayElementList);
-    const structureElement = useSelector(getSelectedStructureElement);
+    const selectedIFCElement = useSelector(getSelectedStructureElement);
 
     useEffect(() => {
-        if (structureElement) {
-            setOriginalCondition(structureElement?.condition || []);
-            setCurrentStructureElement(structureElement);
+        if (selectedIFCElement) {
+            setOriginalCondition(selectedIFCElement?.condition || []);
+            setCurrentStructureElement(selectedIFCElement);
         }
-    }, [structureElement])
-
-    const updateStructureElement = (newConditions: number[]) => {
-        const updatedElement = { ...currentStructureElelement, condition: newConditions };
-        const newData = displayElements.map((item) => {
-            if (item.data.expressID === updatedElement.data.expressID) {
-                return { ...item, condition: newConditions };
-            }
-            return item;
-        });
-
-        setCurrentStructureElement(() => {
-            dispatch({
-                payload: newData,
-                type: actions.UPDATE_DISPLAY_LIST_ITEMS,
-            });
-            return updatedElement;
-        });
-    }
-
-    const handleConditionChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        index: number
-    ) => {
-        const { value } = event.target;
-
-        // Remove non-digit characters
-        const onlyNums = value.replace(/[^0-9]/g, "");
-
-        if (onlyNums) {
-            const num = parseInt(onlyNums, 10);
-            if (num >= 1 && num <= 4) {
-                // Create new conditions array with updated value at the target index
-                const newConditions = [0, 1, 2, 3].map((i) =>
-                    i === index
-                        ? num
-                        : currentStructureElelement.condition && currentStructureElelement.condition[i]
-                            ? currentStructureElelement.condition[i]
-                            : 0
-                );
-                updateStructureElement(newConditions);
-            }
-        } else {
-            // Input cleared or invalid: update only the specified index to 0
-            const currentConditions = currentStructureElelement.condition || [0, 0, 0, 0];
-            const newConditions = [...currentConditions];
-            newConditions[index] = 0;
-            updateStructureElement(newConditions);
-        }
-    };
+    }, [selectedIFCElement])
 
     const saveOnClick = () => {
         if (!currentStructureElelement) return;
@@ -101,18 +60,13 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
     const cancelOnClick = () => {
         if (!currentStructureElelement) return;
-
-        const newData = displayElements.map((item) => {
-            if (item.data.expressID === currentStructureElelement.data.expressID) {
-                return { ...item, condition: originalCondition };
+        setCurrentStructureElement((prev) => {
+            return {
+                ...prev,
+                condition: originalCondition,
+                ifcElementRatingValue: ''
             }
-            return item;
-        });
-
-        dispatch({
-            payload: newData,
-            type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        } as PayloadAction<StructureElement[]>);
+        })
     }
 
     const addAssessmentOnClick = () => {
@@ -122,6 +76,18 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const handleClose = () => {
         setOpen(false);
     }
+
+    const handleOnRatingChange = (
+        event: React.MouseEvent<HTMLElement>,
+        value: string,
+    ) => {
+        const newRating = [0, 0, 0, 0];
+        newRating[parseInt(value) - 1] = 1;
+
+        setCurrentStructureElement(() => {
+            return { ...currentStructureElelement, condition: newRating, ifcElementRatingValue: value };
+        });
+    };
 
     return (
         <React.Fragment>
@@ -152,29 +118,28 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
                 <Stack>
                     <Typography variant='caption'>Element Name</Typography>
-                    <Typography variant='body2'>{structureElement?.data?.Name}</Typography>
+                    <Typography variant='body2'>{currentStructureElelement?.data?.Name}</Typography>
                 </Stack>
 
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
 
-                <Stack direction="row" spacing={1}>
-                    {[0, 1, 2, 3].map((_, index) => {
-                        const fieldValue = (currentStructureElelement.condition && currentStructureElelement.condition[index]) ? currentStructureElelement.condition[index] : 0;
-                        const focusedKey = `${currentStructureElelement?.data?.expressID}-${index}`;
-                        return (<TextField
-                            key={focusedKey}
-                            size="small"
-                            variant="outlined"
-                            margin="none"
-                            value={fieldValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                handleConditionChange(e, index)
-                            }
-                            className={styles.conditionTextBox}
-                            disabled={!isSelected}
-                        />)
-                    })}
-                </Stack>
+                <ToggleButtonGroup value={currentStructureElelement.ifcElementRatingValue}
+                    onChange={handleOnRatingChange}
+                    aria-label="Medium sizes"
+                    exclusive={true}>
+                    <ToggleButton value="1" key="CS1">
+                        CS1
+                    </ToggleButton>,
+                    <ToggleButton value="2" key="CS2">
+                        CS2
+                    </ToggleButton>,
+                    <ToggleButton value="3" key="CS3">
+                        CS3
+                    </ToggleButton>,
+                    <ToggleButton value="4" key="CS4">
+                        CS4
+                    </ToggleButton>,
+                </ToggleButtonGroup>
 
                 <Divider orientation="horizontal" flexItem />
                 <React.Fragment>

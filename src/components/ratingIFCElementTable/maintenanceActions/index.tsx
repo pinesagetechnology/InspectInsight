@@ -19,8 +19,8 @@ const IFCElementAssessmentFrom: React.FC = () => {
       id: "-1",
       isSectionExpanded: true,
       dateForCompletion: new Date().toISOString(),
-      elementCode: "",
-      elementDescription: "",
+      elementCode: selectedElemment.data.Name || "",
+      elementDescription: selectedElemment.data.Entity,
       elementId: selectedElemment.data.expressID.toString(),
       mode: 1
     } as MaintenanceActionModel;
