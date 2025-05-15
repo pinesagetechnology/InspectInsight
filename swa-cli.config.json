@@ -3,7 +3,7 @@
   "configurations": {
     "inspect-insight": {
       "appLocation": ".",
-      "outputLocation": "dist",
+      "outputLocation": "build",
       "appBuildCommand": "npm run build",
       "run": "npm start",
       "appDevserverUrl": "http://localhost:8080"

@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import store from './store';
 import { MainComponent } from './main';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Special function to ensure WASM files are properly cached
 const preloadWasmFiles = async () => {
@@ -75,28 +74,6 @@ root.render(
         </Provider>
     </React.StrictMode>
 );
-
-// Register the service worker with enhanced options
-serviceWorkerRegistration.register({
-    onSuccess: (registration) => {
-        console.log('Service Worker registration successful with scope: ', registration.scope);
-
-        // Preload WASM files after service worker is active
-        preloadWasmFiles();
-    },
-    onUpdate: (registration) => {
-        console.log('Service Worker updated. New content is available.');
-
-        // We could auto-refresh, but better to let the ServiceWorkerUpdate component handle it
-        // for better UX
-    },
-    onOffline: () => {
-        console.log('App is in offline mode. Using cached resources.');
-    },
-    onFailed: (error) => {
-        console.error('Service Worker registration failed:', error);
-    }
-});
 
 // Log some info about the environment
 console.log(`Running in ${process.env.NODE_ENV} mode`);

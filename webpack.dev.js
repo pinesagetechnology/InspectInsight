@@ -31,7 +31,7 @@ module.exports = merge(common, {
         },
         static: [
             {
-                directory: path.join(__dirname, 'dist'),
+                directory: path.join(__dirname, 'build'),
             },
             {
                 directory: path.join(__dirname, 'public'),

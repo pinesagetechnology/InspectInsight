@@ -9,7 +9,7 @@ dotenv.config(); // This will load your .env file into process.env
 module.exports = {
     entry: './src/index.tsx',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'build'),
         filename: 'static/js/[name].[contenthash:8].js',
         chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
         publicPath: '/'
@@ -45,14 +45,14 @@ module.exports = {
             patterns: [
                 {
                     from: path.resolve(__dirname, 'public'),
-                    to: path.resolve(__dirname, 'dist'),
+                    to: path.resolve(__dirname, 'build'),
                     globOptions: {
                         ignore: ['**/index.html'],
                     },
                 },
                 {
                     from: path.resolve(__dirname, 'staticwebapp.config.json'),
-                    to: path.resolve(__dirname, 'dist'),
+                    to: path.resolve(__dirname, 'build'),
                 },
                 {
                     from: 'public/manifest.json',

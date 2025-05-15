@@ -19,8 +19,6 @@ import {
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import RoutePreloader from './navigation/RoutePreloader';
 import { useOfflineNavigation } from './navigation';
 
 export const MainComponent: React.FunctionComponent = () => {
@@ -34,40 +32,6 @@ export const MainComponent: React.FunctionComponent = () => {
     const [offlineMode, setOfflineMode] = useState<boolean>(!navigator.onLine);
     const [snackMessage, setSnackMessage] = useState<string>('');
     const [snackSeverity, setSnackSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('info');
-
-    // Initial service worker registration with expanded callbacks
-    useEffect(() => {
-        serviceWorkerRegistration.register({
-            onSuccess: (registration) => {
-                console.log('Service Worker registration successful, app is ready for offline use!');
-                setSwRegistration(registration);
-                
-                // Show a success message briefly
-                setSnackMessage('App is ready for offline use');
-                setSnackSeverity('success');
-                setOpenSnack(true);
-            },
-            onUpdate: (registration) => {
-                console.log('Service Worker updated. New content is available.');
-                setSwRegistration(registration);
-            },
-            onOffline: () => {
-                console.log('App is running in offline mode');
-                setOfflineMode(true);
-                // Show offline notification
-                setSnackMessage('App is running in offline mode');
-                setSnackSeverity('warning');
-                setOpenSnack(true);
-            },
-            onFailed: (error) => {
-                console.error('Service Worker registration failed:', error);
-                // Show error notification
-                setSnackMessage('Failed to enable offline mode');
-                setSnackSeverity('error');
-                setOpenSnack(true);
-            }
-        });
-    }, []);
 
     // Monitor online/offline status
     useEffect(() => {
@@ -180,7 +144,6 @@ export const MainComponent: React.FunctionComponent = () => {
                 }>
                     <div className="d-flex flex-column min-vh-100">
                         <Header headerValue="Inspection App" />
-                        <RoutePreloader />
                         <Snackbar
                             open={openSnack}
                             autoHideDuration={6000}
