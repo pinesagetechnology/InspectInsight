@@ -8,3 +8,4 @@ export const SET_MAINTENANCE_FORM_DATA = "sagaAction/setMaintenanceFormData";
 export const SAVE_MAINTENANCE_IMAGE = "sagaAction/SaveMaintenanceImage";
 export const DELETE_MAINTENANCE_IMAGE = "sagaAction/DeleteMaintenanceImage";
 export const SET_SELECTED_MAINTENANCE_ITEM = "sagaAction/SetSelectedMaintenanceItem";
+export const SET_MAINTENANCE_VALIDATION = "sagaAction/SetMaintenanceValidation";

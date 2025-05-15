@@ -12,6 +12,7 @@ import {
     AccordionDetails,
     AccordionActions,
     useMediaQuery,
+    FormHelperText,
 } from '@mui/material';
 import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,12 +28,29 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/MaintenanceAction/actions";
 import ImageUpload from '../imageUploadComponent';
-import { getIsUploadingFlag, getMaintenanceFormData } from '../../store/MaintenanceAction/selectors';
+import { getIsUploadingFlag, getMaintenanceFormData, getMaintenanceValidationErrors } from '../../store/MaintenanceAction/selectors';
 import { getElementsCodeListData, getElementsCodes, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
 }
+
+const getValidationMessage = (fieldName: string): string => {
+    switch (fieldName) {
+        case 'inspectionComment':
+            return 'Please enter inspection comments';
+        case 'units':
+            return 'Please enter units';
+        case 'probability':
+            return 'Please select probability';
+        case 'consequenceOfInteraction':
+            return 'Please select consequence of interaction';
+        case 'activityInactionRisk':
+            return 'Please select activity inaction risk';
+        default:
+            return 'This field is required';
+    }
+};
 
 const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
@@ -45,6 +63,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
+    const validationErrors: string[] = useSelector(getMaintenanceValidationErrors);
 
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
@@ -54,22 +73,27 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
         } else {
             setFormData(currentMaintenanceFormData);
         }
-
     }, [maintenanceActionData, currentMaintenanceFormData])
 
     const handleSave = () => {
-        if (formData.id === "-1") {
-            dispatch({
-                payload: formData,
-                type: actions.ADD_MAINTENANCE_ACTION_DATA
-            } as PayloadAction<MaintenanceActionModel>)
-        } else {
-            dispatch({
-                payload: formData,
-                type: actions.UPDATE_MAINTENANCE_ACTION_DATA
-            } as PayloadAction<MaintenanceActionModel>)
-        }
+        dispatch({
+            type: actions.SET_MAINTENANCE_VALIDATION,
+            payload: formData
+        } as PayloadAction<MaintenanceActionModel>);
 
+        if (validationErrors.length === 0) {
+            if (formData.id === "-1") {
+                dispatch({
+                    payload: formData,
+                    type: actions.ADD_MAINTENANCE_ACTION_DATA
+                } as PayloadAction<MaintenanceActionModel>)
+            } else {
+                dispatch({
+                    payload: formData,
+                    type: actions.UPDATE_MAINTENANCE_ACTION_DATA
+                } as PayloadAction<MaintenanceActionModel>)
+            }
+        }
     };
 
     const handleCancel = () => {
@@ -203,19 +227,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            {/* <Grid size={{ xs: 12, sm: 12 }}>
-                                {!maintenanceActionData.elementCode &&
-                                    <SelectComponent
-                                        label='Element Code'
-                                        name='elemntCode'
-                                        selectedValue={formData.elementCode || ""}
-                                        setSelectedValueHandler={handleElementCodeChangeChange}
-                                        menuItemList={elementCodeItems}
-                                        disabled={maintenanceActionData.mode === 0}
-                                    />
-                                }
-                            </Grid> */}
-
                             <Grid size={{ xs: 12, sm: 12 }}>
                                 <SelectComponent
                                     label='MMS Act. No.'
@@ -240,7 +251,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-
                             <Grid size={12}>
                                 <TextField
                                     fullWidth
@@ -252,6 +262,8 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     multiline
                                     rows={2}
                                     disabled={maintenanceActionData.mode === 0}
+                                    error={validationErrors.includes('inspectionComment')}
+                                    helperText={validationErrors.includes('inspectionComment') ? getValidationMessage('inspectionComment') : ''}
                                 />
                             </Grid>
 
@@ -265,6 +277,8 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     onChange={handleChange}
                                     variant="outlined"
                                     disabled={maintenanceActionData.mode === 0}
+                                    error={validationErrors.includes('units')}
+                                    helperText={validationErrors.includes('units') ? getValidationMessage('units') : ''}
                                 />
                             </Grid>
 
@@ -276,9 +290,9 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     onDateChange={onDateChangeHandler}
                                     controlStyle={styles.datePicker}
                                     disabled={maintenanceActionData.mode === 0}
-
                                 />
                             </Grid>
+
                             <Grid size={{ xs: 12, sm: 4 }}>
                                 <SelectComponent
                                     label='Probability'
@@ -287,7 +301,11 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     setSelectedValueHandler={onSelectTypeChange}
                                     menuItemList={ProbabilityItem}
                                     disabled={maintenanceActionData.mode === 0}
+                                    error={validationErrors.includes('probability')}
                                 />
+                                {validationErrors.includes('probability') && (
+                                    <FormHelperText error>{getValidationMessage('probability')}</FormHelperText>
+                                )}
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 4 }}>
@@ -298,19 +316,28 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     setSelectedValueHandler={onSelectTypeChange}
                                     menuItemList={ConsequenceOfInteractionItem}
                                     disabled={maintenanceActionData.mode === 0}
+                                    error={validationErrors.includes('consequenceOfInteraction')}
                                 />
+                                {validationErrors.includes('consequenceOfInteraction') && (
+                                    <FormHelperText error>{getValidationMessage('consequenceOfInteraction')}</FormHelperText>
+                                )}
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 4 }}>
                                 <SelectComponent
-                                    label='Activity inaction risk'
+                                    label='Activity Inaction Risk'
                                     name='activityInactionRisk'
                                     selectedValue={formData.activityInactionRisk || ""}
                                     setSelectedValueHandler={onSelectTypeChange}
                                     menuItemList={ActivityInactionRiskItem}
                                     disabled={maintenanceActionData.mode === 0}
+                                    error={validationErrors.includes('activityInactionRisk')}
                                 />
+                                {validationErrors.includes('activityInactionRisk') && (
+                                    <FormHelperText error>{getValidationMessage('activityInactionRisk')}</FormHelperText>
+                                )}
                             </Grid>
+
                             {
                                 (maintenanceActionData.mode > 0) &&
                                 <Grid size={12}>
@@ -334,20 +361,46 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                     (maintenanceActionData.mode !== 0) ?
                         (
                             <React.Fragment>
-                                <Button onClick={handleSave} disabled={uploadFlag}>Save</Button>
-                                <Button onClick={handleCancel} disabled={uploadFlag}>Cancel</Button>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleSave}
+                                    disabled={uploadFlag}
+                                >
+                                    Save
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleCancel}
+                                    disabled={uploadFlag}
+                                >
+                                    Cancel
+                                </Button>
                             </React.Fragment>
                         )
                         :
                         (
                             <React.Fragment>
-                                <Button onClick={handleDelete}>Delete</Button>
-                                <Button onClick={handleEdit}>Edit</Button>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleEdit}
+                                    disabled={uploadFlag}
+                                >
+                                    Edit
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={handleDelete}
+                                    disabled={uploadFlag}
+                                >
+                                    Delete
+                                </Button>
                             </React.Fragment>
                         )
                 }
-
-
             </AccordionActions>
         </Accordion>
     )

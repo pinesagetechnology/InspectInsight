@@ -57,6 +57,6 @@ export interface uploadAPIResponse {
 
 export interface IFCPopulatedConditionRating {
   elementCode: string;
-  quantity: number;
-  totalRating: [number, number, number, number];
+  totalQty: number;
+  condition: [number, number, number, number];
 }

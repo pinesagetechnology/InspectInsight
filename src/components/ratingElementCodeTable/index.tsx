@@ -262,7 +262,6 @@ const ElementsCodeGrid: React.FC = () => {
                                                                         value={fieldValue}
                                                                         onChange={(value) => handleConditionChange(element, index, value)}
                                                                         index={index}
-                                                                        elementCode={element.elementCode}
                                                                         totalQty={parseInt(element.totalQty, 10)}
                                                                         otherValues={otherValues}
                                                                     />

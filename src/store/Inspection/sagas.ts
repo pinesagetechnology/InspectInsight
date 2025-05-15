@@ -18,7 +18,7 @@ import { setOriginalConditionRating, setDisplayConditionRatingElements, setReate
 import { getCurrentStructure, getElementsCodeData, getStructureElements } from '../Structure/selectors';
 import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
-import { getFormValidationErrors, getPreviousInspectionList } from './selectors';
+import { getFormValidationErrors, getInspection, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
 
 export function* inspectionRootSaga() {
@@ -195,16 +195,54 @@ const previousRatedElementData = (selectedStructureElmemtsCodeData: ElementCodeD
 
 export function* setInspectionValidation(action: PayloadAction<InspectionFomrValidationPayload>) {
     const validationerrors: string[] = yield select(getFormValidationErrors);
+    const inspectionDetail: InspectionModel = yield select(getInspection);
 
-    if (action.payload.value) {
+    const validateField = (name: string, value: any): boolean => {
+        switch (name) {
+            case 'inspectionLevel':
+            case 'inspectionType':
+            case 'weather':
+                return Boolean(value && value.trim());
+            case 'temperature':
+                const temp = parseFloat(value);
+                return !isNaN(temp) && temp >= -100 && temp <= 100;
+            case 'inspectionDate':
+            case 'nextInspectionProposedDate':
+                return Boolean(value && new Date(value).toString() !== 'Invalid Date');
+            case 'inspectorName':
+            case 'engineerName':
+                return Boolean(value && value.trim().length >= 2);
+            default:
+                return Boolean(value);
+        }
+    };
+
+    const isValid = validateField(action.payload.name, action.payload.value);
+    
+    if (isValid) {
+        // Remove field from validation errors if it's valid
         const updatedList = validationerrors.filter(x => x !== action.payload.name);
         yield put(setInspectionFormValidationFlag(updatedList));
-
-    } else if (!action.payload.value) {
+    } else {
+        // Add field to validation errors if it's invalid and not already there
         const hasValidated = validationerrors.some(x => x === action.payload.name);
-
         if (!hasValidated) {
             yield put(setInspectionFormValidationFlag([...validationerrors, action.payload.name]));
         }
     }
+
+    // Check if all required fields are valid
+    const requiredFields = [
+        'inspectionLevel',
+        'inspectionType',
+        'weather',
+        'temperature',
+        'inspectionDate',
+        'nextInspectionProposedDate',
+        'inspectorName',
+        'engineerName'
+    ];
+
+    const allFieldsValid = requiredFields.every(field => validateField(field, inspectionDetail[field as keyof InspectionModel]));
+    yield put(setNextButtonFlag(allFieldsValid));
 }

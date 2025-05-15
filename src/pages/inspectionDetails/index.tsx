@@ -4,7 +4,8 @@ import {
     TextField,
     Typography,
     Box,
-    Grid2 as Grid
+    Grid2 as Grid,
+    FormHelperText
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
@@ -17,6 +18,29 @@ import SelectComponent from '../../components/selectComponent';
 import { inspectionLevelItem, inspectionTypeItem, weatherTypeItem } from '../../constants';
 import DatePickerComponent from '../../components/dataPickerComponent';
 import styles from "./style.module.scss";
+
+const getValidationMessage = (fieldName: string): string => {
+    switch (fieldName) {
+        case 'inspectionLevel':
+            return 'Please select an inspection level';
+        case 'inspectionType':
+            return 'Please select an inspection type';
+        case 'weather':
+            return 'Please select weather conditions';
+        case 'temperature':
+            return 'Temperature must be between -100 and 100 degrees';
+        case 'inspectionDate':
+            return 'Please select a valid inspection date';
+        case 'nextInspectionProposedDate':
+            return 'Please select a valid next inspection date';
+        case 'inspectorName':
+            return 'Inspector name must be at least 2 characters';
+        case 'engineerName':
+            return 'Engineer name must be at least 2 characters';
+        default:
+            return 'This field is required';
+    }
+};
 
 const InspectionDetailForm: React.FC = () => {
     const inspectionDetail = useSelector(getInspection);
@@ -34,9 +58,7 @@ const InspectionDetailForm: React.FC = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-
         formValidation(name, value);
-
         dispatch({
             payload: {
                 ...inspectionDetail,
@@ -48,7 +70,6 @@ const InspectionDetailForm: React.FC = () => {
 
     const handleChangeTemprature = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-
         formValidation(name, value);
 
         if (value === "") {
@@ -73,7 +94,6 @@ const InspectionDetailForm: React.FC = () => {
 
     const onSelectTypeChange = (name: string, value: string) => {
         formValidation(name, value);
-
         dispatch({
             payload: {
                 ...inspectionDetail,
@@ -84,6 +104,7 @@ const InspectionDetailForm: React.FC = () => {
     }
 
     const onDateChangeHandler = (name: string, newDate: string) => {
+        formValidation(name, newDate);
         dispatch({
             payload: {
                 ...inspectionDetail,
@@ -110,6 +131,9 @@ const InspectionDetailForm: React.FC = () => {
                                 menuItemList={inspectionLevelItem}
                                 error={validationList.some(x => x === 'inspectionLevel')}
                             />
+                            {validationList.some(x => x === 'inspectionLevel') && (
+                                <FormHelperText error>{getValidationMessage('inspectionLevel')}</FormHelperText>
+                            )}
                         </Grid>
                         <Grid size={6}>
                             <DatePickerComponent
@@ -118,6 +142,8 @@ const InspectionDetailForm: React.FC = () => {
                                 isoDateValue={inspectionDetail.inspectionDate}
                                 onDateChange={onDateChangeHandler}
                                 controlStyle={styles.datePicker}
+                                error={validationList.some(x => x === 'inspectionDate')}
+                                helperText={validationList.some(x => x === 'inspectionDate') ? getValidationMessage('inspectionDate') : ''}
                             />
                         </Grid>
                         <Grid size={6}>
@@ -129,6 +155,9 @@ const InspectionDetailForm: React.FC = () => {
                                 menuItemList={inspectionTypeItem}
                                 error={validationList.some(x => x === 'inspectionType')}
                             />
+                            {validationList.some(x => x === 'inspectionType') && (
+                                <FormHelperText error>{getValidationMessage('inspectionType')}</FormHelperText>
+                            )}
                         </Grid>
                         <Grid size={6}>
                             <DatePickerComponent
@@ -137,6 +166,8 @@ const InspectionDetailForm: React.FC = () => {
                                 isoDateValue={inspectionDetail.nextInspectionProposedDate}
                                 onDateChange={onDateChangeHandler}
                                 controlStyle={styles.datePicker}
+                                error={validationList.some(x => x === 'nextInspectionProposedDate')}
+                                helperText={validationList.some(x => x === 'nextInspectionProposedDate') ? getValidationMessage('nextInspectionProposedDate') : ''}
                             />
                         </Grid>
                         <Grid size={6}>
@@ -150,6 +181,7 @@ const InspectionDetailForm: React.FC = () => {
                                 variant="outlined"
                                 slotProps={{ htmlInput: { min: "-100", max: "100", step: "0.1" } }}
                                 error={validationList.some(x => x === 'temperature')}
+                                helperText={validationList.some(x => x === 'temperature') ? getValidationMessage('temperature') : ''}
                             />
                         </Grid>
                         <Grid size={6}>
@@ -161,6 +193,9 @@ const InspectionDetailForm: React.FC = () => {
                                 menuItemList={weatherTypeItem}
                                 error={validationList.some(x => x === 'weather')}
                             />
+                            {validationList.some(x => x === 'weather') && (
+                                <FormHelperText error>{getValidationMessage('weather')}</FormHelperText>
+                            )}
                         </Grid>
                         <Grid size={6}>
                             <TextField
@@ -171,6 +206,7 @@ const InspectionDetailForm: React.FC = () => {
                                 onChange={handleChange}
                                 variant="outlined"
                                 error={validationList.some(x => x === 'inspectorName')}
+                                helperText={validationList.some(x => x === 'inspectorName') ? getValidationMessage('inspectorName') : ''}
                             />
                         </Grid>
                         <Grid size={6}>
@@ -182,6 +218,7 @@ const InspectionDetailForm: React.FC = () => {
                                 onChange={handleChange}
                                 variant="outlined"
                                 error={validationList.some(x => x === 'engineerName')}
+                                helperText={validationList.some(x => x === 'engineerName') ? getValidationMessage('engineerName') : ''}
                             />
                         </Grid>
                     </Grid>

@@ -5,7 +5,8 @@ import {
     setMaintenanceActionList,
     setMaintenanceAcctionError,
     setCurrentMaintenanceFormData,
-    setUploadFlag
+    setUploadFlag,
+    setMaintenanceValidationErrors
 } from './slice';
 import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile } from '../../models/inspectionModel';
 import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
@@ -22,6 +23,7 @@ export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.SAVE_MAINTENANCE_IMAGE, saveMaintenanceImageData);
     yield takeLatest(actions.DELETE_MAINTENANCE_IMAGE, deleteMaintenanceImageData);
     yield takeLatest(actions.SET_SELECTED_MAINTENANCE_ITEM, setSelectedMaintenanceItem);
+    yield takeLatest(actions.SET_MAINTENANCE_VALIDATION, validateMaintenanceForm);
 }
 
 export function* addNewItem(action: PayloadAction<MaintenanceActionModel>) {
@@ -73,6 +75,11 @@ export function* editItem(action: PayloadAction<string>) {
 }
 
 export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActionModel>) {
+    const isValid: boolean = yield call(validateMaintenanceForm, action);
+    if (!isValid) {
+        return;
+    }
+
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const newMaintenanceActionItem = {
@@ -90,11 +97,15 @@ export function* addMaintenanceActionValue(action: PayloadAction<MaintenanceActi
     })
 
     yield put(setCurrentMaintenanceFormData(newMaintenanceActionItem));
-
     yield put(setMaintenanceActionList(updatedList));
 }
 
 export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceActionModel>) {
+    const isValid: boolean = yield call(validateMaintenanceForm, action);
+    if (!isValid) {
+        return;
+    }
+
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedMaintenanceActionItem = {
@@ -111,7 +122,6 @@ export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceA
     })
 
     yield put(setCurrentMaintenanceFormData(updatedMaintenanceActionItem));
-
     yield put(setMaintenanceActionList([...(updatedList || [])]));
 }
 
@@ -200,4 +210,29 @@ export function* setSelectedMaintenanceItem(action: PayloadAction<string>) {
     });
 
     yield put(setMaintenanceActionList(updatedList || []));
+}
+
+export function* validateMaintenanceForm(action: PayloadAction<MaintenanceActionModel>) {
+    const formData = action.payload;
+    const validationErrors: string[] = [];
+
+    // Required fields validation
+    if (!formData.inspectionComment?.trim()) {
+        validationErrors.push('inspectionComment');
+    }
+    if (!formData.units?.trim()) {
+        validationErrors.push('units');
+    }
+    if (!formData.probability?.trim()) {
+        validationErrors.push('probability');
+    }
+    if (!formData.consequenceOfInteraction?.trim()) {
+        validationErrors.push('consequenceOfInteraction');
+    }
+    if (!formData.activityInactionRisk?.trim()) {
+        validationErrors.push('activityInactionRisk');
+    }
+
+    yield put(setMaintenanceValidationErrors(validationErrors));
+    return validationErrors.length === 0;
 }

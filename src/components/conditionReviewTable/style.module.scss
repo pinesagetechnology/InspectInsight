@@ -1,0 +1,50 @@
+// styles.module.scss
+
+.MuiTypography-root {
+    &.conditionRatingTitle {
+        font-family: 'poppins';
+        font-size: 14px;
+        font-weight: 600;
+        padding: 15px;
+    }
+}
+
+.MuiPaper-root {
+    &.tableMainContainer {
+        width: 100%;
+        overflow: hidden;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+.tableHead1 {
+    th {
+        background: white;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'poppins', sans-serif;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .tableTitle {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.tableHead2 {
+    th {
+        background: white;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'poppins', sans-serif;
+        padding: 0 0 10px 0;
+    }
+
+    .tableTitle {
+        display: flex;
+        align-items: center;
+    }
+}
