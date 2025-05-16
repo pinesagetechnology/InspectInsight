@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CircularProgress, Box, Typography, Button } from '@mui/material';
 import { ensureDbReady } from '../../helper/db';
+import { loadConfig } from '../../config';
 
 interface AppInitializationProps {
     children: React.ReactNode;
@@ -16,11 +17,11 @@ const AppInitialization: React.FC<AppInitializationProps> = ({ children }) => {
     useEffect(() => {
         const initializeApp = async () => {
             try {
+                // Load configuration first
+                await loadConfig();
+                
                 // Wait for database to be ready
                 await ensureDbReady();
-
-                // Here you can add other initialization steps as needed
-                // For example, load essential configuration or check for permissions
 
                 // Mark initialization as complete
                 setIsInitialized(true);
