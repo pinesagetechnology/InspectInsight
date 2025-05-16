@@ -1,27 +1,62 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# Testing
 /coverage
 
-# production
+# Production
 /build
+/dist
 
-# misc
-.DS_Store
+# Environment files
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# production
-/dist
+# IDE
 .vs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Android specific
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/*.iml
+android/.idea/
+android/app/release/
+android/app/debug/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+
+# Keystore files
+*.jks
+*.keystore
+android/app/release.keystore
+
+# Generated files
+android/release/output-metadata.json
+android/release/baselineProfiles/
+android/app/release/
+android/app/debug/
+
+# OS specific
+.DS_Store
+Thumbs.db
