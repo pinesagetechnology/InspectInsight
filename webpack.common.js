@@ -14,10 +14,19 @@ module.exports = {
         chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
         publicPath: '/'
     },
-    experiments: { asyncWebAssembly: true },
+    experiments: { 
+        asyncWebAssembly: true,
+        syncWebAssembly: true  // Add sync support for better compatibility
+    },
     resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm', '.css', '.scss'],
         modules: [__dirname, "node_modules"],
+        fallback: {
+            // Add fallbacks for better WASM support
+            "fs": false,
+            "path": false,
+            "crypto": false
+        }
     },
     module: {
         rules: [
@@ -33,6 +42,9 @@ module.exports = {
             {
                 test: /\.wasm$/,
                 type: "asset/resource",
+                generator: {
+                    filename: 'static/wasm/[name][ext]'  // Organize WASM files in a dedicated directory
+                }
             },
             {
                 test: /\.css$/i,
@@ -101,11 +113,11 @@ module.exports = {
                 },
                 {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
-                    to: 'web-ifc.wasm'
+                    to: 'static/wasm/web-ifc.wasm'  // Update WASM file paths
                 },
                 {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc-mt.wasm'),
-                    to: 'web-ifc-mt.wasm'
+                    to: 'static/wasm/web-ifc-mt.wasm'  // Update WASM file paths
                 },
             ]
         }),
@@ -125,5 +137,11 @@ module.exports = {
             'process.env.REACT_APP_GEN_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_GEN_API_LOCAL_URL),
 
         })
-    ]
+    ],
+    // Add performance hints for WASM
+    performance: {
+        hints: false,  // Disable size warnings for WASM files
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    }
 };

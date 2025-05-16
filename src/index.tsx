@@ -8,38 +8,45 @@ import { MainComponent } from './main';
 // Special function to ensure WASM files are properly cached
 const preloadWasmFiles = async () => {
     try {
+        const isNative = window.capacitor?.isNative;
+        const wasmBasePath = isNative ? 'public/static/wasm/' : '/static/wasm/';
+        
         // List of WASM files to preload
         const wasmFiles = [
-            '/web-ifc.wasm',
-            '/web-ifc-mt.wasm'
+            `${wasmBasePath}web-ifc.wasm`,
+            `${wasmBasePath}web-ifc-mt.wasm`
         ];
 
-        console.log('Preloading WASM files...');
+        console.log('Preloading WASM files...', { isNative, wasmBasePath });
 
         const preloadPromises = wasmFiles.map(async (wasmPath) => {
             try {
-                // First, try to get from cache
-                const cacheResponse = await caches.match(wasmPath);
-
-                if (cacheResponse) {
-                    console.log(`WASM file already cached: ${wasmPath}`);
-                    return;
+                if (!isNative) {
+                    // In web environment, use cache API
+                    const cacheResponse = await caches.match(wasmPath);
+                    if (cacheResponse) {
+                        console.log(`WASM file already cached: ${wasmPath}`);
+                        return;
+                    }
                 }
 
-                // If not in cache, fetch and prime the cache
+                // Fetch the WASM file
                 console.log(`Fetching WASM file: ${wasmPath}`);
                 const response = await fetch(wasmPath, {
-                    cache: 'force-cache' // Force browser to use cache
+                    cache: 'force-cache',
+                    headers: {
+                        'Content-Type': 'application/wasm'
+                    }
                 });
 
                 if (response.ok) {
                     console.log(`Successfully preloaded WASM: ${wasmPath}`);
-
-                    // Get the cache or create it if it doesn't exist
-                    const cache = await caches.open('wasm-files-v1');
-
-                    // Put the response in the cache
-                    await cache.put(wasmPath, response.clone());
+                    
+                    if (!isNative) {
+                        // Only use cache API in web environment
+                        const cache = await caches.open('wasm-files-v1');
+                        await cache.put(wasmPath, response.clone());
+                    }
                 } else {
                     console.warn(`Failed to preload WASM: ${wasmPath}, status: ${response.status}`);
                 }

@@ -193,48 +193,76 @@ const IFCViewerComponent: React.FC = () => {
                 if (loadedModel.hasProperties) idx.process(loadedModel);
             });
 
-            // Configure IFC Loader
+            // Configure IFC Loader with platform-specific WASM path
             const ifcLoader = components.get(OBC.IfcLoader);
-            ifcLoader.settings.wasm = { path: process.env.PUBLIC_URL + '/', absolute: true };
+            const isNative = window.capacitor?.isNative;
+            const wasmPath = isNative 
+                ? 'public/'  // In native app, files are in the public directory
+                : process.env.PUBLIC_URL + '/';  // In web, use the public URL
+            
+            console.log('IFC Loader Setup:', { isNative, wasmPath, currentPath: window.location.href });
+            
+            ifcLoader.settings.wasm = { 
+                path: wasmPath,
+                absolute: true
+            };
 
             // Load IFC
             try {
+                console.log('Starting IFC load process...', { isOnline, structureIFCPath });
                 let arrayBuffer: ArrayBuffer;
 
                 if (!isOnline) {
-                    // We're offline, try to load from local storage
+                    console.log('Attempting to load from local storage...');
                     const localFile = await getIFCFile(currentStructure.id);
+                    console.log('Local file check:', { hasLocalFile: !!localFile, structureId: currentStructure.id });
 
                     if (!localFile) {
-                        // No local file available
+                        console.error('No local file available');
                         dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY } as PayloadAction);
                         alert('3D model is not available offline. Please connect to internet to download the model first.');
                         return;
                     }
 
                     arrayBuffer = await localFile.blob.arrayBuffer();
+                    console.log('Successfully loaded local file, size:', arrayBuffer.byteLength);
                 } else {
-                    // We're online, fetch from URL
+                    console.log('Attempting to load from URL...');
                     const url = `https://psiassetsapidev.blob.core.windows.net/${structureIFCPath}`;
+                    console.log('Fetching from URL:', url);
+                    
                     const resp = await fetch(url);
+                    console.log('Fetch response:', { status: resp.status, ok: resp.ok });
 
                     if (!resp.ok) {
                         throw new Error(`Failed to fetch IFC file: ${resp.statusText}`);
                     }
 
                     arrayBuffer = await resp.arrayBuffer();
+                    console.log('Successfully loaded remote file, size:', arrayBuffer.byteLength);
                 }
 
+                console.log('Loading IFC model into viewer...');
                 const model = await ifcLoader.load(new Uint8Array(arrayBuffer));
+                console.log('Model loaded successfully:', { modelId: model.uuid });
                 setModel(model);
                 classifierObj.byEntity(model);
 
                 await classifierObj.bySpatialStructure(model, {
                     isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
-                })
+                });
+                console.log('Model classification complete');
 
             } catch (e) {
                 console.error('IFC load error:', e);
+                // Log more details about the error
+                if (e instanceof Error) {
+                    console.error('Error details:', {
+                        name: e.name,
+                        message: e.message,
+                        stack: e.stack
+                    });
+                }
                 dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY } as PayloadAction);
             }
 
