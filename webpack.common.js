@@ -16,7 +16,7 @@ module.exports = {
     },
     experiments: { asyncWebAssembly: true },
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm', '.css', '.scss'],
         modules: [__dirname, "node_modules"],
     },
     module: {
@@ -33,6 +33,35 @@ module.exports = {
             {
                 test: /\.wasm$/,
                 type: "asset/resource",
+            },
+            {
+                test: /\.css$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: '[name]__[local]--[hash:base64:5]',
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.scss$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: '[name]__[local]--[hash:base64:5]',
+                            },
+                        },
+                    },
+                    'sass-loader',
+                ],
             },
         ]
     },
@@ -55,14 +84,6 @@ module.exports = {
                     to: path.resolve(__dirname, 'build'),
                 },
                 {
-                    from: 'public/manifest.json',
-                    to: 'manifest.json'
-                },
-                {
-                    from: 'public/offline.html',
-                    to: 'offline.html'
-                },
-                {
                     from: 'public/favicon.ico',
                     to: 'favicon.ico'
                 },
@@ -77,22 +98,6 @@ module.exports = {
                 {
                     from: 'public/maskable_icon.png',
                     to: 'maskable_icon.png'
-                },
-                {
-                    from: 'public/screenshot1.png',
-                    to: 'screenshot1.png'
-                },
-                {
-                    from: 'public/screenshot2.png',
-                    to: 'screenshot2.png'
-                },
-                {
-                    from: 'public/screenshot_mobile1.png',
-                    to: 'screenshot_mobile1.png'
-                },
-                {
-                    from: 'public/screenshot_mobile2.png',
-                    to: 'screenshot_mobile2.png'
                 },
                 {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
