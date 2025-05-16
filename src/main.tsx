@@ -4,8 +4,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import Header from './components/header';
 import * as sharedActions from "./store/Common/actions";
-import InstallPrompt from './components/installPrompt';
-import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
 import AppInitialization from './components/appInitialization';
 import { AuthProvider } from './context';
 import {
@@ -167,8 +165,6 @@ export const MainComponent: React.FunctionComponent = () => {
                             </Alert>
                         </Snackbar>
                         <AppRouter />
-                        <InstallPrompt />
-                        <ServiceWorkerUpdate registration={swRegistration} />
                     </div>
                 </Suspense>
             </AuthProvider>
