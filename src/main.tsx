@@ -4,8 +4,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import Header from './components/header';
 import * as sharedActions from "./store/Common/actions";
-import InstallPrompt from './components/installPrompt';
-import ServiceWorkerUpdate from './components/serviceWorkerUpdate';
 import AppInitialization from './components/appInitialization';
 import { AuthProvider } from './context';
 import {
@@ -19,89 +17,15 @@ import {
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import RoutePreloader from './navigation/RoutePreloader';
-import { useOfflineNavigation } from './navigation';
 
 export const MainComponent: React.FunctionComponent = () => {
-    useOfflineNavigation();
     const dispatch = useDispatch();
 
     const isOnline = useOfflineSync();
     const showLoading = useSelector(getShowOverlayFlag);
     const [openSnack, setOpenSnack] = useState<boolean>(false);
-    const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
-    const [offlineMode, setOfflineMode] = useState<boolean>(!navigator.onLine);
     const [snackMessage, setSnackMessage] = useState<string>('');
     const [snackSeverity, setSnackSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('info');
-
-    // Initial service worker registration with expanded callbacks
-    useEffect(() => {
-        serviceWorkerRegistration.register({
-            onSuccess: (registration) => {
-                console.log('Service Worker registration successful, app is ready for offline use!');
-                setSwRegistration(registration);
-                
-                // Show a success message briefly
-                setSnackMessage('App is ready for offline use');
-                setSnackSeverity('success');
-                setOpenSnack(true);
-            },
-            onUpdate: (registration) => {
-                console.log('Service Worker updated. New content is available.');
-                setSwRegistration(registration);
-            },
-            onOffline: () => {
-                console.log('App is running in offline mode');
-                setOfflineMode(true);
-                // Show offline notification
-                setSnackMessage('App is running in offline mode');
-                setSnackSeverity('warning');
-                setOpenSnack(true);
-            },
-            onFailed: (error) => {
-                console.error('Service Worker registration failed:', error);
-                // Show error notification
-                setSnackMessage('Failed to enable offline mode');
-                setSnackSeverity('error');
-                setOpenSnack(true);
-            }
-        });
-    }, []);
-
-    // Monitor online/offline status
-    useEffect(() => {
-        const handleOnline = () => {
-            console.log('App is back online!');
-            setOfflineMode(false);
-            setSnackMessage('Connected to the server!');
-            setSnackSeverity('success');
-            setOpenSnack(true);
-            
-            // Attempt to update SW when coming back online
-            if (swRegistration) {
-                swRegistration.update().catch(err => {
-                    console.warn('Failed to update SW after coming online:', err);
-                });
-            }
-        };
-
-        const handleOffline = () => {
-            console.log('App is offline!');
-            setOfflineMode(true);
-            setSnackMessage('Disconnected from server! Using offline mode');
-            setSnackSeverity('warning');
-            setOpenSnack(true);
-        };
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, [swRegistration]);
 
     useEffect(() => {
         setOpenSnack(true);
@@ -123,33 +47,6 @@ export const MainComponent: React.FunctionComponent = () => {
         }
 
         setOpenSnack(false);
-    };
-
-    // Function to manually check for app updates
-    const checkForUpdates = () => {
-        if (swRegistration) {
-            dispatch({
-                type: sharedActions.SHOW_LOADING_OVERLAY
-            } as PayloadAction);
-            
-            swRegistration.update()
-                .then(() => {
-                    setSnackMessage('Checked for updates');
-                    setSnackSeverity('info');
-                    setOpenSnack(true);
-                })
-                .catch(error => {
-                    console.error('Error checking for updates:', error);
-                    setSnackMessage('Failed to check for updates');
-                    setSnackSeverity('error');
-                    setOpenSnack(true);
-                })
-                .finally(() => {
-                    dispatch({
-                        type: sharedActions.CLOSE_LOADING_OVERLAY
-                    } as PayloadAction);
-                });
-        }
     };
 
     const handleClose = () => {
@@ -180,7 +77,6 @@ export const MainComponent: React.FunctionComponent = () => {
                 }>
                     <div className="d-flex flex-column min-vh-100">
                         <Header headerValue="Inspection App" />
-                        <RoutePreloader />
                         <Snackbar
                             open={openSnack}
                             autoHideDuration={6000}
@@ -192,20 +88,11 @@ export const MainComponent: React.FunctionComponent = () => {
                                 severity={snackSeverity}
                                 variant="filled"
                                 sx={{ width: '100%' }}
-                                action={
-                                    offlineMode && (
-                                        <Button color="inherit" size="small" onClick={checkForUpdates}>
-                                            Check Updates
-                                        </Button>
-                                    )
-                                }
                             >
                                 {snackMessage}
                             </Alert>
                         </Snackbar>
                         <AppRouter />
-                        <InstallPrompt />
-                        <ServiceWorkerUpdate registration={swRegistration} />
                     </div>
                 </Suspense>
             </AuthProvider>

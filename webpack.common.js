@@ -9,15 +9,24 @@ dotenv.config(); // This will load your .env file into process.env
 module.exports = {
     entry: './src/index.tsx',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'build'),
         filename: 'static/js/[name].[contenthash:8].js',
         chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
         publicPath: '/'
     },
-    experiments: { asyncWebAssembly: true },
+    experiments: { 
+        asyncWebAssembly: true,
+        syncWebAssembly: true  // Add sync support for better compatibility
+    },
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.wasm', '.css', '.scss'],
         modules: [__dirname, "node_modules"],
+        fallback: {
+            // Add fallbacks for better WASM support
+            "fs": false,
+            "path": false,
+            "crypto": false
+        }
     },
     module: {
         rules: [
@@ -33,6 +42,38 @@ module.exports = {
             {
                 test: /\.wasm$/,
                 type: "asset/resource",
+                generator: {
+                    filename: 'static/wasm/[name][ext]'  // Organize WASM files in a dedicated directory
+                }
+            },
+            {
+                test: /\.css$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: '[name]__[local]--[hash:base64:5]',
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.scss$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: '[name]__[local]--[hash:base64:5]',
+                            },
+                        },
+                    },
+                    'sass-loader',
+                ],
             },
         ]
     },
@@ -45,22 +86,14 @@ module.exports = {
             patterns: [
                 {
                     from: path.resolve(__dirname, 'public'),
-                    to: path.resolve(__dirname, 'dist'),
+                    to: path.resolve(__dirname, 'build'),
                     globOptions: {
                         ignore: ['**/index.html'],
                     },
                 },
                 {
                     from: path.resolve(__dirname, 'staticwebapp.config.json'),
-                    to: path.resolve(__dirname, 'dist'),
-                },
-                {
-                    from: 'public/manifest.json',
-                    to: 'manifest.json'
-                },
-                {
-                    from: 'public/offline.html',
-                    to: 'offline.html'
+                    to: path.resolve(__dirname, 'build'),
                 },
                 {
                     from: 'public/favicon.ico',
@@ -79,28 +112,12 @@ module.exports = {
                     to: 'maskable_icon.png'
                 },
                 {
-                    from: 'public/screenshot1.png',
-                    to: 'screenshot1.png'
-                },
-                {
-                    from: 'public/screenshot2.png',
-                    to: 'screenshot2.png'
-                },
-                {
-                    from: 'public/screenshot_mobile1.png',
-                    to: 'screenshot_mobile1.png'
-                },
-                {
-                    from: 'public/screenshot_mobile2.png',
-                    to: 'screenshot_mobile2.png'
-                },
-                {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc.wasm'),
-                    to: 'web-ifc.wasm'
+                    to: 'static/wasm/web-ifc.wasm'  // Update WASM file paths
                 },
                 {
                     from: path.resolve(__dirname, 'node_modules/web-ifc/web-ifc-mt.wasm'),
-                    to: 'web-ifc-mt.wasm'
+                    to: 'static/wasm/web-ifc-mt.wasm'  // Update WASM file paths
                 },
             ]
         }),
@@ -120,5 +137,11 @@ module.exports = {
             'process.env.REACT_APP_GEN_API_LOCAL_URL': JSON.stringify(process.env.REACT_APP_GEN_API_LOCAL_URL),
 
         })
-    ]
+    ],
+    // Add performance hints for WASM
+    performance: {
+        hints: false,  // Disable size warnings for WASM files
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    }
 };

@@ -7,12 +7,15 @@ export interface MaintenanceActionState {
     maintenanceActions: MaintenanceActionModel[];
     isUploading: boolean;
     error: any;
+    validationErrors: string[];
 }
 
 const initialState = {
     isUploading: false,
-    maintenanceFormData: {
-    } as MaintenanceActionModel
+    maintenanceFormData: {} as MaintenanceActionModel,
+    validationErrors: [],
+    error: '',
+    maintenanceActions: []
 } as MaintenanceActionState
 
 const MaintenanceActionSlice = createSlice({
@@ -30,14 +33,18 @@ const MaintenanceActionSlice = createSlice({
         },
         setMaintenanceAcctionError: (state, action: PayloadAction<any>) => {
             state.error = action.payload;
+        },
+        setMaintenanceValidationErrors: (state, action: PayloadAction<string[]>) => {
+            state.validationErrors = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
             state.maintenanceActions = [] as MaintenanceActionModel[];
-            state.maintenanceFormData = {}as MaintenanceActionModel;
+            state.maintenanceFormData = {} as MaintenanceActionModel;
             state.error = "";
             state.isUploading = false;
+            state.validationErrors = [];
         });
     },
 });
@@ -47,6 +54,7 @@ export const {
     setCurrentMaintenanceFormData,
     setMaintenanceAcctionError,
     setMaintenanceActionList,
+    setMaintenanceValidationErrors
 } = MaintenanceActionSlice.actions;
 
 export default MaintenanceActionSlice.reducer;

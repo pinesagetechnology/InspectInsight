@@ -202,8 +202,8 @@ export const getRatingDistribution = (metaDataList: ClaculatedIFCElementCodeData
         distMap[elementCode] = [0, 0, 0, 0];
         ifcRatedElementDist.push({
             elementCode,
-            quantity: totalQty,
-            totalRating: [0, 0, 0, 0],
+            totalQty: totalQty,
+            condition: [0, 0, 0, 0],
         });
     });
 
@@ -227,7 +227,7 @@ export const getRatingDistribution = (metaDataList: ClaculatedIFCElementCodeData
         const foundItem = Object.entries(distMap).find(([key]) => key === item.elementCode);
         return {
             ...item,
-            totalRating: foundItem ? foundItem[1] : [0, 0, 0, 0],
+            condition: foundItem ? foundItem[1] : [0, 0, 0, 0],
         } as IFCPopulatedConditionRating;
     })
 

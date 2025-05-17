@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-    TableCell,
-    Paper,
     TextField,
     styled,
     Grid2 as Grid,
 } from '@mui/material';
 import { validateConditionRating } from '../../helper/util';
+import { useDebounce } from '../../customHook/debounce';
 
 const RatingInput = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
@@ -30,18 +29,40 @@ const RatingInputField: React.FC<{
     value: number;
     onChange: (value: number) => void;
     index: number;
-    elementCode: string;
     totalQty: number;
     otherValues: number[];
     disabled?: boolean;
-}> = React.memo(({ value, onChange, index, elementCode, totalQty, otherValues, disabled }) => {
+}> = React.memo(({ value, onChange, index, totalQty, otherValues, disabled }) => {
     const [localValue, setLocalValue] = useState(value);
     const [hasError, setHasError] = useState(false);
+    const debouncedValue = useDebounce(localValue, 500); // 500ms delay
 
     // Sync local value with prop value when it changes from outside
     useEffect(() => {
         setLocalValue(value);
     }, [value]);
+
+    // Handle debounced value changes
+    useEffect(() => {
+        if (debouncedValue === value) return; // Skip if value hasn't changed
+
+        // Create condition array for validation
+        const currentCondition = [...otherValues];
+        currentCondition[index] = debouncedValue;
+
+        const isValid = validateConditionRating(
+            currentCondition,
+            index,
+            debouncedValue,
+            parseInt(totalQty.toString(), 10)
+        );
+
+        setHasError(!isValid);
+
+        if (isValid) {
+            onChange(debouncedValue);
+        }
+    }, [debouncedValue, onChange, index, totalQty, otherValues, value]);
 
     const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = event.target.value;
@@ -60,24 +81,8 @@ const RatingInputField: React.FC<{
             return;
         }
 
-        // Create condition array for validation
-        const currentCondition = [...otherValues];
-        currentCondition[index] = num;
-
-        const isValid = validateConditionRating(
-            currentCondition,
-            index,
-            num,
-            parseInt(totalQty.toString(), 10)
-        );
-
-        setHasError(!isValid);
         setLocalValue(num);
-
-        if (isValid) {
-            onChange(num);
-        }
-    }, [onChange, index, totalQty, otherValues]);
+    }, []);
 
     return (
         <RatingInput

@@ -5,24 +5,6 @@ const common = require("./webpack.common");
 module.exports = merge(common, {
     mode: "development",
     devtool: "inline-source-map",
-    module: {
-        rules: [
-            {
-                test: /\.scss$/i,
-                use: [
-                    'style-loader',
-                    {
-                        loader: 'dts-css-modules-loader',
-                        options: {
-                            namedExport: true,
-                        }
-                    },
-                    'css-loader',
-                    'sass-loader'
-                ],
-            }
-        ]
-    },
     devServer: {
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -31,7 +13,7 @@ module.exports = merge(common, {
         },
         static: [
             {
-                directory: path.join(__dirname, 'dist'),
+                directory: path.join(__dirname, 'build'),
             },
             {
                 directory: path.join(__dirname, 'public'),

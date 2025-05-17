@@ -226,8 +226,8 @@ const ReviewInspectionPage: React.FC = () => {
                       <TableRow key={index}>
                         <StyledTableCell>{row.elementCode}</StyledTableCell>
                         {/* <StyledTableCell>{row.elementDescription}</StyledTableCell> */}
-                        <StyledTableCell>{row.quantity}</StyledTableCell>
-                        <StyledTableCell>{row.totalRating?.join(',')}</StyledTableCell>
+                        <StyledTableCell>{row.totalQty}</StyledTableCell>
+                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
                       </TableRow>
                     ))}
                   </TableBody>

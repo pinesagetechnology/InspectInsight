@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { FormHelperText } from '@mui/material';
 
 interface DatePickerComponentProps {
     name: string;
@@ -10,6 +11,8 @@ interface DatePickerComponentProps {
     controlStyle?: string;
     isoDateValue: string;
     disabled?: boolean;
+    error?: boolean;
+    helperText?: string;
     onDateChange: (name: string, newDate: string) => void;
 }
 
@@ -19,6 +22,8 @@ const DatePickerComponent: React.FunctionComponent<DatePickerComponentProps> = (
     controlStyle,
     isoDateValue,
     disabled,
+    error,
+    helperText,
     onDateChange
 }: DatePickerComponentProps) => {
     // Convert ISO string to dayjs object
@@ -32,16 +37,27 @@ const DatePickerComponent: React.FunctionComponent<DatePickerComponentProps> = (
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-                name={name}
-                label={label}
-                value={initialDate}
-                onChange={handleDateChange}
-                className={controlStyle}
-                disabled={disabled}
-            />
-        </LocalizationProvider>
+        <div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                    name={name}
+                    label={label}
+                    value={initialDate}
+                    onChange={handleDateChange}
+                    className={controlStyle}
+                    disabled={disabled}
+                    slotProps={{
+                        textField: {
+                            error: error,
+                            fullWidth: true
+                        }
+                    }}
+                />
+            </LocalizationProvider>
+            {error && helperText && (
+                <FormHelperText error>{helperText}</FormHelperText>
+            )}
+        </div>
     );
 }
 

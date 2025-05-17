@@ -91,8 +91,8 @@ const InspectorCommentForm: React.FC = () => {
           :
           ifcPopulatedConditionRating.map(element => ({
             elementCode: element.elementCode,
-            condition: element.totalRating,
-            quantity: element.quantity,
+            condition: element.condition,
+            quantity: element.totalQty,
           }))
         ,
         maintenanceActions: maintenanceActions.map(action => ({
