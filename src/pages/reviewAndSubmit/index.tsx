@@ -14,7 +14,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  styled
+  styled,
+  Stack
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import FormPageWrapper from '../../components/formPageWrapper';
@@ -38,6 +39,9 @@ import { getIFCCalculatedElementCodeData } from '../../store/Structure/selectors
 import { getRatingDistribution } from '../../helper/ifcTreeManager';
 import { IFCPopulatedConditionRating } from '../../entities/inspection';
 import { SubmitDatapayload } from '../../models/submitDataModel';
+import ImageIcon from '@mui/icons-material/Image';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import ImageCarousel from '../../components/imageCarousel';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -89,6 +93,8 @@ const ReviewInspectionPage: React.FC = () => {
   const { goTo } = useNavigationManager();
 
   const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [isCarouselOpen, setIsCarouselOpen] = useState(false);
 
   const isAllCompleted = useSelector(isAllStepsCompleted);
   const inspection = useSelector(getInspection);
@@ -129,6 +135,13 @@ const ReviewInspectionPage: React.FC = () => {
       }
     } as PayloadAction<SubmitDatapayload>);
   }
+
+  const handleImageClick = (images: string[]) => {
+    if (images && images.length > 0) {
+      setSelectedImages(images);
+      setIsCarouselOpen(true);
+    }
+  };
 
   return (
     <FormPageWrapper isFooterVisible={true}>
@@ -210,29 +223,6 @@ const ReviewInspectionPage: React.FC = () => {
           </SectionHeader>
           <AccordionDetails>
             <TableContainer>
-              {ratedIFCElements?.length > 0 && (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableHeaderCell>Code</StyledTableHeaderCell>
-                      {/* <StyledTableHeaderCell>Description</StyledTableHeaderCell> */}
-                      <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
-                      {/* <StyledTableHeaderCell>Unit</StyledTableHeaderCell> */}
-                      <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {ifcPopulatedConditionRating?.map((row, index) => (
-                      <TableRow key={index}>
-                        <StyledTableCell>{row.elementCode}</StyledTableCell>
-                        {/* <StyledTableCell>{row.elementDescription}</StyledTableCell> */}
-                        <StyledTableCell>{row.totalQty}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
               {ratedStructureElements?.length > 0 && (
                 <Table size="small">
                   <TableHead>
@@ -241,7 +231,16 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
                       <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
+                      <StyledTableHeaderCell align='center'>
+                        Condition rating
+                        <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                          {[1, 2, 3, 4].map((rating) => (
+                            <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                              CS{rating}
+                            </Box>
+                          ))}
+                        </Stack>
+                      </StyledTableHeaderCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -251,7 +250,52 @@ const ReviewInspectionPage: React.FC = () => {
                         <StyledTableCell>{row.description}</StyledTableCell>
                         <StyledTableCell>{row.totalQty}</StyledTableCell>
                         <StyledTableCell>{row.unit}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(' , ')}</StyledTableCell>
+                        <StyledTableCell>
+                          <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                            {row.condition?.map((value, i) => (
+                              <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
+                                {value}
+                              </Box>
+                            ))}
+                          </Stack>
+                        </StyledTableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              {ratedIFCElements?.length > 0 && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                      <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
+                      <StyledTableHeaderCell align='center'>
+                        Condition rating
+                        <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                          {[1, 2, 3, 4].map((rating) => (
+                            <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                              CS{rating}
+                            </Box>
+                          ))}
+                        </Stack>
+                      </StyledTableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {ifcPopulatedConditionRating?.map((row, index) => (
+                      <TableRow key={index}>
+                        <StyledTableCell>{row.elementCode}</StyledTableCell>
+                        <StyledTableCell>{row.totalQty}</StyledTableCell>
+                        <StyledTableCell>
+                          <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                            {row.condition?.map((value, i) => (
+                              <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
+                                {value}
+                              </Box>
+                            ))}
+                          </Stack>
+                        </StyledTableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -294,6 +338,7 @@ const ReviewInspectionPage: React.FC = () => {
                     <StyledTableHeaderCell>Probability</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Consequen.</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Activity</StyledTableHeaderCell>
+                    <StyledTableHeaderCell align="center">Images</StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -308,6 +353,17 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.probability}</StyledTableCell>
                       <StyledTableCell>{row.consequenceOfInteraction}</StyledTableCell>
                       <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>
+                      <StyledTableCell align="center">
+                        <IconButton
+                          onClick={() => handleImageClick(row.photos?.map(photo => photo.url) || [])}
+                          disabled={!row.photos || row.photos.length === 0}
+                          sx={{ 
+                            color: row.photos && row.photos.length > 0 ? 'primary.main' : 'action.disabled'
+                          }}
+                        >
+                          {row.photos && row.photos.length > 0 ? <ImageIcon /> : <ImageNotSupportedIcon />}
+                        </IconButton>
+                      </StyledTableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -355,6 +411,12 @@ const ReviewInspectionPage: React.FC = () => {
           Review and Submit Data
         </Button>
       </Box>
+
+      <ImageCarousel
+        open={isCarouselOpen}
+        onClose={() => setIsCarouselOpen(false)}
+        images={selectedImages}
+      />
     </FormPageWrapper>
   );
 };
