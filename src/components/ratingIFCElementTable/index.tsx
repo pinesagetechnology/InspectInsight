@@ -249,8 +249,8 @@ const StructureElementGrid: React.FC = () => {
                                         }
                                     </StyledTableCell>
 
-                                    {!element.children?.length && (
-                                        <StyledTableCell className={styles.ratingConditionCell}>
+                                    <StyledTableCell className={styles.ratingConditionCell}>
+                                        {!element.children?.length && (
                                             <Stack spacing={2} sx={{ alignItems: 'center' }}>
 
                                                 <ToggleButtonGroup value={element.ifcElementRatingValue}
@@ -273,8 +273,8 @@ const StructureElementGrid: React.FC = () => {
                                                 </ToggleButtonGroup>
 
                                             </Stack>
-                                        </StyledTableCell>
-                                    )}
+                                        )}
+                                    </StyledTableCell>
                                     <StyledTableCell>
                                         <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                                             {!element.children?.length && (

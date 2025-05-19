@@ -10,9 +10,9 @@ export const loginUser = async (request: AuthRequest) => {
     return result.data;
 }
 
-export const logoutUser = async (userId: string, token: string) => {
+export const logoutUser = async (userId: string) => {
     await setAuthorize();;
-    const uri = `api/User/logout?userId=${userId}&accessToken=${token}`;
+    const uri = `api/User/logout?userId=${userId}`;
     const result = await api.post(uri, {});
     return result.data;
 }

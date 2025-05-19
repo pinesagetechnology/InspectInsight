@@ -64,13 +64,17 @@ export function* userLogin(action: PayloadAction<any>) {
 
 export function* userLogout() {
     try {
-        const token = localStorage.getItem('token');
         const userId: string = yield select(getUserId);
 
-        if (token && userId) {
+        if (userId) {
             // Call the logout service if we have a token and userId
-            yield call(services.logoutUser, userId, token);
+            yield call(services.logoutUser, userId);
         }
+
+        // Clear localStorage first
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('loggedInUserId');
 
         yield put(setLoginData({} as AuthData)); // Clear auth data in Redux
 

@@ -67,6 +67,8 @@ export interface StructureElement {
     properties?: Property;
     quantity: number;
     ifcElementRatingValue?: string;
+    isSplit?:boolean;
+    splitElements? : StructureElement[];
 }
 
 export interface ElementCodeData {
