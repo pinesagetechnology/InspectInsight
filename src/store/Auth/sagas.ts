@@ -71,6 +71,11 @@ export function* userLogout() {
             yield call(services.logoutUser, userId);
         }
 
+        // Clear localStorage first
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('loggedInUserId');
+
         yield put(setLoginData({} as AuthData)); // Clear auth data in Redux
 
         yield put(setShowLoading(false));

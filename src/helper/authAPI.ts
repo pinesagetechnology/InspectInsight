@@ -61,7 +61,14 @@ authAPI.interceptors.response.use(
                 }
 
                 // Call refresh token endpoint
-                const response = await authAPI.post('api/User/refresh-token', { refreshToken });
+                const response = await authAPI.post('api/User/refresh-token', 
+                    { refreshToken },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
+                );
 
                 if (response.data && response.data.token) {
                     const newToken = response.data.token;

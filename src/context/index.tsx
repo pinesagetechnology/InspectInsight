@@ -74,9 +74,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         // Only update state after initialization is complete
         if (!isInitializing) {
-            setIsAuthenticated(!!token);
+            const hasToken = !!token;
+            if (hasToken !== isAuthenticated) {
+                setIsAuthenticated(hasToken);
+            }
         }
-    }, [token, isInitializing]);
+    }, [token, isInitializing, isAuthenticated]);
 
     const handleLogin = async (email: string, password: string): Promise<void> => {
         return new Promise((resolve, reject) => {
@@ -92,16 +95,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const handleLogout = (dispatchAction = true) => {
-        // Clear localStorage first
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('loggedInUserId');
-
         // Only dispatch when needed (not during initialization)
         if (dispatchAction) {
             dispatch({ type: actions.LOGOUT } as PayloadAction);
         }
-        
+
         setIsAuthenticated(false);
     };
 
