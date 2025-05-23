@@ -36,6 +36,7 @@ import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { filterTree } from '../../helper/ifcTreeManager';
+import RatingComponent from '../../components/ratingComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -59,7 +60,7 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 }));
 
 const StructureElementGrid: React.FC = () => {
-    const displayElements = useSelector(getDisplayElementList);
+    const displayElements: StructureElement[] = useSelector(getDisplayElementList);
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const [open, setOpen] = useState<boolean>(false);
 
@@ -158,10 +159,10 @@ const StructureElementGrid: React.FC = () => {
     }
 
     const handleOnRatingChange = (
-        event: React.MouseEvent<HTMLElement>,
         value: string,
         elementId: number
     ) => {
+        console.log(value, elementId);
         const newRating = [0, 0, 0, 0];
         newRating[parseInt(value) - 1] = 1;
 
@@ -227,11 +228,17 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ textAlign: 'center' }} >
+                                    Condition rating
                                     <Stack direction={'column'}>
-                                        Rating
-                                        <Typography variant="caption">
-                                            CS1, CS2, CS3, CS4
-                                        </Typography>
+                                        <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                                            {[1, 2, 3, 4].map((rating) => (
+                                                <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                                                    <Typography variant="caption">
+                                                        CS{rating}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
@@ -251,28 +258,11 @@ const StructureElementGrid: React.FC = () => {
 
                                     <StyledTableCell className={styles.ratingConditionCell}>
                                         {!element.children?.length && (
-                                            <Stack spacing={2} sx={{ alignItems: 'center' }}>
-
-                                                <ToggleButtonGroup value={element.ifcElementRatingValue}
-                                                    onChange={(event: React.MouseEvent<HTMLElement>,
-                                                        value: string,) => handleOnRatingChange(event, value, element.data.expressID)}
-                                                    aria-label="Medium sizes"
-                                                    exclusive={true}>
-                                                    <ToggleButton value="1" key="CS1" disabled={editRowId !== element.data.expressID}>
-                                                        CS1
-                                                    </ToggleButton>,
-                                                    <ToggleButton value="2" key="CS2" disabled={editRowId !== element.data.expressID}>
-                                                        CS2
-                                                    </ToggleButton>,
-                                                    <ToggleButton value="3" key="CS3" disabled={editRowId !== element.data.expressID}>
-                                                        CS3
-                                                    </ToggleButton>,
-                                                    <ToggleButton value="4" key="CS4" disabled={editRowId !== element.data.expressID}>
-                                                        CS4
-                                                    </ToggleButton>,
-                                                </ToggleButtonGroup>
-
-                                            </Stack>
+                                            <RatingComponent
+                                                rating={element.ifcElementRatingValue || ''}
+                                                elementId={element.data.expressID}
+                                                handleOnRatingChange={handleOnRatingChange}
+                                            />
                                         )}
                                     </StyledTableCell>
                                     <StyledTableCell>

@@ -198,7 +198,7 @@ const IFCViewerComponent: React.FC = () => {
             const isNative = window.capacitor?.isNative;
             const wasmPath = isNative 
                 ? 'public/'  // In native app, files are in the public directory
-                : process.env.PUBLIC_URL + '/';  // In web, use the public URL
+                : process.env.PUBLIC_URL + '/static/wasm/';  // In web, use the public URL
             
             console.log('IFC Loader Setup:', { isNative, wasmPath, currentPath: window.location.href });
             

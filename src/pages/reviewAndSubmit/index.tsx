@@ -236,7 +236,9 @@ const ReviewInspectionPage: React.FC = () => {
                         <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
                           {[1, 2, 3, 4].map((rating) => (
                             <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
-                              CS{rating}
+                              <Typography variant="caption">
+                                CS{rating}
+                              </Typography>
                             </Box>
                           ))}
                         </Stack>
@@ -275,7 +277,9 @@ const ReviewInspectionPage: React.FC = () => {
                         <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
                           {[1, 2, 3, 4].map((rating) => (
                             <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
-                              CS{rating}
+                              <Typography variant="caption">
+                                CS{rating}
+                              </Typography>
                             </Box>
                           ))}
                         </Stack>
@@ -357,7 +361,7 @@ const ReviewInspectionPage: React.FC = () => {
                         <IconButton
                           onClick={() => handleImageClick(row.photos?.map(photo => photo.url) || [])}
                           disabled={!row.photos || row.photos.length === 0}
-                          sx={{ 
+                          sx={{
                             color: row.photos && row.photos.length > 0 ? 'primary.main' : 'action.disabled'
                           }}
                         >
