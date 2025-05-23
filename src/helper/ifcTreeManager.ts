@@ -166,6 +166,20 @@ export const filterTree = (nodes: StructureElement[], query: string): StructureE
         .filter((node) => node !== null) as StructureElement[];
 }
 
+export const flattenDataTree = (nodes: StructureElement[]): StructureElement[] => {
+    const result: StructureElement[] = [];
+
+    for (const node of nodes) {
+        if (!node.children || node.children.length === 0) {
+            result.push(node);
+        } else {
+            result.push(...flattenDataTree(node.children));
+        }
+    }
+
+    return result;
+}
+
 export const getMetaDataFromIFCStructureElement = (ifcStructureElemeents: StructureElement[]): ClaculatedIFCElementCodeData[] => {
     const counts: Record<string, number> = {};
 

@@ -10,15 +10,12 @@ import {
     Paper,
     Button,
     Stack,
-    TextField,
     styled,
     IconButton,
     Tooltip,
     Grid2 as Grid,
     useMediaQuery,
     Box,
-    ToggleButtonGroup,
-    ToggleButton,
     Typography
 } from '@mui/material';
 import { useSelector } from 'react-redux';
@@ -259,6 +256,7 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell className={styles.ratingConditionCell}>
                                         {!element.children?.length && (
                                             <RatingComponent
+                                                isDisabled={false}
                                                 rating={element.ifcElementRatingValue || ''}
                                                 elementId={element.data.expressID}
                                                 handleOnRatingChange={handleOnRatingChange}

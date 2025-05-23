@@ -4,29 +4,27 @@ import * as OBF from "@thatopen/components-front";
 import * as FRAGS from "@thatopen/fragments";
 import * as THREE from "three";
 import { getRowFragmentIdMap } from "../../helper/ifcTreeManager";
-import TreeViewComponent from "../../components/ifcTreeComponent.tsx/treeViewComponent";
 import { useDispatch, useSelector } from "react-redux";
 import * as commonActions from "../../store/Common/actions";
 import * as ratingActions from "../../store/ConditionRating/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { getCurrentStructure, getStructureElements, getStructureIFCPath } from "../../store/Structure/selectors";
+import { getCurrentStructure, getStructureIFCPath } from "../../store/Structure/selectors";
 import { getRatedElements } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
-import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
+import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme, Stack, Tabs, Tab } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
 import CloseIcon from '@mui/icons-material/Close';
 import { getIFCFile } from '../../helper/db';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
-
+import IfcListItemComponent from "../ifcListItemComponent";
 const selectHighlighterName = "select";
 const Plan = "Plan";
 const Orbit = "Orbit";
 
 const IFCViewerComponent: React.FC = () => {
     const dispatch = useDispatch();
-    const structureElements: StructureElement[] = useSelector(getStructureElements) || [];
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
     const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
     const isOnline = useSelector(isOnlineSelector);
@@ -58,8 +56,9 @@ const IFCViewerComponent: React.FC = () => {
     const [isSelected, setIsSelected] = useState(false);
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
-    const [showConditionPanel, setShowConditionPanel] = useState(false);
     const [isModelLoaded, setIsModelLoaded] = useState(false);
+
+    const [sidebarTab, setSidebarTab] = useState(0);
 
     // Keep refs in sync
     useEffect(() => { isMeasurementModeRef.current = isMeasurementMode; }, [isMeasurementMode]);
@@ -196,13 +195,13 @@ const IFCViewerComponent: React.FC = () => {
             // Configure IFC Loader with platform-specific WASM path
             const ifcLoader = components.get(OBC.IfcLoader);
             const isNative = window.capacitor?.isNative;
-            const wasmPath = isNative 
+            const wasmPath = isNative
                 ? 'public/'  // In native app, files are in the public directory
                 : process.env.PUBLIC_URL + '/static/wasm/';  // In web, use the public URL
-            
+
             console.log('IFC Loader Setup:', { isNative, wasmPath, currentPath: window.location.href });
-            
-            ifcLoader.settings.wasm = { 
+
+            ifcLoader.settings.wasm = {
                 path: wasmPath,
                 absolute: true
             };
@@ -230,7 +229,7 @@ const IFCViewerComponent: React.FC = () => {
                     console.log('Attempting to load from URL...');
                     const url = `https://psiassetsapidev.blob.core.windows.net/${structureIFCPath}`;
                     console.log('Fetching from URL:', url);
-                    
+
                     const resp = await fetch(url);
                     console.log('Fetch response:', { status: resp.status, ok: resp.ok });
 
@@ -385,7 +384,7 @@ const IFCViewerComponent: React.FC = () => {
         }
     };
 
-    const handleHideSelectedFragment = (node: StructureElement, isVisible: boolean) => {
+    const handleFragmentVisibilityChange = (node: StructureElement, isVisible: boolean) => {
         if (model && fragMgrRef.current && indexerRef.current) {
             const fragmentProperties = model.getLocalProperties();
             if (fragmentProperties) {
@@ -446,8 +445,44 @@ const IFCViewerComponent: React.FC = () => {
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <Grid container spacing={2}>
-                <Grid size={12}>
+            <Grid container>
+                <Grid size={2}>
+                    <Tabs value={sidebarTab} onChange={(_, v) => setSidebarTab(v)} variant="fullWidth">
+                        <Tab label="Assessment" />
+                        <Tab label="Elements" />
+                    </Tabs>
+                    <Box sx={{ 
+                        height: isTablet ? '55vh' : '62vh', // Match the viewer container height
+                        overflow: 'auto',
+                        '&::-webkit-scrollbar': {
+                            width: '8px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            background: '#f1f1f1',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            background: '#888',
+                            borderRadius: '4px',
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                            background: '#555',
+                        },
+                    }}>
+                        {sidebarTab === 0 && (
+                            <AssessmentPanel
+                                isSelected={isSelected}
+                                isTablet={isTablet}
+                            />
+                        )}
+                        {sidebarTab === 1 && (
+                            <IfcListItemComponent
+                                handleTreeItemClick={handleTreeItemClick}
+                                handleFragmentVisibilityChange={handleFragmentVisibilityChange}
+                            />
+                        )}
+                    </Box>
+                </Grid>
+                <Grid size={10}>
                     {/* The main container for the 3D viewer */}
                     <div
                         ref={containerRef}
@@ -455,45 +490,7 @@ const IFCViewerComponent: React.FC = () => {
                         onClick={onContainerClick}
                         onDoubleClick={onContainerDoubleClick}
                     >
-                        {/* Custom Tree Panel that slides in/out */}
-                        {model && (
-                            <Paper
-                                elevation={3}
-                                sx={treeViewPanelStyle}
-                            >
-                                {/* Close button for the tree panel - especially important on tablet */}
-                                <Box sx={{
-                                    display: 'flex',
-                                    justifyContent: 'flex-end',
-                                    width: '100%',
-                                    mb: 1
-                                }}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => setIsShowTree(false)}
-                                        sx={{
-                                            display: isTablet ? 'flex' : 'none'  // Only show on tablet
-                                        }}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
-                                </Box>
-
-                                <TreeViewComponent
-                                    treeData={structureElements}
-                                    handleTreeItemClick={handleTreeItemClick}
-                                    handleFragmentVisibilityChange={handleHideSelectedFragment}
-                                />
-                            </Paper>
-                        )}
                     </div>
-
-                    <AssessmentPanel
-                        showConditionPanel={showConditionPanel}
-                        isSelected={isSelected}
-                        isTablet={isTablet}
-                        closeConditionPanelHandler={() => setShowConditionPanel(false)}
-                    />
 
                     <ViewerMenu
                         isClipperOn={isClipperOn}
@@ -507,7 +504,6 @@ const IFCViewerComponent: React.FC = () => {
                         onPanCameraClick={onPanCameraClick}
                         removeAllLineMeasurement={() => dimensionsRef.current?.deleteAll()}
                         removeClipper={() => clipperRef.current?.deleteAll()}
-                        showConditionPanelHandler={() => setShowConditionPanel(prev => !prev)}
                         showstructureDetail={() => setIsShowTree(prev => !prev)}
                     />
                 </Grid>

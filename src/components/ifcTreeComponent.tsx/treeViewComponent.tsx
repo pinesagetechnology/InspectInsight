@@ -8,26 +8,26 @@ import { getVisibilityOffIcons } from "../../store/IFCViewer/selectors";
 import * as actions from "../../store/IFCViewer/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { filterTree } from "../../helper/ifcTreeManager";
+import { getStructureElements } from "../../store/Structure/selectors";
 
 interface TreeViewComponentProps {
-  treeData: StructureElement[];
   handleTreeItemClick: (item: StructureElement) => void;
   handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
 }
 
 const TreeViewComponent: React.FC<TreeViewComponentProps> = ({
-  treeData,
   handleTreeItemClick,
   handleFragmentVisibilityChange,
 }) => {
   const dispatch = useDispatch();
   const visibilityOffList: string[] = useSelector(getVisibilityOffIcons);
+  const structureElements: StructureElement[] = useSelector(getStructureElements) || [];
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentSelection, setCurrentSelection] = useState<string>();
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
-  const filteredTreeData = searchQuery ? filterTree(treeData, searchQuery) : treeData;
+  const filteredTreeData = searchQuery ? filterTree(structureElements, searchQuery) : structureElements;
 
   const toggleExpand = (id: string) => {
     setExpandedNodes((prev) =>

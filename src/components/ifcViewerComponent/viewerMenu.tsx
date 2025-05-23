@@ -26,7 +26,6 @@ interface ViewerMenuProps {
     removeAllLineMeasurement: () => void;
     removeClipper: () => void;
     showstructureDetail: () => void;
-    showConditionPanelHandler: () => void;
 }
 
 const ViewerMenu: React.FC<ViewerMenuProps> = ({
@@ -42,7 +41,6 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
     removeAllLineMeasurement,
     removeClipper,
     showstructureDetail,
-    showConditionPanelHandler
 }) => {
     return (
         <Paper elevation={3} className={styles.viewerMenuContainer}>
@@ -102,10 +100,12 @@ const ViewerMenu: React.FC<ViewerMenuProps> = ({
                 </Stack> */}
 
                 {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
-
-                <IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler} className={styles.menuButtonSize}>
+{/* 
+<IconButton color="secondary" aria-label="show condition panel" onClick={showConditionPanelHandler} className={styles.menuButtonSize}>
                     <TroubleshootIcon />
                 </IconButton>
+*/}
+                
             </Stack>
         </Paper>
     );

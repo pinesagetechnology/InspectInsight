@@ -20,6 +20,8 @@ import { ElementCodeData, Structure, StructureElement } from '../../entities/str
 import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors, getInspection, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
+import { setFlattenStructureElement } from '../IFCViewer/slice';
+import { flattenDataTree } from '../../helper/ifcTreeManager';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
@@ -43,6 +45,10 @@ export function* startInspectionProcess() {
     yield call(getPreviousInspectionValue, selectedStructure.previousInspection);
 
     yield put(setInspectionProcessLoading(false));
+
+    const flattedListItem: StructureElement[] = yield call(flattenDataTree, selectedStructure.elementMetadata);
+
+    yield put(setFlattenStructureElement(flattedListItem));
 
     yield put(setShowLoading(false));
 }
