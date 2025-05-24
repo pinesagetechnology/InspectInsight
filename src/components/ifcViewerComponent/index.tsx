@@ -52,7 +52,6 @@ const IFCViewerComponent: React.FC = () => {
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
 
-    const [isShowTree, setIsShowTree] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
@@ -63,20 +62,6 @@ const IFCViewerComponent: React.FC = () => {
     // Keep refs in sync
     useEffect(() => { isMeasurementModeRef.current = isMeasurementMode; }, [isMeasurementMode]);
     useEffect(() => { isClipperOnRef.current = isClipperOn; }, [isClipperOn]);
-
-    // Close panels when in tablet mode and orientation changes
-    useEffect(() => {
-        const handleOrientationChange = () => {
-            if (isTablet && isShowTree) {
-                setIsShowTree(false);
-            }
-        };
-
-        window.addEventListener('orientationchange', handleOrientationChange);
-        return () => {
-            window.removeEventListener('orientationchange', handleOrientationChange);
-        };
-    }, [isTablet, isShowTree]);
 
     // Highlight rated elements
     const highlightRatedElements = () => {
@@ -156,7 +141,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-
+                console.log("highlighter", id);
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
@@ -305,11 +290,8 @@ const IFCViewerComponent: React.FC = () => {
                 setIsSelected(true);
             } else {
                 setIsSelected(false);
-            }
-
-            // Auto-close the tree panel on tablet when clicking elsewhere
-            if (isTablet && isShowTree) {
-                setIsShowTree(false);
+                // clear the selected element
+                dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: -1 } as PayloadAction<number>);
             }
         }
     };
@@ -410,11 +392,6 @@ const IFCViewerComponent: React.FC = () => {
             if (fragmentIDMap && !isMeasurementMode) {
                 highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
             }
-
-            // Auto-close tree panel after selection on small tablets
-            if (isSmallTablet) {
-                setIsShowTree(false);
-            }
         }
     };
 
@@ -429,7 +406,7 @@ const IFCViewerComponent: React.FC = () => {
         boxShadow: '2px 0 10px rgba(0, 0, 0, 0.2)',
         zIndex: 1000,
         overflowY: 'auto',
-        transform: isShowTree ? 'translateX(0)' : 'translateX(-100%)',
+        // transform: isShowTree ? 'translateX(0)' : 'translateX(-100%)',
         transition: 'transform 0.3s ease-in-out',
         padding: isTablet ? '10px' : '16px', // Less padding on tablet
         display: 'flex',
@@ -451,7 +428,7 @@ const IFCViewerComponent: React.FC = () => {
                         <Tab label="Assessment" />
                         <Tab label="Elements" />
                     </Tabs>
-                    <Box sx={{ 
+                    <Box sx={{
                         height: isTablet ? '55vh' : '62vh', // Match the viewer container height
                         overflow: 'auto',
                         '&::-webkit-scrollbar': {
@@ -504,7 +481,6 @@ const IFCViewerComponent: React.FC = () => {
                         onPanCameraClick={onPanCameraClick}
                         removeAllLineMeasurement={() => dimensionsRef.current?.deleteAll()}
                         removeClipper={() => clipperRef.current?.deleteAll()}
-                        showstructureDetail={() => setIsShowTree(prev => !prev)}
                     />
                 </Grid>
             </Grid>

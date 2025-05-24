@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -26,9 +26,6 @@ import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from './maintenanceActions/rmaDialog';
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
@@ -61,8 +58,6 @@ const StructureElementGrid: React.FC = () => {
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const [open, setOpen] = useState<boolean>(false);
 
-    const [selectedElement, setSelectedElement] = useState<StructureElement>({} as StructureElement);
-    const [editRowId, setEditRowId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
 
@@ -83,22 +78,6 @@ const StructureElementGrid: React.FC = () => {
     useEffect(() => {
         setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
     }, [elementHistory])
-
-    const handleSaveButton = (item: StructureElement) => {
-        dispatch({
-            type: actions.SAVE_CONDITION_RATING_DATA,
-            payload: item
-        } as PayloadAction<StructureElement>)
-        setEditRowId(null);
-    }
-
-    const handleEditButton = (id: number) => {
-        setEditRowId(editRowId === id ? null : id);
-        const selectedElement = displayElements.find(el => el.data.expressID === id);
-        if (selectedElement) {
-            setSelectedElement(selectedElement);
-        }
-    }
 
     const handleRowClick = (element: StructureElement) => {
         dispatch({
@@ -122,59 +101,44 @@ const StructureElementGrid: React.FC = () => {
         setOpen(true);
     }
 
-    const cancelOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-
-        setEditRowId(null);
-        const newData = displayElements.map((item) => {
-            if (item.data.expressID === elementId) {
-                return { ...item, condition: selectedElement.condition, ifcElementRatingValue: selectedElement.ifcElementRatingValue };
-            }
-            return item;
-        });
-
-        dispatch({
-            payload: newData,
-            type: actions.UPDATE_DISPLAY_LIST_ITEMS
-        } as PayloadAction<StructureElement[]>);
-    }
-
-    const editOnClick = (elementId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        handleEditButton(elementId)
-    }
-
-    const saveOnClick = (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        handleSaveButton(element);
-    }
-
     const handleBack = () => {
         dispatch({
             type: actions.HANDLE_BACK_CLICK_SAGA
         } as PayloadAction);
     }
 
-    const handleOnRatingChange = (
+    const handleOnRatingChange = useCallback((
         value: string,
         elementId: number
     ) => {
-        console.log(value, elementId);
-        const newRating = [0, 0, 0, 0];
+        // Create rating array more efficiently
+        const newRating = Array(4).fill(0);
         newRating[parseInt(value) - 1] = 1;
 
-        const newData = displayElements.map((item) => {
-            if (item.data.expressID === elementId) {
-                return { ...item, ifcElementRatingValue: value, condition: newRating };
-            }
-            return item;
-        });
+        // Use findIndex for better performance than map when we need to update a single item
+        const elementIndex = displayElements.findIndex(item => item.data.expressID === elementId);
 
+        if (elementIndex === -1) return;
+
+        // Create new array with the updated item
+        const newData = [...displayElements];
+        newData[elementIndex] = {
+            ...newData[elementIndex],
+            ifcElementRatingValue: value,
+            condition: newRating
+        };
+
+        // Batch dispatch actions
         dispatch({
             payload: newData,
             type: actions.UPDATE_DISPLAY_LIST_ITEMS
         });
-    };
+
+        dispatch({
+            type: actions.SAVE_CONDITION_RATING_DATA,
+            payload: newData[elementIndex]
+        } as PayloadAction<StructureElement>);
+    }, [displayElements, dispatch]);
 
     return (
         <React.Fragment>
@@ -224,10 +188,10 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ textAlign: 'center' }} >
+                                <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }} >
                                     Condition rating
-                                    <Stack direction={'column'}>
-                                        <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                                    <Stack direction={'column'} sx={{ width: '250px' }}>
+                                        <Stack direction="row" spacing={0} sx={{ width: '100%', justifyContent: 'space-between' }}>
                                             {[1, 2, 3, 4].map((rating) => (
                                                 <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
                                                     <Typography variant="caption">
@@ -253,7 +217,7 @@ const StructureElementGrid: React.FC = () => {
                                         }
                                     </StyledTableCell>
 
-                                    <StyledTableCell className={styles.ratingConditionCell}>
+                                    <StyledTableCell sx={{ width: '250px', textAlign: 'center' }}>
                                         {!element.children?.length && (
                                             <RatingComponent
                                                 isDisabled={false}
@@ -267,54 +231,17 @@ const StructureElementGrid: React.FC = () => {
                                         <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                                             {!element.children?.length && (
                                                 <React.Fragment>
-                                                    {(editRowId === element.data.expressID) ?
-                                                        (<React.Fragment>
-                                                            <Stack direction="row" spacing={1}>
-                                                                <Tooltip title="Add assessment">
-                                                                    <IconButton
-                                                                        color="primary"
-                                                                        onClick={addAssessmentOnClick(element)}
-                                                                        size={isPortrait ? 'small' : 'medium'}
-                                                                    >
-                                                                        <PostAddIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-
-                                                                <Tooltip title="Save condition rating">
-                                                                    <IconButton
-                                                                        color="success"
-                                                                        onClick={saveOnClick(element)}
-                                                                        size={isPortrait ? 'small' : 'medium'}
-                                                                    >
-                                                                        <SaveIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-
-                                                                <Tooltip title="Cancel condition rating">
-                                                                    <IconButton
-                                                                        color="secondary"
-                                                                        onClick={cancelOnClick(element.data.expressID)}
-                                                                        size={isPortrait ? 'small' : 'medium'}
-                                                                    >
-                                                                        <CancelIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Stack>
-                                                        </React.Fragment>)
-                                                        :
-                                                        (
-                                                            <Button
-                                                                variant="contained"
-                                                                color="secondary"
-                                                                startIcon={<TroubleshootIcon />}
-                                                                disabled={(!!editRowId && element.data.expressID !== editRowId)}
-                                                                onClick={editOnClick(element.data.expressID)}
+                                                    <Stack direction="row" spacing={1}>
+                                                        <Tooltip title="Add assessment">
+                                                            <IconButton
+                                                                color="primary"
+                                                                onClick={addAssessmentOnClick(element)}
                                                                 size={isPortrait ? 'small' : 'medium'}
                                                             >
-                                                                {isPortrait ? 'Rate' : 'Add rating'}
-                                                            </Button>
-                                                        )
-                                                    }
+                                                                <PostAddIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Stack>
                                                 </React.Fragment>
                                             )}
                                         </Stack>

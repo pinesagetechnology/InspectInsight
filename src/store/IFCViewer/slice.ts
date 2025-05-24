@@ -4,13 +4,13 @@ import { StructureElement } from '../../entities/structure';
 
 export interface IFCViewerState {
     visibilityIcons: string[];
-    flattenStructureElement: StructureElement[];
+    groupedElements: Record<string, StructureElement[]>;
     error?: any;
 }
 
 const initialState = {
     visibilityIcons: [],
-    flattenStructureElement: [] as StructureElement[]
+    groupedElements: {}
 } as IFCViewerState
 
 const IFCViewerSlice = createSlice({
@@ -20,21 +20,21 @@ const IFCViewerSlice = createSlice({
         setVisibilityIconOffValue: (state, action: PayloadAction<string[]>) => {
             state.visibilityIcons = action.payload;
         },
-        setFlattenStructureElement: (state, action: PayloadAction<StructureElement[]>) => {
-            state.flattenStructureElement = action.payload;
+        setGroupedElements: (state, action: PayloadAction<Record<string, StructureElement[]>>) => {
+            state.groupedElements = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
             state.visibilityIcons = [] as string[];
-            state.flattenStructureElement = [] as StructureElement[];
+            state.groupedElements = {};
         });
     }
 });
 
 export const {
     setVisibilityIconOffValue,
-    setFlattenStructureElement
+    setGroupedElements
 } = IFCViewerSlice.actions;
 
 export default IFCViewerSlice.reducer;

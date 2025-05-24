@@ -22,7 +22,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
     };
 
     return (
-        <Stack direction={'row'} spacing={2}>
+            <Stack direction={'row'} spacing={2} sx={{ width: '100%', justifyContent: 'space-between' }}>
             <Checkbox
                 disabled={isDisabled}
                 checked={rating === '1'}

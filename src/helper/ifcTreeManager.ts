@@ -180,6 +180,20 @@ export const flattenDataTree = (nodes: StructureElement[]): StructureElement[] =
     return result;
 }
 
+// Add this helper function at the top of the file
+export const groupElementsByType = (elements: StructureElement[]): Record<string, StructureElement[]> => {
+    const flatList = flattenDataTree(elements);
+
+    return flatList.reduce((acc, item) => {
+        const type = item.data.Entity?.toString() || 'Other';
+        if (!acc[type]) {
+            acc[type] = [];
+        }
+        acc[type].push(item);
+        return acc;
+    }, {} as Record<string, StructureElement[]>);
+};
+
 export const getMetaDataFromIFCStructureElement = (ifcStructureElemeents: StructureElement[]): ClaculatedIFCElementCodeData[] => {
     const counts: Record<string, number> = {};
 
