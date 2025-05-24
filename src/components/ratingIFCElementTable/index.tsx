@@ -21,7 +21,6 @@ import {
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
 import { getDisplayElementList } from '../../store/ConditionRating/selectors';
-import styles from './style.module.scss';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from './maintenanceActions/rmaDialog';

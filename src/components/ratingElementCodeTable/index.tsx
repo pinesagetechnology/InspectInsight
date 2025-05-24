@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
-import styles from './style.module.scss';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from './maintenanceActions/rmaDialog';
@@ -221,12 +220,18 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ textAlign: 'center' }}>
-                                    <Stack direction={'column'}>
-                                        Rating
-                                        <Typography variant="caption">
-                                            CS1, CS2, CS3, CS4
-                                        </Typography>
+                                <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }} >
+                                    Condition rating
+                                    <Stack direction={'column'} sx={{ width: '250px' }}>
+                                        <Stack direction="row" spacing={0} sx={{ width: '100%', justifyContent: 'space-between' }}>
+                                            {[1, 2, 3, 4].map((rating) => (
+                                                <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                                                    <Typography variant="caption">
+                                                        CS{rating}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
@@ -248,7 +253,7 @@ const ElementsCodeGrid: React.FC = () => {
                                         </StyledTableCell>
                                         <StyledTableCell>{element.unit}</StyledTableCell>
 
-                                        <StyledTableCell className={styles.ratingConditionCell}>
+                                        <StyledTableCell sx={{ width: '250px', textAlign: 'center' }}>
                                             <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
                                                 {[0, 1, 2, 3].map((index) => {
                                                     const fieldValue = (currentData.condition && currentData.condition[index]) ? currentData.condition[index] : 0;
