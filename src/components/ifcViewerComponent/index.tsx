@@ -141,7 +141,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-                console.log("highlighter", id);
+                
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
@@ -387,6 +387,10 @@ const IFCViewerComponent: React.FC = () => {
 
     const handleTreeItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
+            dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: item.data.expressID } as PayloadAction<number>);
+            
+            setIsSelected(true);
+
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
             if (fragmentIDMap && !isMeasurementMode) {

@@ -15,6 +15,8 @@ import { setInspectionComment } from '../InspectionComment/slice';
 import { setShowLoading } from '../Common/slice';
 import { getCurrentStructure } from '../Structure/selectors';
 import { setCurrentStructure } from '../Structure/slice';
+import { getGroupedElements } from '../IFCViewer/selectors';
+import { setGroupedElements } from '../IFCViewer/slice';
 
 export function* locaStorageRootSaga() {
     yield takeLatest(actions.SAVE_IN_LOCAL_STORAGE, saveStateInLocalStorage);
@@ -31,7 +33,6 @@ export function* saveStateInLocalStorage() {
         yield call(ensureDbReady);
 
         const currentStructure: Structure = yield select(getCurrentStructure);
-
         const inspectionState: InspectionModel = yield select(getInspection);
         const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
         const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
@@ -40,7 +41,7 @@ export function* saveStateInLocalStorage() {
         const displayElementList: StructureElement[] = yield select(getDisplayElementList);
         const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
         const inspectionComment: string = yield select(getInspectionComment);
-
+        const groupedElements: Record<string, StructureElement[]> = yield select(getGroupedElements);
         const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
         const elementCodeDataList: ElementCodeData[] = yield select(getElementCodeDataList);
 
@@ -61,6 +62,9 @@ export function* saveStateInLocalStorage() {
             },
             maintenanceAction: {
                 maintenanceActions: maintenanceActions,
+            },
+            ifcViewerState: {
+                groupedElements: groupedElements,
             },
             inspectionComment: inspectionComment,
             timestamp: Date.now(), // Add timestamp for versioning
@@ -85,19 +89,17 @@ export function* saveStateInLocalStorage() {
 
                 // Get fresh state
                 const currentStructure: Structure = yield select(getCurrentStructure);
-
                 const inspectionState: InspectionModel = yield select(getInspection);
                 const previousInspectionList: InspectionModel[] = yield select(getPreviousInspectionList);
                 const previousInspection: InspectionModel = yield select(selectedPreviousInspectionData);
                 const ratedElements: StructureElement[] = yield select(getRatedElements);
                 const originalConditionRatingList: StructureElement[] = yield select(getOriginalConditionRating);
                 const displayElementList: StructureElement[] = yield select(getDisplayElementList);
-
-                const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
-                const elementCodeDataList: ElementCodeData[] = yield select(getElementCodeDataList);
-
                 const maintenanceActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
                 const inspectionComment: string = yield select(getInspectionComment);
+                const groupedElements: Record<string, StructureElement[]> = yield select(getGroupedElements);
+                const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+                const elementCodeDataList: ElementCodeData[] = yield select(getElementCodeDataList);
 
                 const stateToSave = {
                     id: 'appState',
@@ -116,6 +118,9 @@ export function* saveStateInLocalStorage() {
                     },
                     maintenanceAction: {
                         maintenanceActions: maintenanceActions,
+                    },
+                    ifcViewerState: {
+                        groupedElements: groupedElements,
                     },
                     inspectionComment: inspectionComment,
                     timestamp: Date.now(),
@@ -176,6 +181,9 @@ export function* mapLocalStorageToState() {
             // Map inspection comment
             yield put(setInspectionComment(savedState.inspectionComment));
 
+            // Map ifc viewer state
+            yield put(setGroupedElements(savedState.ifcViewerState.groupedElements));
+
             console.log('State loaded from IndexedDB successfully');
         } else {
             console.log('No state found in IndexedDB');
@@ -200,13 +208,28 @@ export function* mapLocalStorageToState() {
                 );
 
                 if (savedState) {
-                    // Map all state again
+                    yield put(setCurrentStructure(savedState.currentStructure));
+                    // Map inspection
                     yield put(setCurrentInspection(savedState.inspectionData.currentInspection));
                     yield put(setPreviousInspectionData(savedState.inspectionData.previoustInspection));
                     yield put(setPreviousInspectionListFromSavedState(savedState.inspectionData.previoustInspectionsList));
+        
+                    // Map condition rating
                     yield put(setReatedElement(savedState.conditionRating.ratedElements));
+                    yield put(setOriginalConditionRating(savedState.conditionRating.originalConditionRating));
+                    yield put(setDisplayConditionRatingElements(savedState.conditionRating.displayConditionRatingElements));
+        
+                    yield put(setReatedElementCode(savedState.conditionRating.ratedElementCodeData));
+                    yield put(setOriginalElementCodeDataList(savedState.conditionRating.elementCodeDataList));
+        
+                    // Map maintenance action
                     yield put(setMaintenanceActionList(savedState.maintenanceAction.maintenanceActions));
+        
+                    // Map inspection comment
                     yield put(setInspectionComment(savedState.inspectionComment));
+        
+                    // Map ifc viewer state
+                    yield put(setGroupedElements(savedState.ifcViewerState.groupedElements));
 
                     loaded = true;
                     console.log('State loaded successfully after retry');

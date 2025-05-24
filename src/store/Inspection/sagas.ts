@@ -21,7 +21,7 @@ import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors, getInspection, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
 import { setGroupedElements } from '../IFCViewer/slice';
-import { flattenDataTree, groupElementsByType } from '../../helper/ifcTreeManager';
+import { groupElementsByType } from '../../helper/ifcTreeManager';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
@@ -46,9 +46,9 @@ export function* startInspectionProcess() {
 
     yield put(setInspectionProcessLoading(false));
 
-    const flattedListItem: Record<string, StructureElement[]> = yield call(groupElementsByType, selectedStructure.elementMetadata);
+    const groupedListItem: Record<string, StructureElement[]> = yield call(groupElementsByType, selectedStructure.elementMetadata);
 
-    yield put(setGroupedElements(flattedListItem));
+    yield put(setGroupedElements(groupedListItem));
 
     yield put(setShowLoading(false));
 }

@@ -23,6 +23,9 @@ export interface ReduxApplicationState {
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];
     };
+    ifcViewerState: {
+        groupedElements: Record<string, StructureElement[]>;
+    };
     inspectionComment: string;
     timestamp?: number; // Optional timestamp for version control
 }
