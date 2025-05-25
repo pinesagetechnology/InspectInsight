@@ -173,7 +173,6 @@ const ElementsCodeGrid: React.FC = () => {
 
     const addAssessmentOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        console.log("addAssessmentOnClick", element);
         dispatch({
             type: actions.SET_SELECTED_ELEMENT_CODE,
             payload: element

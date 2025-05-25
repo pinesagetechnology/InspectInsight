@@ -15,7 +15,6 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
     elementId,
     handleOnRatingChange
 }) => {
-    console.log('rating', rating);
 
     const handleChange = (value: string) => {
         handleOnRatingChange(value, elementId);

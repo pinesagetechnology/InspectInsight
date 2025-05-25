@@ -64,6 +64,10 @@ const ConditionRatingSlice = createSlice({
             state.elementCodeDataList = [] as ElementCodeData[];
             state.ratedElementCodeData = [] as ElementCodeData[];
             state.ratedElements = [] as StructureElement[];
+            state.selectedStructureElement = {} as StructureElement;
+            state.selectedElementCode = {} as ElementCodeData;
+            state.displayConditionRatingElements = [] as StructureElement[];
+            state.error = '';
         });
     }
 });
