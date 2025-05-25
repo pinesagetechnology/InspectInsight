@@ -22,7 +22,6 @@ import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
-import RMADialog from './maintenanceActions/rmaDialog';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -30,6 +29,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
 import RatingInputField from '../ratingInputField';
+import RMADialog from '../maintenanceActionsDialog/rmaDialog';
+import * as maintenanceActions from "../../store/MaintenanceAction/actions";
+import { MaintenanceActionModel } from '../../models/inspectionModel';
+import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { RMAModeEnum } from '../../enums';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -67,13 +71,12 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 const ElementsCodeGrid: React.FC = () => {
     const dispatch = useDispatch();
+    const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const structureElementsCode = useSelector(getElementCodeDataList);
-
     // Local state for editing
     const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [open, setOpen] = useState<boolean>(false);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
@@ -162,16 +165,34 @@ const ElementsCodeGrid: React.FC = () => {
     }, []);
 
     const handleClose = useCallback(() => {
-        setOpen(false);
+        dispatch({
+            type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
+            payload: false
+        } as PayloadAction<boolean>)
     }, []);
 
     const addAssessmentOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
+        console.log("addAssessmentOnClick", element);
         dispatch({
             type: actions.SET_SELECTED_ELEMENT_CODE,
             payload: element
         } as PayloadAction<ElementCodeData>);
-        setOpen(true);
+
+        const newMaintenanceAction = {
+            id: "-1",
+            isSectionExpanded: true,
+            dateForCompletion: new Date().toISOString(),
+            elementCode: element.elementCode || "",
+            elementDescription: element.description,
+            elementId: element.id,
+            mode: 1
+        } as MaintenanceActionModel;
+
+        dispatch({
+            type: maintenanceActions.ADD_NEW_ITEM,
+            payload: newMaintenanceAction
+        } as PayloadAction<MaintenanceActionModel>)
     }, [dispatch]);
 
     const saveOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -186,10 +207,6 @@ const ElementsCodeGrid: React.FC = () => {
 
     return (
         <React.Fragment>
-            <RMADialog
-                handleClose={handleClose}
-                modalState={open}
-            />
             <Stack direction={'column'}>
                 <Grid
                     container
@@ -343,6 +360,11 @@ const ElementsCodeGrid: React.FC = () => {
                     </Table>
                 </TableContainer>
             </Stack>
+            <RMADialog
+                handleClose={handleClose}
+                modalState={maintenanceActionModalFlag}
+                rmaMode={RMAModeEnum.ElementCode}
+            />
         </React.Fragment>
     );
 };

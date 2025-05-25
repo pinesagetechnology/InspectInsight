@@ -23,13 +23,17 @@ import { StructureElement } from '../../entities/structure';
 import { getDisplayElementList } from '../../store/ConditionRating/selectors';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
-import RMADialog from './maintenanceActions/rmaDialog';
+import RMADialog from '../maintenanceActionsDialog/rmaDialog';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { filterTree } from '../../helper/ifcTreeManager';
 import RatingComponent from '../../components/ratingComponent';
+import * as maintenanceActions from "../../store/MaintenanceAction/actions";
+import { MaintenanceActionModel } from '../../models/inspectionModel';
+import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { RMAModeEnum } from '../../enums';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -55,7 +59,7 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 const StructureElementGrid: React.FC = () => {
     const displayElements: StructureElement[] = useSelector(getDisplayElementList);
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
-    const [open, setOpen] = useState<boolean>(false);
+    const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
@@ -86,7 +90,10 @@ const StructureElementGrid: React.FC = () => {
     }
 
     const handleClose = () => {
-        setOpen(false);
+        dispatch({
+            type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
+            payload: false
+        } as PayloadAction<boolean>)
     }
 
     const addAssessmentOnClick = (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -97,7 +104,20 @@ const StructureElementGrid: React.FC = () => {
             payload: element
         } as PayloadAction<StructureElement>);
 
-        setOpen(true);
+        const newMaintenanceAction = {
+            id: "-1",
+            isSectionExpanded: true,
+            dateForCompletion: new Date().toISOString(),
+            elementCode: element.data.Name || "",
+            elementDescription: element.data.Entity,
+            elementId: element.data.expressID.toString(),
+            mode: 1
+        } as MaintenanceActionModel;
+
+        dispatch({
+            type: maintenanceActions.ADD_NEW_ITEM,
+            payload: newMaintenanceAction
+        } as PayloadAction<MaintenanceActionModel>)
     }
 
     const handleBack = () => {
@@ -141,10 +161,6 @@ const StructureElementGrid: React.FC = () => {
 
     return (
         <React.Fragment>
-            <RMADialog
-                handleClose={handleClose}
-                modalState={open}
-            />
             <Stack direction={'column'}>
                 <Grid
                     container
@@ -219,7 +235,7 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell sx={{ width: '250px', textAlign: 'center' }}>
                                         {!element.children?.length && (
                                             <RatingComponent
-                                                isDisabled={false}
+                                                // isDisabled={false}
                                                 rating={element.ifcElementRatingValue || ''}
                                                 elementId={element.data.expressID}
                                                 handleOnRatingChange={handleOnRatingChange}
@@ -251,6 +267,11 @@ const StructureElementGrid: React.FC = () => {
                     </Table>
                 </TableContainer>
             </Stack>
+            <RMADialog
+                handleClose={handleClose}
+                modalState={maintenanceActionModalFlag}
+                rmaMode={RMAModeEnum.IFCElement}
+            />
         </React.Fragment>
     );
 };

@@ -6,7 +6,8 @@ import {
     setMaintenanceAcctionError,
     setCurrentMaintenanceFormData,
     setUploadFlag,
-    setMaintenanceValidationErrors
+    setMaintenanceValidationErrors,
+    setMaintenanceActionModalFlag
 } from './slice';
 import { DeleteImagePayload, MaintenanceActionModel, MaintenanceImageFile } from '../../models/inspectionModel';
 import { getMaintenanceActions, getMaintenanceFormData } from './selectors';
@@ -24,6 +25,7 @@ export function* maintenanceActionRootSaga() {
     yield takeLatest(actions.DELETE_MAINTENANCE_IMAGE, deleteMaintenanceImageData);
     yield takeLatest(actions.SET_SELECTED_MAINTENANCE_ITEM, setSelectedMaintenanceItem);
     yield takeLatest(actions.SET_MAINTENANCE_VALIDATION, validateMaintenanceForm);
+    yield takeLatest(actions.SET_MAINTENANCE_ACTION_MODAL_FLAG, setMaintenanceActionModalFlagSaga);
 }
 
 export function* addNewItem(action: PayloadAction<MaintenanceActionModel>) {
@@ -32,8 +34,23 @@ export function* addNewItem(action: PayloadAction<MaintenanceActionModel>) {
         action.payload,
         ...(maintenancActions || [])]
     ));
-    
+
     yield put(setCurrentMaintenanceFormData(action.payload));
+
+    yield put(setMaintenanceActionModalFlag(true));
+}
+
+export function* setMaintenanceActionModalFlagSaga(action: PayloadAction<boolean>) {
+    if (action.payload === false) {
+        const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
+        const updatedList = maintenancActions?.filter(item => item.id !== "-1");
+        yield put(setMaintenanceActionList([
+            ...(updatedList || [])]
+        ));
+    }
+
+    yield put(setMaintenanceActionModalFlag(action.payload));
+
 }
 
 export function* cancelNewItem() {

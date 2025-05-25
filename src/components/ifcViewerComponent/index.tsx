@@ -15,7 +15,6 @@ import AssessmentPanel from "./assessmentPanel";
 import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme, Stack, Tabs, Tab } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
-import CloseIcon from '@mui/icons-material/Close';
 import { getIFCFile } from '../../helper/db';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import IfcListItemComponent from "../ifcListItemComponent";
@@ -52,7 +51,7 @@ const IFCViewerComponent: React.FC = () => {
     const isMeasurementModeRef = useRef(isMeasurementMode);
     const isClipperOnRef = useRef(isClipperOn);
 
-    const [isSelected, setIsSelected] = useState(false);
+    // const [isSelected, setIsSelected] = useState(false);
     const [isPanSelected, setIsPanSelected] = useState(false);
     const [isOrbitSelected, setIsOrbitSelected] = useState(false);
     const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -287,9 +286,9 @@ const IFCViewerComponent: React.FC = () => {
             const intersects = raycaster.intersectObjects(worldRef.current.scene.three.children, true);
 
             if (intersects.length > 0) {
-                setIsSelected(true);
+                // setIsSelected(true);
             } else {
-                setIsSelected(false);
+                // setIsSelected(false);
                 // clear the selected element
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: -1 } as PayloadAction<number>);
             }
@@ -389,7 +388,7 @@ const IFCViewerComponent: React.FC = () => {
         if (model && model.uuid) {
             dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: item.data.expressID } as PayloadAction<number>);
             
-            setIsSelected(true);
+            // setIsSelected(true);
 
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);
 
@@ -451,7 +450,7 @@ const IFCViewerComponent: React.FC = () => {
                     }}>
                         {sidebarTab === 0 && (
                             <AssessmentPanel
-                                isSelected={isSelected}
+                                // isSelected={isSelected}
                                 isTablet={isTablet}
                             />
                         )}
@@ -468,7 +467,7 @@ const IFCViewerComponent: React.FC = () => {
                     <div
                         ref={containerRef}
                         style={viewerContainerStyle}
-                        onClick={onContainerClick}
+                        // onClick={onContainerClick}
                         onDoubleClick={onContainerDoubleClick}
                     >
                     </div>

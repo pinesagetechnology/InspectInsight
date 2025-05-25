@@ -3,14 +3,14 @@ import { Stack, Checkbox } from '@mui/material';
 import { red, green, yellow, orange } from '@mui/material/colors';
 
 interface RatingComponentProps {
-    isDisabled: boolean;
+    // isDisabled: boolean;
     rating: string;
     elementId: number;
     handleOnRatingChange: (value: string, elementId: number) => void;
 }
 
 const RatingComponent: React.FC<RatingComponentProps> = ({
-    isDisabled,
+    // isDisabled,
     rating,
     elementId,
     handleOnRatingChange
@@ -24,7 +24,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
     return (
             <Stack direction={'row'} spacing={2} sx={{ width: '100%', justifyContent: 'space-between' }}>
             <Checkbox
-                disabled={isDisabled}
+                // disabled={isDisabled}
                 checked={rating === '1'}
                 aria-label="CS1"
                 onChange={() => handleChange('1')}
@@ -36,7 +36,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
             />
 
             <Checkbox
-                disabled={isDisabled}
+                // disabled={isDisabled}
                 checked={rating === '2'}
                 aria-label="CS2"
                 onChange={() => handleChange('2')}
@@ -48,7 +48,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
             />
 
             <Checkbox
-                disabled={isDisabled}
+                // disabled={isDisabled}
                 checked={rating === '3'}
                 aria-label="CS3"
                 onChange={() => handleChange('3')}
@@ -60,7 +60,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
             />
 
             <Checkbox
-                disabled={isDisabled}
+                // disabled={isDisabled}
                 aria-label="CS4"
                 checked={rating === '4'}
                 onChange={() => handleChange('4')}

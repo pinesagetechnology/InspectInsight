@@ -8,6 +8,7 @@ export interface MaintenanceActionState {
     isUploading: boolean;
     error: any;
     validationErrors: string[];
+    maintenanceActionModalFlag: boolean;
 }
 
 const initialState = {
@@ -15,7 +16,8 @@ const initialState = {
     maintenanceFormData: {} as MaintenanceActionModel,
     validationErrors: [],
     error: '',
-    maintenanceActions: []
+    maintenanceActions: [],
+    maintenanceActionModalFlag: false
 } as MaintenanceActionState
 
 const MaintenanceActionSlice = createSlice({
@@ -36,6 +38,9 @@ const MaintenanceActionSlice = createSlice({
         },
         setMaintenanceValidationErrors: (state, action: PayloadAction<string[]>) => {
             state.validationErrors = action.payload;
+        },
+        setMaintenanceActionModalFlag: (state, action: PayloadAction<boolean>) => {
+            state.maintenanceActionModalFlag = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -45,6 +50,7 @@ const MaintenanceActionSlice = createSlice({
             state.error = "";
             state.isUploading = false;
             state.validationErrors = [];
+            state.maintenanceActionModalFlag = false;
         });
     },
 });
@@ -54,7 +60,8 @@ export const {
     setCurrentMaintenanceFormData,
     setMaintenanceAcctionError,
     setMaintenanceActionList,
-    setMaintenanceValidationErrors
+    setMaintenanceValidationErrors,
+    setMaintenanceActionModalFlag
 } = MaintenanceActionSlice.actions;
 
 export default MaintenanceActionSlice.reducer;
