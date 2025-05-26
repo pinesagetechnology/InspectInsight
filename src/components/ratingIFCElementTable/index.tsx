@@ -45,6 +45,7 @@ import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
 import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
+import SaveIcon from '@mui/icons-material/Save';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -103,12 +104,12 @@ const StructureElementGrid: React.FC = () => {
     useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
         if (hasExecutedRef.current === autoTableElementFocus) return;
-        
+
         hasExecutedRef.current = autoTableElementFocus;
         dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
 
         const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
-        
+
         const walkPath = async () => {
             try {
                 for (const element of pathList) {
@@ -217,7 +218,8 @@ const StructureElementGrid: React.FC = () => {
         newData[elementIndex] = {
             ...newData[elementIndex],
             ifcElementRatingValue: value,
-            condition: newRating
+            condition: newRating,
+            isSaved: false
         };
 
         // Batch dispatch actions
@@ -226,15 +228,10 @@ const StructureElementGrid: React.FC = () => {
             type: actions.UPDATE_DISPLAY_LIST_ITEMS
         });
 
-        dispatch({
-            type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
-            payload: newData[elementIndex]
-        } as PayloadAction<StructureElement>);
-
-        dispatch({
-            type: actions.SAVE_CONDITION_RATING_DATA,
-            payload: newData[elementIndex]
-        } as PayloadAction<StructureElement>);
+        // dispatch({
+        //     type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+        //     payload: newData[elementIndex]
+        // } as PayloadAction<StructureElement>);
 
     }, [displayElements, dispatch]);
 
@@ -249,6 +246,30 @@ const StructureElementGrid: React.FC = () => {
             goTo(RoutesValueEnum.IFCViewer);
         }
     }
+
+    const handleSaveButton = (item: StructureElement) => {
+        dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
+
+        dispatch({
+            type: actions.SAVE_CONDITION_RATING_DATA,
+            payload: { ...item, isSaved: true } as StructureElement
+        } as PayloadAction<StructureElement>)
+
+        setTimeout(() => {
+            dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+        }, 1000)
+    }
+
+    // const handleSaveAllButton = () => {
+    //     dispatch({ type: commonActions.SHOW_LOADING_OVERLAY } as PayloadAction);
+
+    //     dispatch({
+    //         type: actions.SAVE_ALL_CONDITION_RATING_DATA,
+    //         payload: () => {
+    //             dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+    //         }
+    //     } as PayloadAction<VoidFunction>)
+    // }
 
     return (
         <React.Fragment>
@@ -267,7 +288,7 @@ const StructureElementGrid: React.FC = () => {
                         </Box>
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4} >
-                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px',  display: 'flex', alignItems: 'center', justifyContent: 'center'  }}>
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
                             <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={reviewedCount} label="progress" />
                         </Box>
                     </Grid>
@@ -315,7 +336,22 @@ const StructureElementGrid: React.FC = () => {
                                         </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Action</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ py: 0.5, px: 1 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        Action
+
+                                        {/* <Tooltip title="Save all condition ratings">
+                                            <IconButton
+                                                color="success"
+                                                onClick={handleSaveAllButton}
+                                                size="small"
+                                                sx={{ ml: 0.5 }}
+                                            >
+                                                <SaveIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip> */}
+                                    </Stack>
+                                </StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -353,29 +389,37 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell>
                                         <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                                             {!element.children?.length && (
-                                                <React.Fragment>
-                                                    <Stack direction="row" spacing={1}>
-                                                        <Tooltip title="Add assessment">
-                                                            <Badge
-                                                                badgeContent={maintenanceActionList.filter(
-                                                                    (action) => action.elementId === element.data?.expressID.toString()
-                                                                ).length}
+                                                <Stack direction="row" spacing={1}>
+                                                    <Tooltip title="Save condition rating">
+                                                        <IconButton
+                                                            color="success"
+                                                            onClick={() => handleSaveButton(element)}
+                                                            size={isPortrait ? 'small' : 'medium'}
+                                                            disabled={element.isSaved}
+                                                        >
+                                                            <SaveIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Add assessment">
+                                                        <Badge
+                                                            badgeContent={maintenanceActionList.filter(
+                                                                (action) => action.elementId === element.data?.expressID.toString()
+                                                            ).length}
+                                                            color="primary"
+                                                            showZero={false}
+                                                            overlap="circular"
+                                                            sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                                                        >
+                                                            <IconButton
                                                                 color="primary"
-                                                                showZero={false}
-                                                                overlap="circular"
-                                                                sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                                                                onClick={addAssessmentOnClick(element)}
+                                                                size={isPortrait ? 'small' : 'medium'}
                                                             >
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    onClick={addAssessmentOnClick(element)}
-                                                                    size={isPortrait ? 'small' : 'medium'}
-                                                                >
-                                                                    <PostAddIcon />
-                                                                </IconButton>
-                                                            </Badge>
-                                                        </Tooltip>
-                                                    </Stack>
-                                                </React.Fragment>
+                                                                <PostAddIcon />
+                                                            </IconButton>
+                                                        </Badge>
+                                                    </Tooltip>
+                                                </Stack>
                                             )}
                                         </Stack>
                                     </StyledTableCell>

@@ -148,29 +148,6 @@ const ElementsCodeGrid: React.FC = () => {
         }
     }, [editRowId, structureElementsCode]);
 
-    const handleSave = useCallback((elementCode: string) => {
-        const editedElement = editingElements.get(elementCode);
-        if (!editedElement) return;
-
-        // Update the global state with all changes
-        const updatedData = structureElementsCode.map(item =>
-            item.elementCode === elementCode ? editedElement : item
-        );
-
-        dispatch({
-            type: actions.UPDATE_ELEMENT_CODE_LIST,
-            payload: updatedData
-        });
-
-        // Clean up local state
-        setEditRowId(null);
-        setEditingElements(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(elementCode);
-            return newMap;
-        });
-    }, [editingElements, structureElementsCode, dispatch]);
-
     const handleCancel = useCallback((elementCode: string) => {
         setEditRowId(null);
         setEditingElements(prev => {
@@ -212,13 +189,24 @@ const ElementsCodeGrid: React.FC = () => {
 
     const saveOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        handleSave(element.elementCode);
 
-        // Dispatch save action for persistence
+        const editedElement = editingElements.get(element.elementCode);
+        if (!editedElement) return;
+        
+        // Clean up local state
+        setEditRowId(null);
+        setEditingElements(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(element.elementCode);
+            return newMap;
+        });
+
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
-        } as PayloadAction);
-    }, [handleSave, dispatch]);
+            payload: editedElement
+        });
+
+    }, [editingElements, structureElementsCode, dispatch]);
 
     return (
         <React.Fragment>
@@ -237,7 +225,7 @@ const ElementsCodeGrid: React.FC = () => {
                         </Box>
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4} >
-                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
                             <CircularProgressWithLabel totalQuantity={totalElementCodeQuantity || 0} reviewedCount={reviewedCount} label="progress" />
                         </Box>
                     </Grid>

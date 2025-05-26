@@ -143,7 +143,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-                console.log("id", id);
+                
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
