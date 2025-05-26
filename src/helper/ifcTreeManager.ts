@@ -166,6 +166,21 @@ export const filterTree = (nodes: StructureElement[], query: string): StructureE
         .filter((node) => node !== null) as StructureElement[];
 }
 
+export const findPathToNode = (tree: StructureElement[], targetName: string): StructureElement[] => {
+    for (const node of tree) {
+        if (node.data.Name === targetName) {
+            return [node];
+        }
+        if (node.children && node.children.length > 0) {
+            const childPath = findPathToNode(node.children, targetName);
+            if (childPath.length > 0) {
+                return [node, ...childPath];
+            }
+        }
+    }
+    return [];
+}
+
 export const flattenDataTree = (nodes: StructureElement[]): StructureElement[] => {
     const result: StructureElement[] = [];
 

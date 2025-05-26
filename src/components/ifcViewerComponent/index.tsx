@@ -9,7 +9,7 @@ import * as commonActions from "../../store/Common/actions";
 import * as ratingActions from "../../store/ConditionRating/actions";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { getCurrentStructure, getStructureIFCPath } from "../../store/Structure/selectors";
-import { getRatedElements } from "../../store/ConditionRating/selectors";
+import { getRatedElements, getSelectedStructureElement } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
 import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme, Stack, Tabs, Tab } from "@mui/material";
@@ -28,6 +28,7 @@ const IFCViewerComponent: React.FC = () => {
     const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
     const isOnline = useSelector(isOnlineSelector);
     const currentStructure = useSelector(getCurrentStructure);
+    const selectedStructureElement = useSelector(getSelectedStructureElement);
 
     // Add theme and media queries for responsive design
     const theme = useTheme();
@@ -140,7 +141,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-                
+
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
@@ -235,6 +236,14 @@ const IFCViewerComponent: React.FC = () => {
                     isolate: new Set([WEBIFC.IFCBUILDINGSTOREY])
                 });
                 console.log('Model classification complete');
+
+                if (selectedStructureElement) {
+                    const fragmentIDMap = getRowFragmentIdMap(model, selectedStructureElement?.data);
+
+                    if (fragmentIDMap && !isMeasurementMode) {
+                        highlighterRef.current?.highlightByID(selectHighlighterName, fragmentIDMap, true, true);
+                    }
+                }
 
             } catch (e) {
                 console.error('IFC load error:', e);
@@ -387,7 +396,7 @@ const IFCViewerComponent: React.FC = () => {
     const handleTreeItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
             dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: item.data.expressID } as PayloadAction<number>);
-            
+
             // setIsSelected(true);
 
             const fragmentIDMap = getRowFragmentIdMap(model, item.data);

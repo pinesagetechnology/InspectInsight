@@ -11,6 +11,7 @@ export interface ConditionRatingState {
     ratedElements: StructureElement[];
     ratedElementCodeData: ElementCodeData[];
     elementCodeDataList: ElementCodeData[];
+    autoTableElementFocus: number;
     error?: any;
 }
 
@@ -23,6 +24,7 @@ const initialState = {
     ratedElements: [],
     ratedElementCodeData: [],
     elementCodeDataList: [],
+    autoTableElementFocus: -1,
 } as ConditionRatingState
 
 const ConditionRatingSlice = createSlice({
@@ -56,6 +58,9 @@ const ConditionRatingSlice = createSlice({
         setOriginalElementCodeDataList: (state, action: PayloadAction<ElementCodeData[]>) => {
             state.elementCodeDataList = action.payload;
         },
+        setAutoTableElementFocus: (state, action: PayloadAction<number>) => {
+            state.autoTableElementFocus = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
@@ -67,6 +72,7 @@ const ConditionRatingSlice = createSlice({
             state.selectedStructureElement = {} as StructureElement;
             state.selectedElementCode = {} as ElementCodeData;
             state.displayConditionRatingElements = [] as StructureElement[];
+            state.autoTableElementFocus = -1;
             state.error = '';
         });
     }
@@ -81,7 +87,8 @@ export const {
     setReatedElement,
     setSelectedElementCode,
     setOriginalElementCodeDataList,
-    setReatedElementCode
+    setReatedElementCode,
+    setAutoTableElementFocus
 } = ConditionRatingSlice.actions;
 
 export default ConditionRatingSlice.reducer;

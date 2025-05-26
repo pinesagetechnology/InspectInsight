@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
-import { getDisplayElementList } from '../../store/ConditionRating/selectors';
+import { getAutoTableElementFocus, getDisplayElementList, getOriginalConditionRating, getSelectedStructureElement } from '../../store/ConditionRating/selectors';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
@@ -28,12 +28,14 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import { filterTree } from '../../helper/ifcTreeManager';
+import { filterTree, findPathToNode } from '../../helper/ifcTreeManager';
 import RatingComponent from '../../components/ratingComponent';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
-import { RMAModeEnum } from '../../enums';
+import { RMAModeEnum, RoutesValueEnum } from '../../enums';
+import { useNavigationManager } from '../../navigation';
+import * as commonActions from "../../store/Common/actions";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -57,9 +59,15 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 }));
 
 const StructureElementGrid: React.FC = () => {
+    const { goTo } = useNavigationManager();
     const displayElements: StructureElement[] = useSelector(getDisplayElementList);
+    const originalStructureElements = useSelector(getOriginalConditionRating);
+
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
+    const selectedElement = useSelector(getSelectedStructureElement);
+    const autoTableElementFocus = useSelector(getAutoTableElementFocus);
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
@@ -67,10 +75,61 @@ const StructureElementGrid: React.FC = () => {
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
+    const hasExecutedRef = useRef<number | null>(null);
 
     const filteredTreeData = searchQuery ? filterTree(displayElements, searchQuery) : displayElements;
 
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (autoTableElementFocus < 0 || !selectedElement?.data) return;
+
+        // Prevent duplicate execution for the same autoTableElementFocus value
+        if (hasExecutedRef.current === autoTableElementFocus) return;
+        hasExecutedRef.current = autoTableElementFocus;
+
+        setTimeout(() => {
+
+            //show loading
+            dispatch({
+                type: commonActions.SHOW_LOADING_OVERLAY,
+            });
+            console.log('why???')
+            const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
+
+            pathList.forEach(element => {
+                setTimeout(() => {
+                    if (element.children?.length > 0) {
+                        handleRowClick(element);
+                    } else {
+                        console.log('found');
+                        dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 } as PayloadAction<number>);
+                        // After walking the path, scroll to the row
+                        setTimeout(() => {
+                            if (tableContainerRef.current && selectedElement?.data) {
+                                const elementToScroll = tableContainerRef.current.querySelector(
+                                    `[data-express-id="${selectedElement.data.expressID}"]`
+                                );
+                                if (elementToScroll) {
+                                    elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }
+                            // Hide loading after scroll
+                            dispatch({
+                                type: commonActions.CLOSE_LOADING_OVERLAY,
+                            });
+                        }, 200);
+                    }
+                }, 120);
+            });
+        }, 100); // 100ms delay, adjust as needed
+
+        return () => {
+            // dispatch({
+            //     type: commonActions.CLOSE_LOADING_OVERLAY,
+            // });
+        };
+    }, [autoTableElementFocus]);
 
     useEffect(() => {
         dispatch({
@@ -83,10 +142,12 @@ const StructureElementGrid: React.FC = () => {
     }, [elementHistory])
 
     const handleRowClick = (element: StructureElement) => {
-        dispatch({
-            payload: element,
-            type: actions.HANDLE_ROW_CLICK_SAGA
-        } as PayloadAction<StructureElement>);
+        if (element.children?.length > 0) {
+            dispatch({
+                payload: element,
+                type: actions.HANDLE_ROW_CLICK_SAGA
+            } as PayloadAction<StructureElement>);
+        }
     }
 
     const handleClose = () => {
@@ -122,6 +183,11 @@ const StructureElementGrid: React.FC = () => {
 
     const handleBack = () => {
         dispatch({
+            type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+            payload: {} as StructureElement
+        } as PayloadAction<StructureElement>);
+
+        dispatch({
             type: actions.HANDLE_BACK_CLICK_SAGA
         } as PayloadAction);
     }
@@ -154,10 +220,28 @@ const StructureElementGrid: React.FC = () => {
         });
 
         dispatch({
+            type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+            payload: newData[elementIndex]
+        } as PayloadAction<StructureElement>);
+
+        dispatch({
             type: actions.SAVE_CONDITION_RATING_DATA,
             payload: newData[elementIndex]
         } as PayloadAction<StructureElement>);
+
     }, [displayElements, dispatch]);
+
+
+    const handleRowDoubleClick = (element: StructureElement) => {
+        if (element.children?.length === 0) {
+            dispatch({
+                type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+                payload: element
+            } as PayloadAction<StructureElement>);
+
+            goTo(RoutesValueEnum.IFCViewer);
+        }
+    }
 
     return (
         <React.Fragment>
@@ -190,10 +274,12 @@ const StructureElementGrid: React.FC = () => {
                 </Grid>
 
                 <TableContainer
+                    ref={tableContainerRef}
                     component={Paper}
                     sx={{
                         mt: 2,
-                        maxHeight: isTablet ? '60vh' : '70vh'
+                        maxHeight: isTablet ? '60vh' : '70vh',
+                        overflow: 'auto'
                     }}
                 >
                     <Table stickyHeader aria-label="collapsible table">
@@ -222,7 +308,17 @@ const StructureElementGrid: React.FC = () => {
                         </TableHead>
                         <TableBody>
                             {filteredTreeData?.map((element: StructureElement) => (
-                                <TableRow key={element.data.expressID} onClick={() => handleRowClick(element)} style={{ cursor: 'pointer' }}>
+                                <TableRow
+                                    key={element.data?.expressID}
+                                    onClick={() => handleRowClick(element)}
+                                    onDoubleClick={() => handleRowDoubleClick(element)}
+                                    style={{ cursor: 'pointer' }}
+                                    data-express-id={element.data?.expressID}
+                                    sx={{
+                                        backgroundColor: selectedElement?.data?.expressID === element.data?.expressID ?
+                                            'rgba(0, 0, 0, 0.04)' : 'inherit'
+                                    }}
+                                >
                                     <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
                                     <StyledTableCell>{element.data.Entity}</StyledTableCell>
                                     <StyledTableCell>{element.data.Name}</StyledTableCell>

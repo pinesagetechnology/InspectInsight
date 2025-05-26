@@ -10,4 +10,4 @@ export const SET_SELECTED_IFC_ELEMENT_ID = "sagaAction/setSelectedIFCElementId";
 export const SET_SELECTED_ELEMENT_CODE = "sagaAction/setSelectedElementCode";
 export const UPDATE_ELEMENT_CODE_LIST = "sagaAction/updateElementCodeList";
 export const SAVE_ELEMENT_CODE_LIST = "sagaAction/saveElementCodeList";
-
+export const SET_AUTO_TABLE_ELEMENT_FOCUS = "sagaAction/setAutoTableElementFocus";

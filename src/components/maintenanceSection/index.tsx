@@ -245,8 +245,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     name="activityDescription"
                                     value={formData.activityDescription || ""}
                                     variant="outlined"
-                                    multiline
-                                    rows={2}
                                     disabled={true}
                                 />
                             </Grid>
