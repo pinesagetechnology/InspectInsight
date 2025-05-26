@@ -19,7 +19,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
 }) => {
 
     // Add theme and media queries for responsive design
-    const isTablet = useMediaQuery('(max-width:900px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
 
     const handleChange = (value: string) => {
         handleOnRatingChange(value, elementId);
@@ -70,7 +70,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
                 />
             </Grid>
             <Grid size={6} sx={{ textAlign: 'center' }}>
-                {showLabel && <Typography variant="caption" display="block">CS4</Typography>}   
+                {showLabel && <Typography variant="caption" display="block">CS4</Typography>}
                 <Checkbox
                     // disabled={isDisabled}
                     checked={rating === '4'}

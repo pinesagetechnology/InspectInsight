@@ -32,7 +32,8 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedIFCElement = useSelector(getSelectedStructureElement);
     const maintenanceActionList = useSelector(getMaintenanceActions);
-
+    console.log(window.innerWidth, window.innerHeight, window.devicePixelRatio);
+console.log(isTablet)
     const addAssessmentOnClick = () => {
         if (!selectedIFCElement) return;
         const newMaintenanceAction = {

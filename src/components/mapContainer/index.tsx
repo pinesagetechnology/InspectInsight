@@ -108,8 +108,8 @@ const MapContainer: React.FC<MapComponentProps> = ({
     const [selectedItems, setSelectedItems] = useState<Record<string, string[]>>({});
 
     // Media queries for responsive design
-    const isTablet = useMediaQuery('(max-width:960px)');
-    const isTabletPortrait = useMediaQuery('(max-width:600px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
+    const isPortrait = useMediaQuery('(orientation: portrait)');
     const isLandscape = useMediaQuery('(orientation: landscape)');
 
     // Keep track of created markers so we can remove them later
@@ -304,11 +304,11 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 {/* FAB buttons - responsive positioning */}
                 <Fab
                     color="primary"
-                    size={isTabletPortrait ? "small" : "medium"}
+                    size={isPortrait ? "small" : "medium"}
                     sx={{
                         position: 'absolute',
                         top: isTablet ? 8 : 16,
-                        right: isTabletPortrait ? 60 : 80
+                        right: isPortrait ? 60 : 80
                     }}
                     onClick={onRefreshMapClick}
                 >
@@ -317,11 +317,11 @@ const MapContainer: React.FC<MapComponentProps> = ({
 
                 <Fab
                     color="primary"
-                    size={isTabletPortrait ? "small" : "medium"}
+                    size={isPortrait ? "small" : "medium"}
                     sx={{
                         position: 'absolute',
                         top: isTablet ? 8 : 16,
-                        right: isTabletPortrait ? 116 : 136
+                        right: isPortrait ? 116 : 136
                     }}
                     onClick={handleMenuOpen}
                 >
@@ -358,11 +358,11 @@ const MapContainer: React.FC<MapComponentProps> = ({
 
                 <Fab
                     color="primary"
-                    size={isTabletPortrait ? "small" : "medium"}
+                    size={isPortrait ? "small" : "medium"}
                     sx={{
                         position: 'absolute',
                         top: isTablet ? 8 : 16,
-                        right: isTabletPortrait ? 8 : 16
+                        right: isPortrait ? 8 : 16
                     }}
                     onClick={toggleView}
                 >
@@ -370,7 +370,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 </Fab>
 
                 {/* Search bar - responsive width and positioning */}
-                {!isTabletPortrait && (
+                {!isPortrait && (
                     <Paper
                         elevation={3}
                         sx={{
@@ -390,7 +390,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 )}
 
                 {/* Mobile search - positioned below FABs in portrait mode */}
-                {isTabletPortrait && (
+                {isPortrait && (
                     <Paper
                         elevation={3}
                         sx={{

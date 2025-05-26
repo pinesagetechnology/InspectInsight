@@ -56,13 +56,14 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
+    const isPortrait = useMediaQuery('(orientation: portrait)');
+    
     const mmsActivityData = useSelector(getMMSActivityData);
     const mmsMnueItems = useSelector(getMMSActivities);
-    const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
     const validationErrors: string[] = useSelector(getMaintenanceValidationErrors);
-
+    
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
     useEffect(() => {

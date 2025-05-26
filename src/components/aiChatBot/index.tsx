@@ -108,7 +108,6 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
     onGetCompletion
 }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);

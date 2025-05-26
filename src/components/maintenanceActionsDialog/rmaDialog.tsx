@@ -37,8 +37,9 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
     modalState,
     rmaMode
 }) => {
-    const isTablet = useMediaQuery('(max-width:960px)');
-    const isPortrait = useMediaQuery('(max-width:600px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
+    const isPortrait = useMediaQuery('(orientation: portrait)');
+
     let maintenanceActions: MaintenanceActionModel[] = [];
     if (rmaMode === RMAModeEnum.IFCElement) {
         const selectedElemment = useSelector(getSelectedStructureElement);

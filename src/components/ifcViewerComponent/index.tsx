@@ -36,9 +36,7 @@ const IFCViewerComponent: React.FC = () => {
     const selectedStructureElement = useSelector(getSelectedStructureElement);
 
     // Add theme and media queries for responsive design
-    const isTablet = useMediaQuery('(max-width:900px)');
-    const isSmallTablet = useMediaQuery('(max-width:600px)');
-
+    const isTablet = useMediaQuery('(max-width:962px)');
     const containerRef = useRef<HTMLDivElement | null>(null);
     const worldRef = useRef<OBC.SimpleWorld<any, any, any>>();
     const cameraRef = useRef<OBC.OrthoPerspectiveCamera>();
