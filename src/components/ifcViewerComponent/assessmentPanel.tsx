@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StructureElement } from "entities/structure";
 import {
+    Badge,
     Button,
     Divider,
     Paper,
@@ -16,22 +17,21 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import { PayloadAction } from '@reduxjs/toolkit';
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
 import RatingComponent from '../../components/ratingComponent';
-import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { MaintenanceActionModel } from 'models/inspectionModel';
 import { RMAModeEnum } from '../../enums';
 
 interface AssessmentPanelProps {
-    // isSelected?: boolean;
     isTablet: boolean;
 }
 
 const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
-    // isSelected,
     isTablet,
 }) => {
     const dispatch = useDispatch();
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedIFCElement = useSelector(getSelectedStructureElement);
+    const maintenanceActionList = useSelector(getMaintenanceActions);
 
     const addAssessmentOnClick = () => {
         if (!selectedIFCElement) return;
@@ -110,15 +110,25 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
                 <Divider orientation="horizontal" flexItem />
 
-                <Button
-                    variant="contained"
-                    endIcon={<PostAddIcon />}
-                    onClick={addAssessmentOnClick}
-                    // disabled={!isSelected}
-                    sx={{ width: '95%' }}
+
+                <Badge
+                    badgeContent={maintenanceActionList.filter(
+                        (action) => action.elementId === selectedIFCElement.data?.expressID.toString()
+                    ).length}
+                    color="primary"
+                    showZero={false}
+                    overlap="circular"
+                    sx={{ '& .MuiBadge-badge': { fontSize: '0.9rem', minWidth: 16, height: 16 } }}
                 >
-                    Add maintenance Action
-                </Button>
+                    <Button
+                        variant="contained"
+                        endIcon={<PostAddIcon />}
+                        onClick={addAssessmentOnClick}
+                        sx={{ width: '95%' }}
+                    >
+                        {isTablet ? 'Add assessment' : 'Add maintenance action'}
+                    </Button>
+                </Badge>
             </Stack>
 
             <RMADialog

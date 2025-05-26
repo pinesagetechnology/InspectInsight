@@ -16,7 +16,8 @@ import {
     useMediaQuery,
     Box,
     Typography,
-    styled
+    styled,
+    Badge
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
@@ -32,7 +33,7 @@ import RatingInputField from '../ratingInputField';
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
-import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum } from '../../enums';
 import { getTotalElementCodeQuantity } from '../../store/Structure/selectors';
 import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
@@ -77,6 +78,8 @@ const ElementsCodeGrid: React.FC = () => {
     const structureElementsCode = useSelector(getElementCodeDataList);
     const totalElementCodeQuantity = useSelector(getTotalElementCodeQuantity);
     const ratedElements = useSelector(getRatedElementCodeData);
+    const maintenanceActionList = useSelector(getMaintenanceActions);
+
     // Local state for editing
     const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
@@ -320,16 +323,6 @@ const ElementsCodeGrid: React.FC = () => {
                                                 {isEditing ? (
                                                     <React.Fragment>
                                                         <Stack direction="row" spacing={1}>
-                                                            <Tooltip title="Add assessment">
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    onClick={addAssessmentOnClick(element)}
-                                                                    size={isPortrait ? 'small' : 'medium'}
-                                                                >
-                                                                    <PostAddIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-
                                                             <Tooltip title="Save condition rating">
                                                                 <IconButton
                                                                     color="success"
@@ -368,7 +361,28 @@ const ElementsCodeGrid: React.FC = () => {
                                                     >
                                                         {isPortrait ? 'Rate' : 'Add rating'}
                                                     </Button>
+
                                                 )}
+                                                <Tooltip title="Add assessment">
+                                                    <Badge
+                                                        badgeContent={maintenanceActionList.filter(
+                                                            (action) => action.elementId === element.id
+                                                        ).length}
+                                                        color="primary"
+                                                        showZero={false}
+                                                        overlap="circular"
+                                                        sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                                                    >
+                                                        <IconButton
+                                                            color="primary"
+                                                            onClick={addAssessmentOnClick(element)}
+                                                            size={isPortrait ? 'small' : 'medium'}
+                                                        >
+                                                            <PostAddIcon />
+                                                        </IconButton>
+                                                    </Badge>
+                                                </Tooltip>
+
                                             </Stack>
                                         </StyledTableCell>
                                     </TableRow>

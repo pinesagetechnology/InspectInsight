@@ -463,7 +463,6 @@ const IFCViewerComponent: React.FC = () => {
                         <Box sx={{ flex: 1, overflow: 'auto' }}>
                             {sidebarTab === 0 && (
                                 <AssessmentPanel
-                                    // isSelected={isSelected}
                                     isTablet={isTablet}
                                 />
                             )}

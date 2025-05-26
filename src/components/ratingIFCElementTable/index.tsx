@@ -16,7 +16,8 @@ import {
     Grid2 as Grid,
     useMediaQuery,
     Box,
-    Typography
+    Typography,
+    Badge
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -38,7 +39,7 @@ import { filterTree, findPathToNode } from '../../helper/ifcTreeManager';
 import RatingComponent from '../../components/ratingComponent';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
-import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum, RoutesValueEnum } from '../../enums';
 import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
@@ -79,6 +80,7 @@ const StructureElementGrid: React.FC = () => {
     const selectedElement = useSelector(getSelectedStructureElement);
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
     const ratedElements = useSelector(getRatedElements);
+    const maintenanceActionList = useSelector(getMaintenanceActions);
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -354,13 +356,23 @@ const StructureElementGrid: React.FC = () => {
                                                 <React.Fragment>
                                                     <Stack direction="row" spacing={1}>
                                                         <Tooltip title="Add assessment">
-                                                            <IconButton
+                                                            <Badge
+                                                                badgeContent={maintenanceActionList.filter(
+                                                                    (action) => action.elementId === element.data?.expressID.toString()
+                                                                ).length}
                                                                 color="primary"
-                                                                onClick={addAssessmentOnClick(element)}
-                                                                size={isPortrait ? 'small' : 'medium'}
+                                                                showZero={false}
+                                                                overlap="circular"
+                                                                sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
                                                             >
-                                                                <PostAddIcon />
-                                                            </IconButton>
+                                                                <IconButton
+                                                                    color="primary"
+                                                                    onClick={addAssessmentOnClick(element)}
+                                                                    size={isPortrait ? 'small' : 'medium'}
+                                                                >
+                                                                    <PostAddIcon />
+                                                                </IconButton>
+                                                            </Badge>
                                                         </Tooltip>
                                                     </Stack>
                                                 </React.Fragment>
