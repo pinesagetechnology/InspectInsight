@@ -310,12 +310,10 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 )}
                             </Grid>
 
-                            {
-                                (maintenanceActionData.mode > 0) &&
-                                <Grid size={12}>
-                                    <ImageUpload formData={formData} />
-                                </Grid>
-                            }
+                            <Grid size={12}>
+                                <ImageUpload formData={formData} />
+                            </Grid>
+
                         </Grid>
                     </Box>
                 </Container>

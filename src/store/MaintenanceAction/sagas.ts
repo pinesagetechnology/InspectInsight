@@ -123,19 +123,23 @@ export function* updateMaintenanceActionValue(action: PayloadAction<MaintenanceA
         return;
     }
 
+    yield call(UpdateMaintenanceActionItem, action.payload, false);
+}
+
+function* UpdateMaintenanceActionItem(item: MaintenanceActionModel, isSectionExpanded: boolean) {
     const maintenancActions: MaintenanceActionModel[] = yield select(getMaintenanceActions);
 
     const updatedMaintenanceActionItem = {
-        ...action.payload,
-        isSectionExpanded: false,
+        ...item,
+        isSectionExpanded: isSectionExpanded,
         mode: 0
     };
 
-    const updatedList = maintenancActions?.map(item => {
-        if (item.id === action.payload.id)
+    const updatedList = maintenancActions?.map(mAction => {
+        if (mAction.id === item.id)
             return updatedMaintenanceActionItem;
         else
-            return item;
+            return mAction;
     })
 
     yield put(setCurrentMaintenanceFormData(updatedMaintenanceActionItem));
@@ -169,6 +173,9 @@ export function* saveMaintenanceImageData(action: PayloadAction<MaintenanceActio
 
         yield put(setCurrentMaintenanceFormData({ ...action.payload, photos: updatedPayloadPhotos }));
 
+        if(action.payload.id !== "-1") {
+            yield call(UpdateMaintenanceActionItem, { ...action.payload, photos: updatedPayloadPhotos }, true);
+        }
     } catch (error: any) {
         if (error instanceof Error) {
             yield put(setMaintenanceAcctionError(error.message));
