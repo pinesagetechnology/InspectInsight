@@ -88,6 +88,7 @@ const ElementsCodeGrid: React.FC = () => {
     const isPortrait = useMediaQuery('(max-width:600px)');
 
     useEffect(() => {
+        setReviewedCount(0);
         ratedElements.forEach(element => {
             const totalRating = element.condition?.reduce((acc, curr) => acc + curr, 0) || 0;
             setReviewedCount(prev => prev + totalRating);

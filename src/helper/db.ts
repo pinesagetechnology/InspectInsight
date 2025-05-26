@@ -278,3 +278,13 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
     }
 };
 
+export const getImageFromDB = async (): Promise<string[]> => {
+    try {
+        const images = await db.capturedImages.toArray();
+        return images.map(image => URL.createObjectURL(image.blob));
+    } catch (error) {
+        console.error('Failed to retrieve images from IndexedDB:', error);
+        return [];
+    }
+};
+

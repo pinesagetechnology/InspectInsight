@@ -129,7 +129,7 @@ const InspectionDetailForm: React.FC = () => {
                                 selectedValue={inspectionDetail.inspectionLevel || ""}
                                 setSelectedValueHandler={onSelectTypeChange}
                                 menuItemList={inspectionLevelItem}
-                                error={validationList.some(x => x === 'inspectionLevel')}
+                                error={!inspectionDetail.inspectionLevel}
                             />
                             {validationList.some(x => x === 'inspectionLevel') && (
                                 <FormHelperText error>{getValidationMessage('inspectionLevel')}</FormHelperText>
@@ -142,7 +142,7 @@ const InspectionDetailForm: React.FC = () => {
                                 isoDateValue={inspectionDetail.inspectionDate}
                                 onDateChange={onDateChangeHandler}
                                 controlStyle={styles.datePicker}
-                                error={validationList.some(x => x === 'inspectionDate')}
+                                error={!inspectionDetail.inspectionDate}
                                 helperText={validationList.some(x => x === 'inspectionDate') ? getValidationMessage('inspectionDate') : ''}
                             />
                         </Grid>
@@ -153,7 +153,7 @@ const InspectionDetailForm: React.FC = () => {
                                 selectedValue={inspectionDetail.inspectionType || ""}
                                 setSelectedValueHandler={onSelectTypeChange}
                                 menuItemList={inspectionTypeItem}
-                                error={validationList.some(x => x === 'inspectionType')}
+                                error={!inspectionDetail.inspectionType}
                             />
                             {validationList.some(x => x === 'inspectionType') && (
                                 <FormHelperText error>{getValidationMessage('inspectionType')}</FormHelperText>
@@ -166,7 +166,7 @@ const InspectionDetailForm: React.FC = () => {
                                 isoDateValue={inspectionDetail.nextInspectionProposedDate}
                                 onDateChange={onDateChangeHandler}
                                 controlStyle={styles.datePicker}
-                                error={validationList.some(x => x === 'nextInspectionProposedDate')}
+                                error={!inspectionDetail.nextInspectionProposedDate}
                                 helperText={validationList.some(x => x === 'nextInspectionProposedDate') ? getValidationMessage('nextInspectionProposedDate') : ''}
                             />
                         </Grid>
@@ -180,7 +180,7 @@ const InspectionDetailForm: React.FC = () => {
                                 onChange={handleChangeTemprature}
                                 variant="outlined"
                                 slotProps={{ htmlInput: { min: "-100", max: "100", step: "0.1" } }}
-                                error={validationList.some(x => x === 'temperature')}
+                                error={!inspectionDetail.temperature}
                                 helperText={validationList.some(x => x === 'temperature') ? getValidationMessage('temperature') : ''}
                             />
                         </Grid>
@@ -191,7 +191,7 @@ const InspectionDetailForm: React.FC = () => {
                                 selectedValue={inspectionDetail.weather || ""}
                                 setSelectedValueHandler={onSelectTypeChange}
                                 menuItemList={weatherTypeItem}
-                                error={validationList.some(x => x === 'weather')}
+                                error={!inspectionDetail.weather}
                             />
                             {validationList.some(x => x === 'weather') && (
                                 <FormHelperText error>{getValidationMessage('weather')}</FormHelperText>
@@ -205,7 +205,7 @@ const InspectionDetailForm: React.FC = () => {
                                 value={inspectionDetail.inspectorName || ""}
                                 onChange={handleChange}
                                 variant="outlined"
-                                error={validationList.some(x => x === 'inspectorName')}
+                                error={!inspectionDetail.inspectorName}
                                 helperText={validationList.some(x => x === 'inspectorName') ? getValidationMessage('inspectorName') : ''}
                             />
                         </Grid>
@@ -217,7 +217,7 @@ const InspectionDetailForm: React.FC = () => {
                                 value={inspectionDetail.engineerName || ""}
                                 onChange={handleChange}
                                 variant="outlined"
-                                error={validationList.some(x => x === 'engineerName')}
+                                error={!inspectionDetail.engineerName}
                                 helperText={validationList.some(x => x === 'engineerName') ? getValidationMessage('engineerName') : ''}
                             />
                         </Grid>

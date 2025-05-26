@@ -237,18 +237,18 @@ export function* setInspectionValidation(action: PayloadAction<InspectionFomrVal
         }
     }
 
-    // Check if all required fields are valid
-    const requiredFields = [
-        'inspectionLevel',
-        'inspectionType',
-        'weather',
-        'temperature',
-        'inspectionDate',
-        'nextInspectionProposedDate',
-        'inspectorName',
-        'engineerName'
-    ];
+    // // Check if all required fields are valid
+    // const requiredFields = [
+    //     'inspectionLevel',
+    //     'inspectionType',
+    //     'weather',
+    //     'temperature',
+    //     'inspectionDate',
+    //     'nextInspectionProposedDate',
+    //     'inspectorName',
+    //     'engineerName'
+    // ];
 
-    const allFieldsValid = requiredFields.every(field => validateField(field, inspectionDetail[field as keyof InspectionModel]));
-    yield put(setNextButtonFlag(allFieldsValid));
+    // const allFieldsValid = requiredFields.every(field => validateField(field, inspectionDetail[field as keyof InspectionModel]));
+    // yield put(setNextButtonFlag(allFieldsValid));
 }
