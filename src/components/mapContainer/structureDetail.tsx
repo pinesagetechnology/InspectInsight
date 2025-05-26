@@ -60,8 +60,8 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
     const dispatch = useDispatch();
 
     // Media queries for responsive design
-    const isTablet = useMediaQuery('(max-width:960px)');
-    const isTabletPortrait = useMediaQuery('(max-width:600px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
+    const isPortrait = useMediaQuery('(orientation: portrait)');
 
     const handleGetDirections = () => {
         if (selectedStructure) {
@@ -96,23 +96,23 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
             {/* Header with location info */}
             <CardContent sx={{
                 pb: 1,
-                margin: isTabletPortrait ? '0px 12px' : '0px 24px',
-                pt: isTabletPortrait ? 1 : 2
+                margin: isPortrait ? '0px 12px' : '0px 24px',
+                pt: isPortrait ? 1 : 2
             }}>
                 <Stack direction="row" alignItems="flex-start" spacing={1} mb={1}>
-                    <LocationOn color="action" fontSize={isTabletPortrait ? "small" : "medium"} />
+                    <LocationOn color="action" fontSize={isPortrait ? "small" : "medium"} />
                     <Box>
-                        <Typography variant={isTabletPortrait ? "subtitle1" : "h6"} gutterBottom>
+                        <Typography variant={isPortrait ? "subtitle1" : "h6"} gutterBottom>
                             {selectedStructure.name}
                         </Typography>
-                        <Typography color="text.secondary" fontSize={isTabletPortrait ? "0.75rem" : "0.875rem"}>
+                        <Typography color="text.secondary" fontSize={isPortrait ? "0.75rem" : "0.875rem"}>
                             {`${selectedStructure.location.latitude}, ${selectedStructure.location.longitude}`}
                         </Typography>
                     </Box>
                 </Stack>
 
                 {/* Details Grid - responsive sizing */}
-                <Grid container spacing={isTabletPortrait ? 1 : 2} mb={2}>
+                <Grid container spacing={isPortrait ? 1 : 2} mb={2}>
                     <Grid size={{ xs: 6, sm: 4 }}>
                         <DetailLabel>Next Inspection Date</DetailLabel>
                         <DetailValue>{(selectedStructure.previousInspection?.nextInspectionProposedDate === defaultDateValue) ? "" : FormatDateOnly(selectedStructure.previousInspection?.nextInspectionProposedDate || "")}</DetailValue>
@@ -165,8 +165,8 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                 <Divider sx={{ my: 1 }} />
 
                 {/* Action Buttons - stack vertically on portrait mode */}
-                <Grid container spacing={1} direction={isTabletPortrait ? "column" : "row"}>
-                    <Grid size={isTabletPortrait ? 12 : 4}>
+                <Grid container spacing={1} direction={isPortrait ? "column" : "row"}>
+                    <Grid size={isPortrait ? 12 : 4}>
                         <ActionButton
                             variant="contained"
                             startIcon={<Navigation fontSize="small" />}
@@ -176,7 +176,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                             Inspection
                         </ActionButton>
                     </Grid>
-                    <Grid size={isTabletPortrait ? 12 : 4}>
+                    <Grid size={isPortrait ? 12 : 4}>
                         <ActionButton
                             variant="outlined"
                             startIcon={<History fontSize="small" />}
@@ -186,7 +186,7 @@ const StructureDetailSection: React.FunctionComponent<StructureDetailSectionProp
                             Previous
                         </ActionButton>
                     </Grid>
-                    <Grid size={isTabletPortrait ? 12 : 4}>
+                    <Grid size={isPortrait ? 12 : 4}>
                         <ActionButton
                             variant="outlined"
                             startIcon={<DirectionsOutlined fontSize="small" />}

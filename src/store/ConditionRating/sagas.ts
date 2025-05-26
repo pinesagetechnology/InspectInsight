@@ -20,9 +20,10 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
     yield takeLatest(actions.SET_SELECTED_IFC_ELEMENT_ID, setSelectedElementIdSaga);
     yield takeLatest(actions.SET_SELECTED_ELEMENT_CODE, setSelectedElementCodeSaga);
-    yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
+    // yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
     yield takeLatest(actions.SAVE_ELEMENT_CODE_LIST, saveElementCodeListSaga);
     yield takeLatest(actions.SET_AUTO_TABLE_ELEMENT_FOCUS, setAutoTableElementFocusSaga);
+    // yield takeLatest(actions.SAVE_ALL_CONDITION_RATING_DATA, saveAllConditionRatingData);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -214,27 +215,58 @@ export function* setSelectedElementCodeSaga(action: PayloadAction<ElementCodeDat
     yield put(setSelectedElementCode(action.payload));
 }
 
-export function* updateElementCodeListSaga(action: PayloadAction<ElementCodeData[]>) {
-    yield put(setOriginalElementCodeDataList(action.payload));
-}
+// export function* updateElementCodeListSaga(action: PayloadAction<ElementCodeData[]>) {
+//     yield put(setOriginalElementCodeDataList(action.payload));
+// }
 
-export function* saveElementCodeListSaga() {
+export function* saveElementCodeListSaga(action: PayloadAction<ElementCodeData>) {
     const originalElementCodeData: ElementCodeData[] = yield select(getElementCodeDataList);
 
-    const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+    const updatedElementCodeData = originalElementCodeData.map(item => {
+        return item.elementCode === action.payload.elementCode ? action.payload : item
+    }) as ElementCodeData[];
 
-    const litToSave = originalElementCodeData.map(item => {
-        const existingItem = ratedElementCodeData.find(element => element.elementCode === item.elementCode);
-        if (existingItem) {
-            return { ...existingItem, ...item };
-        } else if (item.condition && item.condition.length > 0) {
+    yield put(setOriginalElementCodeDataList(updatedElementCodeData));
+
+    const ratedElementCodeData: ElementCodeData[] = yield select(getRatedElementCodeData);
+    //add or update ratedElementCodeData 
+    let updatedRatedElementCodeData: ElementCodeData[] = [];
+    const existingItem = ratedElementCodeData.find(item => item.elementCode === action.payload.elementCode);
+    if (existingItem) {
+        updatedRatedElementCodeData = ratedElementCodeData.map(item => {
+            if (item.elementCode === action.payload.elementCode) {
+                return action.payload;
+            }
             return item;
-        }
-        return null;
-    }).filter(item => item !== null) as ElementCodeData[];
-    yield put(setReatedElementCode(litToSave));
+        }) as ElementCodeData[];
+    } else {
+        updatedRatedElementCodeData = [...ratedElementCodeData, action.payload] as ElementCodeData[];
+    }
+
+    yield put(setReatedElementCode(updatedRatedElementCodeData));
 }
 
 export function* setAutoTableElementFocusSaga(action: PayloadAction<number>) {
     yield put(setAutoTableElementFocus(action.payload));
 }
+
+// export function* saveAllConditionRatingData(action: PayloadAction<VoidFunction>) {
+//     const displayElements: StructureElement[] = yield select(getDisplayElementList);
+
+//     const elementsToSave: StructureElement[] = displayElements.filter(element => !element.isSaved);
+
+//     for (const element of elementsToSave) {
+//         // update original list
+//         yield call(updateOrginalElementList, element);
+
+//         //update historyList
+//         yield call(updateHistoryElementList, element);
+
+//         //upted RatedElement
+//         yield call(updateRatedElementList, element);
+//     }
+
+//     if (action.payload) {
+//         yield call(action.payload);
+//     }
+// }

@@ -71,6 +71,7 @@ export interface StructureElement {
     ifcElementRatingValue?: string;
     isSplit?:boolean;
     splitElements? : StructureElement[];
+    isSaved?:boolean;
 }
 
 export interface ElementCodeData {

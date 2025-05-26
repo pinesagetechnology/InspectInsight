@@ -16,7 +16,8 @@ import {
     useMediaQuery,
     Box,
     Typography,
-    styled
+    styled,
+    Badge
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
@@ -32,7 +33,7 @@ import RatingInputField from '../ratingInputField';
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
-import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum } from '../../enums';
 import { getTotalElementCodeQuantity } from '../../store/Structure/selectors';
 import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
@@ -77,6 +78,8 @@ const ElementsCodeGrid: React.FC = () => {
     const structureElementsCode = useSelector(getElementCodeDataList);
     const totalElementCodeQuantity = useSelector(getTotalElementCodeQuantity);
     const ratedElements = useSelector(getRatedElementCodeData);
+    const maintenanceActionList = useSelector(getMaintenanceActions);
+
     // Local state for editing
     const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
@@ -84,8 +87,8 @@ const ElementsCodeGrid: React.FC = () => {
     const [reviewedCount, setReviewedCount] = useState<number>(0);
 
     // Responsive breakpoints
-    const isTablet = useMediaQuery('(max-width:960px)');
-    const isPortrait = useMediaQuery('(max-width:600px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
+    const isPortrait = useMediaQuery('(orientation: portrait)');
 
     useEffect(() => {
         setReviewedCount(0);
@@ -145,29 +148,6 @@ const ElementsCodeGrid: React.FC = () => {
         }
     }, [editRowId, structureElementsCode]);
 
-    const handleSave = useCallback((elementCode: string) => {
-        const editedElement = editingElements.get(elementCode);
-        if (!editedElement) return;
-
-        // Update the global state with all changes
-        const updatedData = structureElementsCode.map(item =>
-            item.elementCode === elementCode ? editedElement : item
-        );
-
-        dispatch({
-            type: actions.UPDATE_ELEMENT_CODE_LIST,
-            payload: updatedData
-        });
-
-        // Clean up local state
-        setEditRowId(null);
-        setEditingElements(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(elementCode);
-            return newMap;
-        });
-    }, [editingElements, structureElementsCode, dispatch]);
-
     const handleCancel = useCallback((elementCode: string) => {
         setEditRowId(null);
         setEditingElements(prev => {
@@ -209,13 +189,24 @@ const ElementsCodeGrid: React.FC = () => {
 
     const saveOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        handleSave(element.elementCode);
 
-        // Dispatch save action for persistence
+        const editedElement = editingElements.get(element.elementCode);
+        if (!editedElement) return;
+        
+        // Clean up local state
+        setEditRowId(null);
+        setEditingElements(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(element.elementCode);
+            return newMap;
+        });
+
         dispatch({
             type: actions.SAVE_ELEMENT_CODE_LIST,
-        } as PayloadAction);
-    }, [handleSave, dispatch]);
+            payload: editedElement
+        });
+
+    }, [editingElements, structureElementsCode, dispatch]);
 
     return (
         <React.Fragment>
@@ -234,7 +225,7 @@ const ElementsCodeGrid: React.FC = () => {
                         </Box>
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4} >
-                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
                             <CircularProgressWithLabel totalQuantity={totalElementCodeQuantity || 0} reviewedCount={reviewedCount} label="progress" />
                         </Box>
                     </Grid>
@@ -320,16 +311,6 @@ const ElementsCodeGrid: React.FC = () => {
                                                 {isEditing ? (
                                                     <React.Fragment>
                                                         <Stack direction="row" spacing={1}>
-                                                            <Tooltip title="Add assessment">
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    onClick={addAssessmentOnClick(element)}
-                                                                    size={isPortrait ? 'small' : 'medium'}
-                                                                >
-                                                                    <PostAddIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-
                                                             <Tooltip title="Save condition rating">
                                                                 <IconButton
                                                                     color="success"
@@ -368,7 +349,28 @@ const ElementsCodeGrid: React.FC = () => {
                                                     >
                                                         {isPortrait ? 'Rate' : 'Add rating'}
                                                     </Button>
+
                                                 )}
+                                                <Tooltip title="Add assessment">
+                                                    <Badge
+                                                        badgeContent={maintenanceActionList.filter(
+                                                            (action) => action.elementId === element.id
+                                                        ).length}
+                                                        color="primary"
+                                                        showZero={false}
+                                                        overlap="circular"
+                                                        sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                                                    >
+                                                        <IconButton
+                                                            color="primary"
+                                                            onClick={addAssessmentOnClick(element)}
+                                                            size={isPortrait ? 'small' : 'medium'}
+                                                        >
+                                                            <PostAddIcon />
+                                                        </IconButton>
+                                                    </Badge>
+                                                </Tooltip>
+
                                             </Stack>
                                         </StyledTableCell>
                                     </TableRow>

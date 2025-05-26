@@ -106,6 +106,7 @@ const ReviewInspectionPage: React.FC = () => {
 
   useEffect(() => {
     if (ifcCalculatedElementCodeData) {
+      
       setIFCPopulatedConditionRating(getRatingDistribution(ifcCalculatedElementCodeData, ratedIFCElements));
     }
 

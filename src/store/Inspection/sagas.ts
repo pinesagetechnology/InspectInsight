@@ -70,11 +70,11 @@ function* getPreviousInspectionValue(inspection?: InspectionEntity) {
 
             yield put(setDisplayConditionRatingElements(elementsWithCondition));
 
-            const result = [] as StructureElement[];
+            // const result = [] as StructureElement[];
 
-            yield call(getPreviousIFCRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
+            // yield call(getPreviousIFCRatedElement, selectedStructureElements, (previousInspection.conditionRatings || []), result);
 
-            yield put(setReatedElement(result));
+            // yield put(setReatedElement(result));
         } else {
             yield put(setOriginalConditionRating(selectedStructureElements));
 
@@ -103,7 +103,7 @@ const getPreviousIFCElementCondirtionrating = (selectedStructureElements: Struct
             } else {
                 const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
-                    const index = foundCondition.ratings?.findIndex(x => x === 1) || 0;
+                    const index = (foundCondition.ratings?.findIndex(x => x === 1) + 1) || 0;
                     return { ...element, condition: [...foundCondition.ratings], ifcElementRatingValue: index.toString() } as StructureElement
                 }
             }
@@ -178,7 +178,7 @@ const getPreviousIFCRatedElement = (selectedStructureElements: StructureElement[
             } else {
                 const foundCondition = (previousConditionRating || [])?.find((x) => x.elementId === element.data.expressID.toString());
                 if (foundCondition) {
-                    const index = foundCondition.ratings?.findIndex(x => x === 1) || 0;
+                    const index = (foundCondition.ratings?.findIndex(x => x === 1) + 1) || 0;
                     output.push({ ...element, condition: [...foundCondition.ratings], ifcElementRatingValue: index.toString() })
                 }
             }

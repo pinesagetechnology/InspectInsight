@@ -16,7 +16,8 @@ import {
     Grid2 as Grid,
     useMediaQuery,
     Box,
-    Typography
+    Typography,
+    Badge
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -38,12 +39,13 @@ import { filterTree, findPathToNode } from '../../helper/ifcTreeManager';
 import RatingComponent from '../../components/ratingComponent';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
-import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum, RoutesValueEnum } from '../../enums';
 import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
 import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
+import SaveIcon from '@mui/icons-material/Save';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -79,6 +81,7 @@ const StructureElementGrid: React.FC = () => {
     const selectedElement = useSelector(getSelectedStructureElement);
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
     const ratedElements = useSelector(getRatedElements);
+    const maintenanceActionList = useSelector(getMaintenanceActions);
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -86,8 +89,8 @@ const StructureElementGrid: React.FC = () => {
     const [goBackLabel, setGoBackLabel] = useState<string>('');
 
     // Responsive breakpoints
-    const isTablet = useMediaQuery('(max-width:960px)');
-    const isPortrait = useMediaQuery('(max-width:600px)');
+    const isTablet = useMediaQuery('(max-width:962px)');
+    const isPortrait = useMediaQuery('(orientation: portrait)');
     const hasExecutedRef = useRef<number | null>(null);
 
     const filteredTreeData = searchQuery ? filterTree(displayElements, searchQuery) : displayElements;
@@ -100,52 +103,41 @@ const StructureElementGrid: React.FC = () => {
 
     useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
-
-        // Prevent duplicate execution for the same autoTableElementFocus value
         if (hasExecutedRef.current === autoTableElementFocus) return;
+
         hasExecutedRef.current = autoTableElementFocus;
+        dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
 
-        setTimeout(() => {
+        const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
 
-            //show loading
-            dispatch({
-                type: commonActions.SHOW_LOADING_OVERLAY,
-            });
-            const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
-
-            pathList.forEach(element => {
-                setTimeout(() => {
+        const walkPath = async () => {
+            try {
+                for (const element of pathList) {
                     if (element.children?.length > 0) {
                         handleRowClick(element);
-                    } else {
-                        console.log('found');
-                        dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 } as PayloadAction<number>);
-                        // After walking the path, scroll to the row
-                        setTimeout(() => {
-                            if (tableContainerRef.current && selectedElement?.data) {
-                                const elementToScroll = tableContainerRef.current.querySelector(
-                                    `[data-express-id="${selectedElement.data.expressID}"]`
-                                );
-                                if (elementToScroll) {
-                                    elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }
-                            }
-                            // Hide loading after scroll
-                            dispatch({
-                                type: commonActions.CLOSE_LOADING_OVERLAY,
-                            });
-                        }, 200);
+                        await new Promise(resolve => setTimeout(resolve, 120));
                     }
-                }, 120);
-            });
-        }, 100); // 100ms delay, adjust as needed
+                }
 
-        return () => {
-            // dispatch({
-            //     type: commonActions.CLOSE_LOADING_OVERLAY,
-            // });
+                // After walking the path, scroll to the row
+                if (tableContainerRef.current && selectedElement?.data) {
+                    const elementToScroll = tableContainerRef.current.querySelector(
+                        `[data-express-id="${selectedElement.data.expressID}"]`
+                    );
+                    if (elementToScroll) {
+                        elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Wait for scroll animation to complete
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+            } finally {
+                dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+                dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 });
+            }
         };
-    }, [autoTableElementFocus]);
+
+        walkPath();
+    }, [autoTableElementFocus, selectedElement?.data, originalStructureElements]);
 
     useEffect(() => {
         dispatch({
@@ -185,8 +177,8 @@ const StructureElementGrid: React.FC = () => {
             id: "-1",
             isSectionExpanded: true,
             dateForCompletion: new Date().toISOString(),
-            elementCode: element.data.Name || "",
-            elementDescription: element.data.Entity,
+            elementCode: element.data?.Name || "",
+            elementDescription: element.data?.Entity || "",
             elementId: element.data.expressID.toString(),
             mode: 1
         } as MaintenanceActionModel;
@@ -226,7 +218,8 @@ const StructureElementGrid: React.FC = () => {
         newData[elementIndex] = {
             ...newData[elementIndex],
             ifcElementRatingValue: value,
-            condition: newRating
+            condition: newRating,
+            isSaved: false
         };
 
         // Batch dispatch actions
@@ -235,15 +228,10 @@ const StructureElementGrid: React.FC = () => {
             type: actions.UPDATE_DISPLAY_LIST_ITEMS
         });
 
-        dispatch({
-            type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
-            payload: newData[elementIndex]
-        } as PayloadAction<StructureElement>);
-
-        dispatch({
-            type: actions.SAVE_CONDITION_RATING_DATA,
-            payload: newData[elementIndex]
-        } as PayloadAction<StructureElement>);
+        // dispatch({
+        //     type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+        //     payload: newData[elementIndex]
+        // } as PayloadAction<StructureElement>);
 
     }, [displayElements, dispatch]);
 
@@ -258,6 +246,30 @@ const StructureElementGrid: React.FC = () => {
             goTo(RoutesValueEnum.IFCViewer);
         }
     }
+
+    const handleSaveButton = (item: StructureElement) => {
+        dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
+
+        dispatch({
+            type: actions.SAVE_CONDITION_RATING_DATA,
+            payload: { ...item, isSaved: true } as StructureElement
+        } as PayloadAction<StructureElement>)
+
+        setTimeout(() => {
+            dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+        }, 1000)
+    }
+
+    // const handleSaveAllButton = () => {
+    //     dispatch({ type: commonActions.SHOW_LOADING_OVERLAY } as PayloadAction);
+
+    //     dispatch({
+    //         type: actions.SAVE_ALL_CONDITION_RATING_DATA,
+    //         payload: () => {
+    //             dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+    //         }
+    //     } as PayloadAction<VoidFunction>)
+    // }
 
     return (
         <React.Fragment>
@@ -276,7 +288,7 @@ const StructureElementGrid: React.FC = () => {
                         </Box>
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4} >
-                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px',  display: 'flex', alignItems: 'center', justifyContent: 'center'  }}>
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
                             <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={reviewedCount} label="progress" />
                         </Box>
                     </Grid>
@@ -324,7 +336,22 @@ const StructureElementGrid: React.FC = () => {
                                         </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Action</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ py: 0.5, px: 1 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        Action
+
+                                        {/* <Tooltip title="Save all condition ratings">
+                                            <IconButton
+                                                color="success"
+                                                onClick={handleSaveAllButton}
+                                                size="small"
+                                                sx={{ ml: 0.5 }}
+                                            >
+                                                <SaveIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip> */}
+                                    </Stack>
+                                </StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -362,9 +389,27 @@ const StructureElementGrid: React.FC = () => {
                                     <StyledTableCell>
                                         <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
                                             {!element.children?.length && (
-                                                <React.Fragment>
-                                                    <Stack direction="row" spacing={1}>
-                                                        <Tooltip title="Add assessment">
+                                                <Stack direction="row" spacing={1}>
+                                                    <Tooltip title="Save condition rating">
+                                                        <IconButton
+                                                            color="success"
+                                                            onClick={() => handleSaveButton(element)}
+                                                            size={isPortrait ? 'small' : 'medium'}
+                                                            disabled={element.isSaved}
+                                                        >
+                                                            <SaveIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Add assessment">
+                                                        <Badge
+                                                            badgeContent={maintenanceActionList.filter(
+                                                                (action) => action.elementId === element.data?.expressID.toString()
+                                                            ).length}
+                                                            color="primary"
+                                                            showZero={false}
+                                                            overlap="circular"
+                                                            sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                                                        >
                                                             <IconButton
                                                                 color="primary"
                                                                 onClick={addAssessmentOnClick(element)}
@@ -372,9 +417,9 @@ const StructureElementGrid: React.FC = () => {
                                                             >
                                                                 <PostAddIcon />
                                                             </IconButton>
-                                                        </Tooltip>
-                                                    </Stack>
-                                                </React.Fragment>
+                                                        </Badge>
+                                                    </Tooltip>
+                                                </Stack>
                                             )}
                                         </Stack>
                                     </StyledTableCell>

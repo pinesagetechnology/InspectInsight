@@ -79,7 +79,7 @@ const PreviousInspectionPage: React.FC = () => {
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
 
   const handleOpenCarousel = (imageIds: string[]) => {
-    console.log(imageIds);
+    
     setSelectedImageIds(imageIds);
     setIsCarouselOpen(true);
   };

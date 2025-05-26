@@ -29,7 +29,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/MaintenanceAction/actions";
 import ImageUpload from '../imageUploadComponent';
 import { getIsUploadingFlag, getMaintenanceFormData, getMaintenanceValidationErrors } from '../../store/MaintenanceAction/selectors';
-import { getElementsCodeListData, getElementsCodes, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
+import { getElementsCodeListData, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;
@@ -56,15 +56,14 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
     maintenanceActionData,
 }) => {
     const dispatch = useDispatch();
+    const isPortrait = useMediaQuery('(orientation: portrait)');
+    
     const mmsActivityData = useSelector(getMMSActivityData);
-    const elementCodeListData = useSelector(getElementsCodeListData);
     const mmsMnueItems = useSelector(getMMSActivities);
-    const elementCodeItems = useSelector(getElementsCodes);
-    const isPortrait = useMediaQuery('(max-width:600px)');
     const currentMaintenanceFormData = useSelector(getMaintenanceFormData);
     const uploadFlag = useSelector(getIsUploadingFlag);
     const validationErrors: string[] = useSelector(getMaintenanceValidationErrors);
-
+    
     const [formData, setFormData] = useState<MaintenanceActionModel>({} as MaintenanceActionModel);
 
     useEffect(() => {
@@ -167,19 +166,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
         } as PayloadAction<MaintenanceActionModel>);
     };
 
-    const handleElementCodeChangeChange = (name: string, value: string) => {
-        const elementItem = elementCodeListData.find(item => item.elementCode === value);
-
-        dispatch({
-            type: actions.SET_MAINTENANCE_FORM_DATA,
-            payload: {
-                ...formData,
-                ["elementCode"]: value,
-                ["elementDescription"]: elementItem?.description
-            }
-        } as PayloadAction<MaintenanceActionModel>);
-    };
-
     return (
         <Accordion
             onChange={() => handleAccordionOnChange(maintenanceActionData?.id)}
@@ -227,7 +213,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            <Grid size={{ xs: 6, sm: 6 }}>
+                            <Grid size={{ xs: 12, sm: 12 }}>
                                 <SelectComponent
                                     label='MMS Act. No.'
                                     name='mmsActNo'
@@ -235,17 +221,6 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                     setSelectedValueHandler={handleMMSActivityChangeChange}
                                     menuItemList={mmsMnueItems}
                                     disabled={maintenanceActionData.mode === 0}
-                                />
-                            </Grid>
-
-                            <Grid size={{ xs: 6, sm: 6 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Activity Description"
-                                    name="activityDescription"
-                                    value={formData.activityDescription || ""}
-                                    variant="outlined"
-                                    disabled={true}
                                 />
                             </Grid>
 
@@ -336,12 +311,10 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 )}
                             </Grid>
 
-                            {
-                                (maintenanceActionData.mode > 0) &&
-                                <Grid size={12}>
-                                    <ImageUpload formData={formData} />
-                                </Grid>
-                            }
+                            <Grid size={12}>
+                                <ImageUpload formData={formData} />
+                            </Grid>
+
                         </Grid>
                     </Box>
                 </Container>
