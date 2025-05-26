@@ -100,52 +100,41 @@ const StructureElementGrid: React.FC = () => {
 
     useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
-
-        // Prevent duplicate execution for the same autoTableElementFocus value
         if (hasExecutedRef.current === autoTableElementFocus) return;
+        
         hasExecutedRef.current = autoTableElementFocus;
+        dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
 
-        setTimeout(() => {
-
-            //show loading
-            dispatch({
-                type: commonActions.SHOW_LOADING_OVERLAY,
-            });
-            const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
-
-            pathList.forEach(element => {
-                setTimeout(() => {
+        const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
+        
+        const walkPath = async () => {
+            try {
+                for (const element of pathList) {
                     if (element.children?.length > 0) {
                         handleRowClick(element);
-                    } else {
-                        console.log('found');
-                        dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 } as PayloadAction<number>);
-                        // After walking the path, scroll to the row
-                        setTimeout(() => {
-                            if (tableContainerRef.current && selectedElement?.data) {
-                                const elementToScroll = tableContainerRef.current.querySelector(
-                                    `[data-express-id="${selectedElement.data.expressID}"]`
-                                );
-                                if (elementToScroll) {
-                                    elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }
-                            }
-                            // Hide loading after scroll
-                            dispatch({
-                                type: commonActions.CLOSE_LOADING_OVERLAY,
-                            });
-                        }, 200);
+                        await new Promise(resolve => setTimeout(resolve, 120));
                     }
-                }, 120);
-            });
-        }, 100); // 100ms delay, adjust as needed
+                }
 
-        return () => {
-            // dispatch({
-            //     type: commonActions.CLOSE_LOADING_OVERLAY,
-            // });
+                // After walking the path, scroll to the row
+                if (tableContainerRef.current && selectedElement?.data) {
+                    const elementToScroll = tableContainerRef.current.querySelector(
+                        `[data-express-id="${selectedElement.data.expressID}"]`
+                    );
+                    if (elementToScroll) {
+                        elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Wait for scroll animation to complete
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+            } finally {
+                dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+                dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 });
+            }
         };
-    }, [autoTableElementFocus]);
+
+        walkPath();
+    }, [autoTableElementFocus, selectedElement?.data, originalStructureElements]);
 
     useEffect(() => {
         dispatch({
@@ -185,8 +174,8 @@ const StructureElementGrid: React.FC = () => {
             id: "-1",
             isSectionExpanded: true,
             dateForCompletion: new Date().toISOString(),
-            elementCode: element.data.Name || "",
-            elementDescription: element.data.Entity,
+            elementCode: element.data?.Name || "",
+            elementDescription: element.data?.Entity || "",
             elementId: element.data.expressID.toString(),
             mode: 1
         } as MaintenanceActionModel;

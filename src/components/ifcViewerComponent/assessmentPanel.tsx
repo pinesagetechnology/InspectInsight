@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StructureElement } from "entities/structure";
 import {
     Button,
     Divider,
-    IconButton,
     Paper,
     Stack,
     Typography,
@@ -34,14 +33,15 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedIFCElement = useSelector(getSelectedStructureElement);
 
-    const addAssessmentOnClick = useCallback(() => {
+    const addAssessmentOnClick = () => {
+        if (!selectedIFCElement) return;
         const newMaintenanceAction = {
             id: "-1",
             isSectionExpanded: true,
             dateForCompletion: new Date().toISOString(),
-            elementCode: selectedIFCElement.data.Name || "",
-            elementDescription: selectedIFCElement.data.Entity,
-            elementId: selectedIFCElement.data.expressID.toString(),
+            elementCode: selectedIFCElement.data?.Name || "",
+            elementDescription: selectedIFCElement.data?.Entity || "",
+            elementId: selectedIFCElement.data?.expressID.toString() || "",
             mode: 1
         } as MaintenanceActionModel;
 
@@ -49,16 +49,16 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
             type: maintenanceActions.ADD_NEW_ITEM,
             payload: newMaintenanceAction
         } as PayloadAction<MaintenanceActionModel>)
-    }, []);
+    }
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         dispatch({
             type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
             payload: false
         } as PayloadAction<boolean>)
-    }, []);
+    }
 
-    const handleOnRatingChange = useCallback((value: string) => {
+    const handleOnRatingChange = (value: string) => {
         if (!selectedIFCElement) return;
 
         const newRating = [0, 0, 0, 0];
@@ -80,17 +80,7 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
             payload: updatedElement
         } as PayloadAction<StructureElement>);
 
-    }, [selectedIFCElement, dispatch]);
-
-    // Reset state when selection changes
-    // useEffect(() => {
-    //     if (!isSelected) {
-    //         dispatch({
-    //             type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
-    //             payload: false
-    //         } as PayloadAction<boolean>)
-    //     }
-    // }, [isSelected]);
+    }
 
     return (
         <Paper

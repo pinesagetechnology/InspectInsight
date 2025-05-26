@@ -42,3 +42,10 @@ export const validateConditionRating = (
 
   return conditionSum <= threshold;
 }
+
+export const truncateDescription = (description: string, maxLength: number = 50): string => {
+  if (!description) return '';
+  return description.length > maxLength
+    ? `${description.substring(0, maxLength)}...`
+    : description;
+};

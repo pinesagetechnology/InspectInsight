@@ -18,12 +18,17 @@ import * as WEBIFC from 'web-ifc';
 import { getIFCFile } from '../../helper/db';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import IfcListItemComponent from "../ifcListItemComponent";
+import { RoutesValueEnum } from "../../enums";
+import { useNavigationManager } from "../../navigation";
+
 const selectHighlighterName = "select";
 const Plan = "Plan";
 const Orbit = "Orbit";
 
 const IFCViewerComponent: React.FC = () => {
     const dispatch = useDispatch();
+    const { goTo } = useNavigationManager();
+
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
     const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
     const isOnline = useSelector(isOnlineSelector);
@@ -141,7 +146,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-
+                console.log("id", id);
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
@@ -312,6 +317,13 @@ const IFCViewerComponent: React.FC = () => {
         } else if (isClipperOnRef.current) {
             if (worldRef.current && clipperRef.current?.enabled) {
                 clipperRef.current?.create(worldRef.current);
+            }
+        } else {
+            if (selectedStructureElement) {
+                dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: selectedStructureElement.data?.expressID } as PayloadAction<number>);
+                const randomNumber = Math.floor(Math.random() * 10) + 1;
+                dispatch({ type: ratingActions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: randomNumber } as PayloadAction<number>);
+                goTo(RoutesValueEnum.ConditionRating);
             }
         }
     };
