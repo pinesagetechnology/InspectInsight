@@ -164,6 +164,11 @@ const HomePage: React.FC = () => {
       type: localDataActions.MAP_LOCAL_STORAGE_STATE
     } as PayloadAction);
 
+    dispatch({
+      type: stepActions.SET_NEXT_STEP,
+      payload: -1
+    } as PayloadAction<number>);
+
     setModalOpen(false);
 
     goTo(RoutesValueEnum.InspectionDetail);

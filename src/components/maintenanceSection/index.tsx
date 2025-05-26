@@ -227,7 +227,7 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 </Box>
                             </Grid>
 
-                            <Grid size={{ xs: 12, sm: 12 }}>
+                            <Grid size={{ xs: 6, sm: 6 }}>
                                 <SelectComponent
                                     label='MMS Act. No.'
                                     name='mmsActNo'
@@ -238,15 +238,13 @@ const MaintenanceSection: React.FunctionComponent<MaintenanceSectionProps> = ({
                                 />
                             </Grid>
 
-                            <Grid size={12}>
+                            <Grid size={{ xs: 6, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Activity Description"
                                     name="activityDescription"
                                     value={formData.activityDescription || ""}
                                     variant="outlined"
-                                    multiline
-                                    rows={2}
                                     disabled={true}
                                 />
                             </Grid>

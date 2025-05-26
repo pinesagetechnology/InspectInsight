@@ -23,6 +23,9 @@ export interface ReduxApplicationState {
     maintenanceAction: {
         maintenanceActions: MaintenanceActionModel[];
     };
+    ifcViewerState: {
+        groupedElements: Record<string, StructureElement[]>;
+    };
     inspectionComment: string;
     timestamp?: number; // Optional timestamp for version control
 }
@@ -272,6 +275,16 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
     } catch (error) {
         console.error('Database health check failed:', error);
         return false;
+    }
+};
+
+export const getImageFromDB = async (): Promise<string[]> => {
+    try {
+        const images = await db.capturedImages.toArray();
+        return images.map(image => URL.createObjectURL(image.blob));
+    } catch (error) {
+        console.error('Failed to retrieve images from IndexedDB:', error);
+        return [];
     }
 };
 

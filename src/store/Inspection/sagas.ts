@@ -14,12 +14,14 @@ import {
 } from './slice';
 import * as services from "../../services/inspectionService";
 import { ConditionRatingEntity, InspectionEntity } from "../../entities/inspection";
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement, setOriginalElementCodeDataList, setSelectedStructureElement } from '../ConditionRating/slice';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setReatedElement, setOriginalElementCodeDataList } from '../ConditionRating/slice';
 import { getCurrentStructure, getElementsCodeData, getStructureElements } from '../Structure/selectors';
 import { ElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import { setShowLoading } from '../Common/slice';
 import { getFormValidationErrors, getInspection, getPreviousInspectionList } from './selectors';
 import { setNextButtonFlag } from '../FormSteps/slice';
+import { setGroupedElements } from '../IFCViewer/slice';
+import { groupElementsByType } from '../../helper/ifcTreeManager';
 
 export function* inspectionRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_DATA, setInspectionValue);
@@ -43,6 +45,10 @@ export function* startInspectionProcess() {
     yield call(getPreviousInspectionValue, selectedStructure.previousInspection);
 
     yield put(setInspectionProcessLoading(false));
+
+    const groupedListItem: Record<string, StructureElement[]> = yield call(groupElementsByType, selectedStructure.elementMetadata);
+
+    yield put(setGroupedElements(groupedListItem));
 
     yield put(setShowLoading(false));
 }
@@ -231,18 +237,18 @@ export function* setInspectionValidation(action: PayloadAction<InspectionFomrVal
         }
     }
 
-    // Check if all required fields are valid
-    const requiredFields = [
-        'inspectionLevel',
-        'inspectionType',
-        'weather',
-        'temperature',
-        'inspectionDate',
-        'nextInspectionProposedDate',
-        'inspectorName',
-        'engineerName'
-    ];
+    // // Check if all required fields are valid
+    // const requiredFields = [
+    //     'inspectionLevel',
+    //     'inspectionType',
+    //     'weather',
+    //     'temperature',
+    //     'inspectionDate',
+    //     'nextInspectionProposedDate',
+    //     'inspectorName',
+    //     'engineerName'
+    // ];
 
-    const allFieldsValid = requiredFields.every(field => validateField(field, inspectionDetail[field as keyof InspectionModel]));
-    yield put(setNextButtonFlag(allFieldsValid));
+    // const allFieldsValid = requiredFields.every(field => validateField(field, inspectionDetail[field as keyof InspectionModel]));
+    // yield put(setNextButtonFlag(allFieldsValid));
 }

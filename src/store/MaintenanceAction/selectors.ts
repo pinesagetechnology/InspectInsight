@@ -18,3 +18,4 @@ export const getIFCElementMaintenanceAction = (elementId: string) =>
     });
 
 export const getAllMaintenanceActionState = (state: RootState) => state.MaintenanceActionState;
+export const getMaintenanceActionModalFlag = (state: RootState) => state.MaintenanceActionState.maintenanceActionModalFlag;

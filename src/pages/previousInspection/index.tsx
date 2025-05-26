@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Typography,
   Grid2 as Grid,
@@ -12,7 +12,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  styled
+  styled,
+  Stack,
+  IconButton
 } from '@mui/material';
 import FormPageWrapper from '../../components/formPageWrapper';
 import { useSelector } from 'react-redux';
@@ -20,6 +22,9 @@ import { selectedPreviousInspectionData, getPreviousInspectionRatedElement, getP
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { StructureElement } from '../../entities/structure';
 import { FormatDateOnly } from '../../helper/util';
+import ImageIcon from '@mui/icons-material/Image';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import ImageCarousel from '../../components/imageCarousel';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -70,6 +75,14 @@ const PreviousInspectionPage: React.FC = () => {
 
   const previousRatedElements: StructureElement[] = useSelector(getPreviousInspectionRatedElement);
   const previousInspectionIFCRatedElement = useSelector(getPreviousInspectionIFCRatedElement);
+  const [isCarouselOpen, setIsCarouselOpen] = useState(false);
+  const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
+
+  const handleOpenCarousel = (imageIds: string[]) => {
+    console.log(imageIds);
+    setSelectedImageIds(imageIds);
+    setIsCarouselOpen(true);
+  };
 
   return (
     <FormPageWrapper isFooterVisible={false}>
@@ -139,7 +152,18 @@ const PreviousInspectionPage: React.FC = () => {
                     <StyledTableHeaderCell>Element Code</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                     <StyledTableHeaderCell>Quantity</StyledTableHeaderCell>
-                    <StyledTableHeaderCell>Condition rating (CS1, CS2 , CS3, CS4)</StyledTableHeaderCell>
+                    <StyledTableHeaderCell align='center'>
+                      Condition rating
+                      <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                        {[1, 2, 3, 4].map((rating) => (
+                          <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                            <Typography variant="caption">
+                              CS{rating}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Stack>
+                    </StyledTableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -149,7 +173,15 @@ const PreviousInspectionPage: React.FC = () => {
                         <StyledTableCell>{row.data.Entity}</StyledTableCell>
                         <StyledTableCell>{row.data.Name}</StyledTableCell>
                         <StyledTableCell>{row.quantity}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                        <StyledTableCell>
+                          <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                            {row.condition?.map((value, i) => (
+                              <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
+                                {value}
+                              </Box>
+                            ))}
+                          </Stack>
+                        </StyledTableCell>
                       </TableRow>
                     )))}
                   {previousInspectionIFCRatedElement?.length > 0 &&
@@ -158,7 +190,15 @@ const PreviousInspectionPage: React.FC = () => {
                         <StyledTableCell>{row.elementCode}</StyledTableCell>
                         <StyledTableCell>{row.description}</StyledTableCell>
                         <StyledTableCell>{row.totalQty}</StyledTableCell>
-                        <StyledTableCell>{row.condition?.join(',')}</StyledTableCell>
+                        <StyledTableCell>
+                          <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                            {row.condition?.map((value, i) => (
+                              <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
+                                {value}
+                              </Box>
+                            ))}
+                          </Stack>
+                        </StyledTableCell>
                       </TableRow>
                     )))}
                 </TableBody>
@@ -205,6 +245,22 @@ const PreviousInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.probability}</StyledTableCell>
                       <StyledTableCell>{row.consequenceOfInteraction}</StyledTableCell>
                       <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>
+                      <StyledTableCell align="center">
+                        <IconButton
+                          onClick={() =>
+                            handleOpenCarousel(
+                              row.photos?.map(photo => photo.apiResponse?.id)
+                                .filter((id): id is string => typeof id === 'string') || []
+                            )
+                          }
+                          disabled={!row.photos || row.photos.length === 0}
+                          sx={{
+                            color: row.photos && row.photos.length > 0 ? 'primary.main' : 'action.disabled'
+                          }}
+                        >
+                          {row.photos && row.photos.length > 0 ? <ImageIcon /> : <ImageNotSupportedIcon />}
+                        </IconButton>
+                      </StyledTableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -232,7 +288,13 @@ const PreviousInspectionPage: React.FC = () => {
         </ReportSection>
 
       </Box>
-
+      <ImageCarousel
+        open={isCarouselOpen}
+        onClose={() => setIsCarouselOpen(false)}
+        images={[]}
+        imageIds={selectedImageIds}
+        isFromPreviousInspection={true}
+      />
     </FormPageWrapper>
   );
 };

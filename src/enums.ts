@@ -37,3 +37,8 @@ export enum StructureUrgencyEnum {
     Low = 'Low',
     Overdue = 'Overdue'
 }
+
+export enum RMAModeEnum {
+    IFCElement = 1,
+    ElementCode = 2
+}

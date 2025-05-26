@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setAuthorize as setApiAuthorize } from '../helper/api';
 import { setAuthorize as setAssetApiAuthorize } from '../helper/assetAPI';
 import { setAuthorize as setAuthApiAuthorize } from '../helper/authAPI';
+import { setAuthorize as setGenApiAuthorize } from '../helper/genAPI';
 import { getToken } from '../store/Auth/selectors';
 import { jwtDecode } from 'jwt-decode';
 import { TokenPayload } from '../models/auth';
 import * as actions from '../store/Auth/actions';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { AuthRequest } from '../entities/auth';
 
 interface AuthContextProps {
     isAuthenticated: boolean;
@@ -52,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             await setApiAuthorize();
                             await setAssetApiAuthorize();
                             await setAuthApiAuthorize();
+                            await setGenApiAuthorize();
                             setIsAuthenticated(true);
                         } else {
                             // Token expired, clear localStorage

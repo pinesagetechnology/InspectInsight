@@ -1,7 +1,7 @@
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { ClaculatedIFCElementCodeData, Structure } from '../../entities/structure';
+import { ClaculatedIFCElementCodeData, Structure, StructureElement } from '../../entities/structure';
 import {
     fetchStructuresData,
     setCurrentStructure,
@@ -11,7 +11,7 @@ import {
 import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
 import * as commonActions from '../Common/actions';
-import { addQuantityToElements, getMetaDataFromIFCStructureElement } from '../../helper/ifcTreeManager';
+import { addQuantityToElements, flattenDataTree, getMetaDataFromIFCStructureElement } from '../../helper/ifcTreeManager';
 import { isOnlineSelector } from '../SystemAvailability/selectors';
 import { db, hasIFCFile, StructureState } from '../../helper/db';
 import { setPreviousInspectionData } from '../Inspection/slice';
@@ -30,12 +30,22 @@ export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
 
     const updatedMetadata = addQuantityToElements(action.payload.elementMetadata);
     
+    const flatLeafElements: StructureElement[] = yield call(flattenDataTree, updatedMetadata);
+    const totalLeafCount = flatLeafElements.length;
+    const totalElementCodeQuantity = action.payload.elementsCodeData.reduce((acc, curr) => acc + Number(curr.totalQty), 0);;
+
     let calculatedElementCodeData: ClaculatedIFCElementCodeData[] = [];
     if (action.payload.elementMetadata.length > 0) {
         calculatedElementCodeData = getMetaDataFromIFCStructureElement(action.payload.elementMetadata);
     }
 
-    yield put(setCurrentStructure({ ...action.payload, elementMetadata: updatedMetadata, ifcCalculatedElementCodeData: calculatedElementCodeData }));
+    yield put(setCurrentStructure({ 
+        ...action.payload, 
+        elementMetadata: updatedMetadata, 
+        ifcCalculatedElementCodeData: calculatedElementCodeData ,
+        totalIFCElementQuantity: totalLeafCount,
+        totalElementCodeQuantity: totalElementCodeQuantity
+    }));
 
     yield put(setPreviousInspectionData(action.payload.previousInspection || {} as InspectionEntity));
 

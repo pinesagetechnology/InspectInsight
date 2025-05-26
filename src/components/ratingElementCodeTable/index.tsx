@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -20,17 +20,22 @@ import {
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ElementCodeData } from '../../entities/structure';
-import styles from './style.module.scss';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
-import RMADialog from './maintenanceActions/rmaDialog';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
-import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
+import { getElementCodeDataList, getRatedElementCodeData } from '../../store/ConditionRating/selectors';
 import RatingInputField from '../ratingInputField';
+import RMADialog from '../maintenanceActionsDialog/rmaDialog';
+import * as maintenanceActions from "../../store/MaintenanceAction/actions";
+import { MaintenanceActionModel } from '../../models/inspectionModel';
+import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { RMAModeEnum } from '../../enums';
+import { getTotalElementCodeQuantity } from '../../store/Structure/selectors';
+import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -68,17 +73,27 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 const ElementsCodeGrid: React.FC = () => {
     const dispatch = useDispatch();
+    const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const structureElementsCode = useSelector(getElementCodeDataList);
-
+    const totalElementCodeQuantity = useSelector(getTotalElementCodeQuantity);
+    const ratedElements = useSelector(getRatedElementCodeData);
     // Local state for editing
     const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [open, setOpen] = useState<boolean>(false);
+    const [reviewedCount, setReviewedCount] = useState<number>(0);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
+
+    useEffect(() => {
+        setReviewedCount(0);
+        ratedElements.forEach(element => {
+            const totalRating = element.condition?.reduce((acc, curr) => acc + curr, 0) || 0;
+            setReviewedCount(prev => prev + totalRating);
+        });
+    }, [ratedElements])
 
     // Memoize filtered data
     const filteredElementCodeData = useMemo(() => {
@@ -163,7 +178,10 @@ const ElementsCodeGrid: React.FC = () => {
     }, []);
 
     const handleClose = useCallback(() => {
-        setOpen(false);
+        dispatch({
+            type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
+            payload: false
+        } as PayloadAction<boolean>)
     }, []);
 
     const addAssessmentOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -172,7 +190,21 @@ const ElementsCodeGrid: React.FC = () => {
             type: actions.SET_SELECTED_ELEMENT_CODE,
             payload: element
         } as PayloadAction<ElementCodeData>);
-        setOpen(true);
+
+        const newMaintenanceAction = {
+            id: "-1",
+            isSectionExpanded: true,
+            dateForCompletion: new Date().toISOString(),
+            elementCode: element.elementCode || "",
+            elementDescription: element.description,
+            elementId: element.id,
+            mode: 1
+        } as MaintenanceActionModel;
+
+        dispatch({
+            type: maintenanceActions.ADD_NEW_ITEM,
+            payload: newMaintenanceAction
+        } as PayloadAction<MaintenanceActionModel>)
     }, [dispatch]);
 
     const saveOnClick = useCallback((element: ElementCodeData) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -187,10 +219,6 @@ const ElementsCodeGrid: React.FC = () => {
 
     return (
         <React.Fragment>
-            <RMADialog
-                handleClose={handleClose}
-                modalState={open}
-            />
             <Stack direction={'column'}>
                 <Grid
                     container
@@ -200,11 +228,17 @@ const ElementsCodeGrid: React.FC = () => {
                     spacing={isPortrait ? 1 : 2}
                     direction={isPortrait ? 'column' : 'row'}
                 >
-                    <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px' }}>
                             <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
                         </Box>
                     </Grid>
+                    <Grid size={isPortrait ? 12 : 4} >
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                            <CircularProgressWithLabel totalQuantity={totalElementCodeQuantity || 0} reviewedCount={reviewedCount} label="progress" />
+                        </Box>
+                    </Grid>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center' }}></Grid>
                 </Grid>
 
                 <TableContainer
@@ -221,12 +255,18 @@ const ElementsCodeGrid: React.FC = () => {
                                 <StyledTableHeaderCell>Description</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Total Qty</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Unit</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ textAlign: 'center' }}>
-                                    <Stack direction={'column'}>
-                                        Rating
-                                        <Typography variant="caption">
-                                            CS1, CS2, CS3, CS4
-                                        </Typography>
+                                <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }} >
+                                    Condition rating
+                                    <Stack direction={'column'} sx={{ width: '250px' }}>
+                                        <Stack direction="row" spacing={0} sx={{ width: '100%', justifyContent: 'space-between' }}>
+                                            {[1, 2, 3, 4].map((rating) => (
+                                                <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                                                    <Typography variant="caption">
+                                                        CS{rating}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Action</StyledTableHeaderCell>
@@ -248,7 +288,7 @@ const ElementsCodeGrid: React.FC = () => {
                                         </StyledTableCell>
                                         <StyledTableCell>{element.unit}</StyledTableCell>
 
-                                        <StyledTableCell className={styles.ratingConditionCell}>
+                                        <StyledTableCell sx={{ width: '250px', textAlign: 'center' }}>
                                             <Stack direction="row" spacing={isPortrait ? 0.5 : 1}>
                                                 {[0, 1, 2, 3].map((index) => {
                                                     const fieldValue = (currentData.condition && currentData.condition[index]) ? currentData.condition[index] : 0;
@@ -338,6 +378,11 @@ const ElementsCodeGrid: React.FC = () => {
                     </Table>
                 </TableContainer>
             </Stack>
+            <RMADialog
+                handleClose={handleClose}
+                modalState={maintenanceActionModalFlag}
+                rmaMode={RMAModeEnum.ElementCode}
+            />
         </React.Fragment>
     );
 };

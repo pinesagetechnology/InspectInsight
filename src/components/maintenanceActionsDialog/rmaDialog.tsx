@@ -1,12 +1,26 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, useMediaQuery, useTheme } from '@mui/material';
-import React from 'react'
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Stack,
+    useMediaQuery
+} from '@mui/material';
+import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import IFCElementAssessmentFrom from '.';
-
+import { useSelector } from 'react-redux';
+import { getElementMaintenanceAction, getIFCElementMaintenanceAction } from '../../store/MaintenanceAction/selectors';
+import { getSelectedElementCode, getSelectedStructureElement } from '../../store/ConditionRating/selectors';
+import MaintenanceSection from '../maintenanceSection';
+import { MaintenanceActionModel } from '../../models/inspectionModel';
+import { RMAModeEnum } from '../../enums';
 interface RMADialogProps {
     modalState: boolean;
     handleClose: () => void;
+    rmaMode: RMAModeEnum;
 }
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -20,11 +34,20 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 const RMADialog: React.FunctionComponent<RMADialogProps> = ({
     handleClose,
-    modalState
+    modalState,
+    rmaMode
 }) => {
-    const theme = useTheme();
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
+    let maintenanceActions: MaintenanceActionModel[] = [];
+    if (rmaMode === RMAModeEnum.IFCElement) {
+        const selectedElemment = useSelector(getSelectedStructureElement);
+
+        maintenanceActions = useSelector(getIFCElementMaintenanceAction(selectedElemment?.data?.expressID?.toString() || ""));
+    } else {
+        const selectedElemment = useSelector(getSelectedElementCode);
+        maintenanceActions = useSelector(getElementMaintenanceAction(selectedElemment.elementCode));
+    }
 
     const SubmitAndClose = () => {
         handleClose();
@@ -60,7 +83,15 @@ const RMADialog: React.FunctionComponent<RMADialogProps> = ({
                     <CloseIcon />
                 </IconButton>
                 <DialogContent dividers>
-                    <IFCElementAssessmentFrom />
+                    <Stack
+                        direction={'column'}
+                        spacing={isPortrait ? 1 : 2}
+                        sx={{ mt: 2 }}
+                    >
+                        {maintenanceActions?.map((item, index) => {
+                            return <MaintenanceSection key={`${index}-${item.id}`} maintenanceActionData={item} />
+                        })}
+                    </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button autoFocus onClick={SubmitAndClose}>

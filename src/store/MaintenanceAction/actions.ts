@@ -9,3 +9,4 @@ export const SAVE_MAINTENANCE_IMAGE = "sagaAction/SaveMaintenanceImage";
 export const DELETE_MAINTENANCE_IMAGE = "sagaAction/DeleteMaintenanceImage";
 export const SET_SELECTED_MAINTENANCE_ITEM = "sagaAction/SetSelectedMaintenanceItem";
 export const SET_MAINTENANCE_VALIDATION = "sagaAction/SetMaintenanceValidation";
+export const SET_MAINTENANCE_ACTION_MODAL_FLAG = "sagaAction/SetMaintenanceActionModalFlag";

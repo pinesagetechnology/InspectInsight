@@ -166,6 +166,49 @@ export const filterTree = (nodes: StructureElement[], query: string): StructureE
         .filter((node) => node !== null) as StructureElement[];
 }
 
+export const findPathToNode = (tree: StructureElement[], targetName: string): StructureElement[] => {
+    for (const node of tree) {
+        if (node.data.Name === targetName) {
+            return [node];
+        }
+        if (node.children && node.children.length > 0) {
+            const childPath = findPathToNode(node.children, targetName);
+            if (childPath.length > 0) {
+                return [node, ...childPath];
+            }
+        }
+    }
+    return [];
+}
+
+export const flattenDataTree = (nodes: StructureElement[]): StructureElement[] => {
+    const result: StructureElement[] = [];
+
+    for (const node of nodes) {
+        if (!node.children || node.children.length === 0) {
+            result.push(node);
+        } else {
+            result.push(...flattenDataTree(node.children));
+        }
+    }
+
+    return result;
+}
+
+// Add this helper function at the top of the file
+export const groupElementsByType = (elements: StructureElement[]): Record<string, StructureElement[]> => {
+    const flatList = flattenDataTree(elements);
+
+    return flatList.reduce((acc, item) => {
+        const type = item.data.Entity?.toString() || 'Other';
+        if (!acc[type]) {
+            acc[type] = [];
+        }
+        acc[type].push(item);
+        return acc;
+    }, {} as Record<string, StructureElement[]>);
+};
+
 export const getMetaDataFromIFCStructureElement = (ifcStructureElemeents: StructureElement[]): ClaculatedIFCElementCodeData[] => {
     const counts: Record<string, number> = {};
 

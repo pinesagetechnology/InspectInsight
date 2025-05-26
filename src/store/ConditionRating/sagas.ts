@@ -3,7 +3,7 @@ import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ElementCodeData, StructureElement } from '../../entities/structure';
 import { getOriginalConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements } from './selectors';
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode } from './slice';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode, setAutoTableElementFocus } from './slice';
 import { InspectionModel, MaintenanceActionModel } from 'models/inspectionModel';
 import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
@@ -22,6 +22,7 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.SET_SELECTED_ELEMENT_CODE, setSelectedElementCodeSaga);
     yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
     yield takeLatest(actions.SAVE_ELEMENT_CODE_LIST, saveElementCodeListSaga);
+    yield takeLatest(actions.SET_AUTO_TABLE_ELEMENT_FOCUS, setAutoTableElementFocusSaga);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -232,4 +233,8 @@ export function* saveElementCodeListSaga() {
         return null;
     }).filter(item => item !== null) as ElementCodeData[];
     yield put(setReatedElementCode(litToSave));
+}
+
+export function* setAutoTableElementFocusSaga(action: PayloadAction<number>) {
+    yield put(setAutoTableElementFocus(action.payload));
 }

@@ -1,175 +1,141 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StructureElement } from "entities/structure";
 import {
+    Button,
     Divider,
     IconButton,
     Paper,
     Stack,
     Typography,
-    Box,
-    ToggleButtonGroup,
-    ToggleButton
 } from "@mui/material";
-import classNames from 'classnames';
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
 import { getSelectedStructureElement } from '../../store/ConditionRating/selectors';
 import * as actions from "../../store/ConditionRating/actions";
+import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
 import { PayloadAction } from '@reduxjs/toolkit';
-import RMADialog from '../ratingIFCElementTable/maintenanceActions/rmaDialog';
-import CloseIcon from '@mui/icons-material/Close';
+import RMADialog from '../maintenanceActionsDialog/rmaDialog';
+import RatingComponent from '../../components/ratingComponent';
+import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
+import { MaintenanceActionModel } from 'models/inspectionModel';
+import { RMAModeEnum } from '../../enums';
 
 interface AssessmentPanelProps {
-    showConditionPanel?: boolean;
-    isSelected?: boolean;
+    // isSelected?: boolean;
     isTablet: boolean;
-    closeConditionPanelHandler: () => void;
 }
+
 const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
-    showConditionPanel,
-    isSelected,
+    // isSelected,
     isTablet,
-    closeConditionPanelHandler
 }) => {
     const dispatch = useDispatch();
-
-    const [originalCondition, setOriginalCondition] = useState<number[]>([]);
-    const [currentStructureElelement, setCurrentStructureElement] = useState<StructureElement>({} as StructureElement);
-    const [open, setOpen] = useState<boolean>(false);
-
+    const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedIFCElement = useSelector(getSelectedStructureElement);
 
-    useEffect(() => {
-        if (selectedIFCElement) {
-            setOriginalCondition(selectedIFCElement?.condition || []);
-            setCurrentStructureElement(selectedIFCElement);
-        }
-    }, [selectedIFCElement])
-
-    const saveOnClick = () => {
-        if (!currentStructureElelement) return;
+    const addAssessmentOnClick = useCallback(() => {
+        const newMaintenanceAction = {
+            id: "-1",
+            isSectionExpanded: true,
+            dateForCompletion: new Date().toISOString(),
+            elementCode: selectedIFCElement.data.Name || "",
+            elementDescription: selectedIFCElement.data.Entity,
+            elementId: selectedIFCElement.data.expressID.toString(),
+            mode: 1
+        } as MaintenanceActionModel;
 
         dispatch({
-            type: actions.SAVE_CONDITION_RATING_DATA,
-            payload: currentStructureElelement
-        } as PayloadAction<StructureElement>);
-    }
+            type: maintenanceActions.ADD_NEW_ITEM,
+            payload: newMaintenanceAction
+        } as PayloadAction<MaintenanceActionModel>)
+    }, []);
 
-    const cancelOnClick = () => {
-        if (!currentStructureElelement) return;
-        setCurrentStructureElement((prev) => {
-            return {
-                ...prev,
-                condition: originalCondition,
-                ifcElementRatingValue: ''
-            }
-        })
-    }
+    const handleClose = useCallback(() => {
+        dispatch({
+            type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
+            payload: false
+        } as PayloadAction<boolean>)
+    }, []);
 
-    const addAssessmentOnClick = () => {
-        setOpen(true);
-    }
+    const handleOnRatingChange = useCallback((value: string) => {
+        if (!selectedIFCElement) return;
 
-    const handleClose = () => {
-        setOpen(false);
-    }
-
-    const handleOnRatingChange = (
-        event: React.MouseEvent<HTMLElement>,
-        value: string,
-    ) => {
         const newRating = [0, 0, 0, 0];
         newRating[parseInt(value) - 1] = 1;
 
-        setCurrentStructureElement(() => {
-            return { ...currentStructureElelement, condition: newRating, ifcElementRatingValue: value };
-        });
-    };
+        const updatedElement = {
+            ...selectedIFCElement,
+            condition: newRating,
+            ifcElementRatingValue: value
+        };
+
+        dispatch({
+            type: actions.SAVE_CONDITION_RATING_DATA,
+            payload: updatedElement
+        } as PayloadAction<StructureElement>);
+
+        dispatch({
+            type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
+            payload: updatedElement
+        } as PayloadAction<StructureElement>);
+
+    }, [selectedIFCElement, dispatch]);
+
+    // Reset state when selection changes
+    // useEffect(() => {
+    //     if (!isSelected) {
+    //         dispatch({
+    //             type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
+    //             payload: false
+    //         } as PayloadAction<boolean>)
+    //     }
+    // }, [isSelected]);
 
     return (
-        <React.Fragment>
-            <style>{`.${classNames(styles.assessmentPanel)} { display: ${showConditionPanel ? 'block' : 'none'}; }`}</style>
-            <RMADialog
-                handleClose={handleClose}
-                modalState={open}
-            />
-
-            <Paper elevation={0} className={styles.assessmentPanel}>
-                <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    width: '100%',
-                    mb: 1
-                }}>
-                    <IconButton
-                        size="small"
-                        onClick={() => closeConditionPanelHandler()}
-                        sx={{
-                            display: 'flex'
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </Box>
-                <Typography variant="h6">Condition Rating Form</Typography>
+        <Paper
+            elevation={0}
+            sx={{ marginTop: 1 }}
+        >
+            <Stack spacing={2}>
+                <Typography variant="h6">Condition Rating</Typography>
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
-                <Stack>
-                    <Typography variant='caption'>Element Name</Typography>
-                    <Typography variant='body2'>{currentStructureElelement?.data?.Name}</Typography>
+
+                <Stack spacing={2}>
+                    <Typography variant='subtitle1'>Element Name</Typography>
+                    <Typography variant='body1'>
+                        {selectedIFCElement?.data?.Name || 'No element selected'}
+                    </Typography>
                 </Stack>
 
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
 
-                <ToggleButtonGroup value={currentStructureElelement.ifcElementRatingValue}
-                    onChange={handleOnRatingChange}
-                    aria-label="Medium sizes"
-                    exclusive={true}>
-                    <ToggleButton value="1" key="CS1">
-                        CS1
-                    </ToggleButton>,
-                    <ToggleButton value="2" key="CS2">
-                        CS2
-                    </ToggleButton>,
-                    <ToggleButton value="3" key="CS3">
-                        CS3
-                    </ToggleButton>,
-                    <ToggleButton value="4" key="CS4">
-                        CS4
-                    </ToggleButton>,
-                </ToggleButtonGroup>
+                <RatingComponent
+                    // isDisabled={!isSelected}
+                    rating={selectedIFCElement?.ifcElementRatingValue || ''}
+                    elementId={selectedIFCElement?.data?.expressID || -1}
+                    handleOnRatingChange={handleOnRatingChange}
+                />
 
                 <Divider orientation="horizontal" flexItem />
-                <React.Fragment>
-                    <IconButton
-                        color="success"
-                        onClick={() => saveOnClick()}
-                        disabled={!isSelected}
-                        className={styles.menuButtonSize}>
-                        <SaveIcon />
-                    </IconButton>
 
-                    <IconButton
-                        color="secondary"
-                        onClick={() => cancelOnClick()}
-                        disabled={!isSelected}
-                        className={styles.menuButtonSize}>
-                        <CancelIcon />
-                    </IconButton>
+                <Button
+                    variant="contained"
+                    endIcon={<PostAddIcon />}
+                    onClick={addAssessmentOnClick}
+                    // disabled={!isSelected}
+                    sx={{ width: '95%' }}
+                >
+                    Add maintenance Action
+                </Button>
+            </Stack>
 
-                    <IconButton
-                        color="primary"
-                        onClick={() => addAssessmentOnClick()}
-                        disabled={!isSelected}
-                        className={styles.menuButtonSize}>
-                        <PostAddIcon />
-                    </IconButton>
-                </React.Fragment>
-
-            </Paper>
-        </React.Fragment>
+            <RMADialog
+                handleClose={handleClose}
+                modalState={maintenanceActionModalFlag}
+                rmaMode={RMAModeEnum.IFCElement}
+            />
+        </Paper>
     );
 };
 
