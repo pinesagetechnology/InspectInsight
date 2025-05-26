@@ -7,3 +7,5 @@ export const getStructureElements = (state: RootState) => state.StructureState.c
 export const getStructureIFCPath = (state: RootState) => state.StructureState.currentStructure.ifcfileaddress;
 export const getElementsCodeData = (state: RootState) => state.StructureState.currentStructure.elementsCodeData;
 export const getIFCCalculatedElementCodeData = (state: RootState) => state.StructureState.currentStructure.ifcCalculatedElementCodeData;
+export const getTotalIFCElementQuantity = (state: RootState) => state.StructureState.currentStructure.totalIFCElementQuantity;
+export const getTotalElementCodeQuantity = (state: RootState) => state.StructureState.currentStructure.totalElementCodeQuantity;

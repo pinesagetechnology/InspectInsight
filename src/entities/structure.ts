@@ -24,6 +24,8 @@ export interface Structure {
     ifcfileaddress?:string;
     urgency: string;
     ifcCalculatedElementCodeData?: ClaculatedIFCElementCodeData[];
+    totalIFCElementQuantity?: number;
+    totalElementCodeQuantity?: number;
 }
 
 export interface Location {

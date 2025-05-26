@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -27,13 +27,15 @@ import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
-import { getElementCodeDataList } from '../../store/ConditionRating/selectors';
+import { getElementCodeDataList, getRatedElementCodeData } from '../../store/ConditionRating/selectors';
 import RatingInputField from '../ratingInputField';
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum } from '../../enums';
+import { getTotalElementCodeQuantity } from '../../store/Structure/selectors';
+import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -73,14 +75,24 @@ const ElementsCodeGrid: React.FC = () => {
     const dispatch = useDispatch();
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const structureElementsCode = useSelector(getElementCodeDataList);
+    const totalElementCodeQuantity = useSelector(getTotalElementCodeQuantity);
+    const ratedElements = useSelector(getRatedElementCodeData);
     // Local state for editing
     const [editingElements, setEditingElements] = useState<Map<string, ElementCodeData>>(new Map());
     const [editRowId, setEditRowId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [reviewedCount, setReviewedCount] = useState<number>(0);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:960px)');
     const isPortrait = useMediaQuery('(max-width:600px)');
+
+    useEffect(() => {
+        ratedElements.forEach(element => {
+            const totalRating = element.condition?.reduce((acc, curr) => acc + curr, 0) || 0;
+            setReviewedCount(prev => prev + totalRating);
+        });
+    }, [ratedElements])
 
     // Memoize filtered data
     const filteredElementCodeData = useMemo(() => {
@@ -215,11 +227,17 @@ const ElementsCodeGrid: React.FC = () => {
                     spacing={isPortrait ? 1 : 2}
                     direction={isPortrait ? 'column' : 'row'}
                 >
-                    <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px' }}>
                             <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
                         </Box>
                     </Grid>
+                    <Grid size={isPortrait ? 12 : 4} >
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                            <CircularProgressWithLabel totalQuantity={totalElementCodeQuantity || 0} reviewedCount={reviewedCount} label="progress" />
+                        </Box>
+                    </Grid>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center' }}></Grid>
                 </Grid>
 
                 <TableContainer

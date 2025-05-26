@@ -20,7 +20,13 @@ import {
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
-import { getAutoTableElementFocus, getDisplayElementList, getOriginalConditionRating, getSelectedStructureElement } from '../../store/ConditionRating/selectors';
+import {
+    getAutoTableElementFocus,
+    getDisplayElementList,
+    getOriginalConditionRating,
+    getRatedElements,
+    getSelectedStructureElement
+} from '../../store/ConditionRating/selectors';
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
@@ -36,6 +42,8 @@ import { getMaintenanceActionModalFlag } from '../../store/MaintenanceAction/sel
 import { RMAModeEnum, RoutesValueEnum } from '../../enums';
 import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
+import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
+import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -60,13 +68,18 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
 
 const StructureElementGrid: React.FC = () => {
     const { goTo } = useNavigationManager();
+
+    const [reviewedCount, setReviewedCount] = useState<number>(0);
+
     const displayElements: StructureElement[] = useSelector(getDisplayElementList);
     const originalStructureElements = useSelector(getOriginalConditionRating);
-
+    const totalIFCElementQuantity = useSelector(getTotalIFCElementQuantity);
     const elementHistory: StructureElement[][] = useSelector(getElementHistory);
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedElement = useSelector(getSelectedStructureElement);
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
+    const ratedElements = useSelector(getRatedElements);
+
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -82,6 +95,10 @@ const StructureElementGrid: React.FC = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        setReviewedCount(ratedElements.length);
+    }, [ratedElements])
+
+    useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
 
         // Prevent duplicate execution for the same autoTableElementFocus value
@@ -94,7 +111,6 @@ const StructureElementGrid: React.FC = () => {
             dispatch({
                 type: commonActions.SHOW_LOADING_OVERLAY,
             });
-            console.log('why???')
             const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
 
             pathList.forEach(element => {
@@ -254,12 +270,17 @@ const StructureElementGrid: React.FC = () => {
                     spacing={isPortrait ? 1 : 2}
                     direction={isPortrait ? 'column' : 'row'}
                 >
-                    <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px' }}>
                             <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
                         </Box>
                     </Grid>
-                    <Grid size={isPortrait ? 12 : 6} sx={{ display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                    <Grid size={isPortrait ? 12 : 4} >
+                        <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px',  display: 'flex', alignItems: 'center', justifyContent: 'center'  }}>
+                            <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={reviewedCount} label="progress" />
+                        </Box>
+                    </Grid>
+                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
                         {elementHistory.length > 0 && (
                             <Button
                                 onClick={handleBack}
