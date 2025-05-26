@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as OBC from "@thatopen/components";
 import * as OBF from "@thatopen/components-front";
 import * as FRAGS from "@thatopen/fragments";
@@ -12,7 +12,7 @@ import { getCurrentStructure, getStructureIFCPath } from "../../store/Structure/
 import { getRatedElements, getSelectedStructureElement } from "../../store/ConditionRating/selectors";
 import ViewerMenu from "./viewerMenu";
 import AssessmentPanel from "./assessmentPanel";
-import { Grid2 as Grid, Paper, Box, IconButton, useMediaQuery, useTheme, Stack, Tabs, Tab } from "@mui/material";
+import { Grid2 as Grid, Box, useMediaQuery, Stack, Tabs, Tab, Button } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
 import { getIFCFile } from '../../helper/db';
@@ -36,8 +36,7 @@ const IFCViewerComponent: React.FC = () => {
     const selectedStructureElement = useSelector(getSelectedStructureElement);
 
     // Add theme and media queries for responsive design
-    const theme = useTheme();
-    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+    const isTablet = useMediaQuery('(max-width:900px)');
     const isSmallTablet = useMediaQuery('(max-width:600px)');
 
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -405,7 +404,7 @@ const IFCViewerComponent: React.FC = () => {
         }
     };
 
-    const handleTreeItemClick = (item: StructureElement) => {
+    const handleListItemClick = (item: StructureElement) => {
         if (model && model.uuid) {
             dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: item.data.expressID } as PayloadAction<number>);
 
@@ -419,71 +418,65 @@ const IFCViewerComponent: React.FC = () => {
         }
     };
 
-    // Custom styles for tree panel with responsive adjustments
-    const treeViewPanelStyle = {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: isTablet ? '55%' : '25%', // Wider on tablet
-        height: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.98)', // More opaque for better readability on tablet
-        boxShadow: '2px 0 10px rgba(0, 0, 0, 0.2)',
-        zIndex: 1000,
-        overflowY: 'auto',
-        // transform: isShowTree ? 'translateX(0)' : 'translateX(-100%)',
-        transition: 'transform 0.3s ease-in-out',
-        padding: isTablet ? '10px' : '16px', // Less padding on tablet
-        display: 'flex',
-        flexDirection: 'column'
-    };
-
     // Custom styles for the viewer container to ensure it fills the available space
     const viewerContainerStyle = {
         width: '100%',
-        height: isTablet ? '60vh' : '68vh', // Shorter on tablet
+        height: isTablet ? '600px' : '68vh', // 600px for tablet
         position: 'relative' as 'relative'
     };
 
+    // Custom styles for the left sidebar
+    const leftSidebarWidth = isTablet ? 170 : '25%';
+
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <Grid container>
-                <Grid size={2}>
-                    <Tabs value={sidebarTab} onChange={(_, v) => setSidebarTab(v)} variant="fullWidth">
-                        <Tab label="Assessment" />
-                        <Tab label="Elements" />
-                    </Tabs>
-                    <Box sx={{
-                        height: isTablet ? '55vh' : '62vh', // Match the viewer container height
-                        overflow: 'auto',
-                        '&::-webkit-scrollbar': {
-                            width: '8px',
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            background: '#f1f1f1',
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            background: '#888',
-                            borderRadius: '4px',
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            background: '#555',
-                        },
-                    }}>
-                        {sidebarTab === 0 && (
-                            <AssessmentPanel
-                                // isSelected={isSelected}
-                                isTablet={isTablet}
-                            />
+            <Grid container component="div">
+                <Grid component="div" sx={{ width: leftSidebarWidth, minWidth: isTablet ? 150 : 200, maxWidth: isTablet ? 200 : 400, flexBasis: leftSidebarWidth, flexGrow: 0, flexShrink: 0 }}>
+                    <Box sx={{ height: isTablet ? '600px' : '62vh', backgroundColor: 'rgba(255,255,255,0.98)', boxShadow: '2px 0 10px rgba(0,0,0,0.2)', p: isTablet ? 1 : 2, display: 'flex', flexDirection: 'column', overflowY: 'auto', fontSize: isTablet ? '0.92rem' : '1rem' }}>
+                        {isTablet ? (
+                            <Stack spacing={1} sx={{ mb: 2 }}>
+                                <Button
+                                    variant={sidebarTab === 0 ? 'contained' : 'outlined'}
+                                    onClick={() => setSidebarTab(0)}
+                                    fullWidth
+                                    size="small"
+                                    sx={{ fontSize: '0.92rem' }}
+                                >
+                                    Assessment
+                                </Button>
+                                <Button
+                                    variant={sidebarTab === 1 ? 'contained' : 'outlined'}
+                                    onClick={() => setSidebarTab(1)}
+                                    fullWidth
+                                    size="small"
+                                    sx={{ fontSize: '0.92rem' }}
+                                >
+                                    Elements
+                                </Button>
+                            </Stack>
+                        ) : (
+                            <Tabs value={sidebarTab} onChange={(_, v) => setSidebarTab(v)} variant="fullWidth">
+                                <Tab label="Assessment" />
+                                <Tab label="Elements" />
+                            </Tabs>
                         )}
-                        {sidebarTab === 1 && (
-                            <IfcListItemComponent
-                                handleTreeItemClick={handleTreeItemClick}
-                                handleFragmentVisibilityChange={handleFragmentVisibilityChange}
-                            />
-                        )}
+                        <Box sx={{ flex: 1, overflow: 'auto' }}>
+                            {sidebarTab === 0 && (
+                                <AssessmentPanel
+                                    // isSelected={isSelected}
+                                    isTablet={isTablet}
+                                />
+                            )}
+                            {sidebarTab === 1 && (
+                                <IfcListItemComponent
+                                    handleListItemClick={handleListItemClick}
+                                    handleFragmentVisibilityChange={handleFragmentVisibilityChange}
+                                />
+                            )}
+                        </Box>
                     </Box>
                 </Grid>
-                <Grid size={10}>
+                <Grid component="div" sx={{ flex: 1 }}>
                     {/* The main container for the 3D viewer */}
                     <div
                         ref={containerRef}
@@ -492,7 +485,6 @@ const IFCViewerComponent: React.FC = () => {
                         onDoubleClick={onContainerDoubleClick}
                     >
                     </div>
-
                     <ViewerMenu
                         isClipperOn={isClipperOn}
                         isMeasurementMode={isMeasurementMode}

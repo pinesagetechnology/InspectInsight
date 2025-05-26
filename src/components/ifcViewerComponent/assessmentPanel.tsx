@@ -102,6 +102,7 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
 
                 <RatingComponent
                     // isDisabled={!isSelected}
+                    showLabel={true}
                     rating={selectedIFCElement?.ifcElementRatingValue || ''}
                     elementId={selectedIFCElement?.data?.expressID || -1}
                     handleOnRatingChange={handleOnRatingChange}

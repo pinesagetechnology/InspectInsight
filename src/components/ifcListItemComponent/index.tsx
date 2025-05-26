@@ -9,7 +9,6 @@ import {
     useTheme,
     TextField,
     InputAdornment,
-    CircularProgress,
     Collapse,
     Typography,
     Skeleton,
@@ -31,13 +30,13 @@ import styles from './style.module.scss';
 import { useDebounce } from '../../hooks/useDebounce';
 
 interface IfcListItemComponentProps {
-    handleTreeItemClick: (item: StructureElement) => void;
+    handleListItemClick: (item: StructureElement) => void;
     handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
     className?: string;
 }
 
 const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
-    handleTreeItemClick,
+    handleListItemClick,
     handleFragmentVisibilityChange,
     className,
 }) => {
@@ -55,9 +54,9 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
         const selectionIdentifier = item.data.expressID?.toString() || item.data.Entity?.toString();
         if (currentSelection !== selectionIdentifier) {
             setCurrentSelection(selectionIdentifier);
-            handleTreeItemClick(item);
+            handleListItemClick(item);
         }
-    }, [currentSelection, handleTreeItemClick]);
+    }, [currentSelection, handleListItemClick]);
 
     const onVisibilityChangeHandler = useCallback((item: StructureElement) => {
         const nodeId = item.data?.expressID?.toString() || "";
