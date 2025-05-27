@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import IFCViewerComponent from '../../components/ifcViewerComponent';
 import FormPageWrapper from '../../components/formPageWrapper';
-import { Button, IconButton, Stack, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import DatasetIcon from '@mui/icons-material/Dataset';

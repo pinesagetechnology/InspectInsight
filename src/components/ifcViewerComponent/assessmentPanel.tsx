@@ -101,7 +101,7 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
                 <Divider orientation="horizontal" flexItem className={styles.divider} />
 
                 <RatingComponent
-                    // isDisabled={!isSelected}
+                    isIFcViewer={true}
                     showLabel={true}
                     rating={selectedIFCElement?.ifcElementRatingValue || ''}
                     elementId={selectedIFCElement?.data?.expressID || -1}

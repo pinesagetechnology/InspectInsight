@@ -8,6 +8,7 @@ interface RatingComponentProps {
     rating: string;
     elementId: number;
     handleOnRatingChange: (value: string, elementId: number) => void;
+    isIFcViewer?: boolean;
 }
 
 const RatingComponent: React.FC<RatingComponentProps> = ({
@@ -15,6 +16,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
     showLabel,
     rating,
     elementId,
+    isIFcViewer,
     handleOnRatingChange
 }) => {
 
@@ -25,7 +27,7 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
         handleOnRatingChange(value, elementId);
     };
 
-    return isTablet ? (
+    return isTablet && isIFcViewer ? (
         <Grid container>
             <Grid size={6} sx={{ textAlign: 'center' }}>
                 {showLabel && <Typography variant="caption" display="block">CS1</Typography>}

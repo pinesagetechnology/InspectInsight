@@ -15,7 +15,7 @@ import AssessmentPanel from "./assessmentPanel";
 import { Grid2 as Grid, Box, useMediaQuery, Stack, Tabs, Tab, Button } from "@mui/material";
 import { StructureElement } from "../../entities/structure";
 import * as WEBIFC from 'web-ifc';
-import { getIFCFile } from '../../helper/db';
+import { getIFCFile, hasIFCFile } from '../../helper/db';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import IfcListItemComponent from "../ifcListItemComponent";
 import { RoutesValueEnum } from "../../enums";
@@ -32,6 +32,7 @@ const IFCViewerComponent: React.FC = () => {
     const ratedElements: StructureElement[] = useSelector(getRatedElements) || [];
     const structureIFCPath: string = useSelector(getStructureIFCPath) || "";
     const isOnline = useSelector(isOnlineSelector);
+
     const currentStructure = useSelector(getCurrentStructure);
     const selectedStructureElement = useSelector(getSelectedStructureElement);
 
@@ -143,7 +144,7 @@ const IFCViewerComponent: React.FC = () => {
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
                 const id = fragMap[key].values().next().value;
-                
+
                 dispatch({ type: ratingActions.SET_SELECTED_IFC_ELEMENT_ID, payload: id } as PayloadAction<number>);
             });
 
@@ -183,7 +184,7 @@ const IFCViewerComponent: React.FC = () => {
             const ifcLoader = components.get(OBC.IfcLoader);
             const isNative = window.capacitor?.isNative;
             const wasmPath = isNative
-                ? 'public/'  // In native app, files are in the public directory
+                ? '/static/wasm/'//'public/'  // In native app, files are in the public directory
                 : process.env.PUBLIC_URL + '/static/wasm/';  // In web, use the public URL
 
             console.log('IFC Loader Setup:', { isNative, wasmPath, currentPath: window.location.href });
@@ -197,8 +198,8 @@ const IFCViewerComponent: React.FC = () => {
             try {
                 console.log('Starting IFC load process...', { isOnline, structureIFCPath });
                 let arrayBuffer: ArrayBuffer;
-
-                if (!isOnline) {
+                const hasLocalFile = await hasIFCFile(currentStructure.id);
+                if (hasLocalFile) {
                     console.log('Attempting to load from local storage...');
                     const localFile = await getIFCFile(currentStructure.id);
                     console.log('Local file check:', { hasLocalFile: !!localFile, structureId: currentStructure.id });
