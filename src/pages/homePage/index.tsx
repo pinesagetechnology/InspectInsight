@@ -272,6 +272,8 @@ const HomePage: React.FC = () => {
           structures={structureList}
           onStartClickHandler={startInspectionHandler}
           applyFilter={applyFilter}
+          handleDisplayModeChange={handleDisplayModeChange}
+          structureMode={structureDataMode}
         />
       )}
       <Snackbar

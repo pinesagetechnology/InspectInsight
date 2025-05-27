@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Checkbox, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Divider, ListItemText, Menu, MenuItem, Stack, styled, Switch, Typography } from '@mui/material';
 import { Structure } from '../../entities/structure';
 import RowComponent from './rowComponent';
 import MapIcon from '@mui/icons-material/Map';
@@ -9,19 +9,23 @@ import { filtersByCategory } from '../../constants';
 interface ListModeProps {
     isListView: boolean;
     structures: Structure[];
+    structureMode: string;
     onSelectStructure: (structure: Structure) => void;
     setIsListView: (isListView: boolean) => void;
     onStartClickHandler: () => void;
     applyFilter: (filters: Record<string, string[]>) => void;
+    handleDisplayModeChange: (value: string) => void;
 }
 
 const ListModeStructure: React.FC<ListModeProps> = ({
     isListView,
     structures,
+    structureMode,
     onSelectStructure,
     setIsListView,
     onStartClickHandler,
-    applyFilter
+    applyFilter,
+    handleDisplayModeChange
 }) => {
     const [selectedItems, setSelectedItems] = useState<Record<string, string[]>>({});
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -54,7 +58,9 @@ const ListModeStructure: React.FC<ListModeProps> = ({
 
     const toggleView = () => setIsListView(!isListView);
 
-
+    const onDisplayModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        handleDisplayModeChange(event.target.checked ? 'ifc' : 'element');
+    }
     return (
         <div>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -62,9 +68,16 @@ const ListModeStructure: React.FC<ListModeProps> = ({
                     Show Map
                 </Button>
 
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                    <Typography>Mode:</Typography>
+                    <Typography>{structureMode}</Typography>
+                    <Switch defaultChecked color="warning" onChange={onDisplayModeChange} />
+                </Stack>
+
                 <Button variant="outlined" startIcon={<TuneIcon />} onClick={handleMenuOpen}>
                     Filter
                 </Button>
+                
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                     {filtersByCategory.map((group, index) => (
                         <div key={group.category}>

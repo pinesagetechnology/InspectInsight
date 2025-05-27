@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { createTheme, styled, ThemeProvider, useTheme } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Structure } from '../../entities/structure';
@@ -121,6 +121,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
     handleDisplayModeChange,
     structureMode
 }) => {
+    console.log("structureMode", structureMode);
     const dispatch = useDispatch();
     const selectedStructure = useSelector(getCurrentStructure);
 
@@ -295,6 +296,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
     };
 
     const onDisplayModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("event", event.target.checked);
         handleDisplayModeChange(event.target.checked ? 'ifc' : 'element');
     }
 
@@ -404,12 +406,11 @@ const MapContainer: React.FC<MapComponentProps> = ({
                     }}
                 >
                     <ThemeProvider theme={lightTheme}>
-
                         <Item elevation={8}>
                             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                                 <Typography>Mode:</Typography>
                                 <Typography>{structureMode}</Typography>
-                                <Switch defaultChecked color="warning" onChange={onDisplayModeChange} />
+                                <Switch checked={structureMode === 'ifc'} color="warning" onChange={onDisplayModeChange} />
                             </Stack>
                         </Item>
                     </ThemeProvider>

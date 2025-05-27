@@ -6,7 +6,7 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from '../../enums';
 import { useSelector } from 'react-redux';
-import { getCurrentStructure, getStructureElements } from '../../store/Structure/selectors';
+import { getCurrentStructure, getStructureDisplayMode } from '../../store/Structure/selectors';
 import { isOnlineSelector } from '../../store/SystemAvailability/selectors';
 import { hasIFCFile } from '../../helper/db';
 import { getOriginalConditionRating, getElementCodeDataList } from '../../store/ConditionRating/selectors';
@@ -18,6 +18,7 @@ const ConditionRating: React.FC = () => {
 
     const structureElements = useSelector(getOriginalConditionRating);
     const elementsCodeData = useSelector(getElementCodeDataList);
+    const structureDataMode = useSelector(getStructureDisplayMode);
 
     const isOnline = useSelector(isOnlineSelector);
     const [show3DButton, setShow3DButton] = useState(true);
@@ -48,7 +49,7 @@ const ConditionRating: React.FC = () => {
     return (
         <FormPageWrapper isFooterVisible={true}>
             <div style={{ width: '100%' }}>
-                {show3DButton &&
+                {(show3DButton && structureDataMode === 'ifc') &&
                     <Button variant="outlined" startIcon={<ViewInArIcon />} onClick={() => handleClick()}>
                         3D View
                     </Button>
