@@ -7,6 +7,7 @@ import {
     setCurrentStructure,
     structuresDataFailed,
     fetchStructuresDataSuccessful,
+    setStructureDisplayMode
 } from './slice';
 import * as services from "../../services/structureService";
 import { setShowLoading } from '../Common/slice';
@@ -23,6 +24,8 @@ export function* structureRootSaga() {
     yield takeLatest(actions.SET_SLECTED_STRUCTURE_DATA, setCurrentStructureValue);
 
     yield takeLatest(actions.FETCH_STRUCTURES_DATA, getStructursData);
+
+    yield takeLatest(actions.SET_STRUCTURE_DISPLAY_MODE, setStructureDisplayModeSaga);
 }
 
 export function* setCurrentStructureValue(action: PayloadAction<Structure>) {
@@ -133,5 +136,9 @@ export function* getStructursData() {
     } finally {
         yield put(setShowLoading(false));
     }
+}
+
+export function* setStructureDisplayModeSaga(action: PayloadAction<string>) {
+    yield put(setStructureDisplayMode(action.payload));
 }
 

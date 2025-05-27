@@ -20,20 +20,22 @@ import {
     Menu,
     MenuItem,
     Paper,
+    Stack,
     SwipeableDrawer,
+    Switch,
     Typography,
     useMediaQuery
 } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { styled, useTheme } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider, useTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Structure } from '../../entities/structure';
 import { FilterModel } from '../../models/map';
 import StructureDetailSection from './structureDetail';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCurrentStructure } from '../../store/Structure/selectors';
+import { getCurrentStructure, getStructureDisplayMode } from '../../store/Structure/selectors';
 import { DRAWER_BLEEDING, filtersByCategory } from '../../constants';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import * as structureActions from "../../store/Structure/actions";
@@ -65,6 +67,21 @@ const Puller = styled('div')(({ theme }) => ({
     ...theme.applyStyles('dark', { backgroundColor: grey[900] }),
 }));
 
+const lightTheme = createTheme({ palette: { mode: 'light' } });
+const Item = styled(Paper)(({ theme }) => ({
+    ...theme.typography.body2,
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    height: 50,
+    lineHeight: '60px',
+    borderRadius: 10,
+    padding: 10,
+    margin: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
 const SearchInput = styled(InputBase)({
     flex: 1,
     marginLeft: 8,
@@ -90,6 +107,8 @@ interface MapComponentProps {
     applyFilter: (filters: Record<string, string[]>) => void;
     setIsListView: (flag: boolean) => void;
     onStartClickHandler: () => void;
+    handleDisplayModeChange: (value: string) => void;
+    structureMode: string;
 }
 
 const MapContainer: React.FC<MapComponentProps> = ({
@@ -98,10 +117,13 @@ const MapContainer: React.FC<MapComponentProps> = ({
     onSelectStructure,
     applyFilter,
     setIsListView,
-    onStartClickHandler
+    onStartClickHandler,
+    handleDisplayModeChange,
+    structureMode
 }) => {
     const dispatch = useDispatch();
     const selectedStructure = useSelector(getCurrentStructure);
+
     const [structureList, setStructureList] = useState<Structure[]>(structures || []);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDrawer, setOpenDrawer] = useState(false);
@@ -272,6 +294,10 @@ const MapContainer: React.FC<MapComponentProps> = ({
         });
     };
 
+    const onDisplayModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        handleDisplayModeChange(event.target.checked ? 'ifc' : 'element');
+    }
+
     if (loadError) return <div>Error loading Google Maps</div>;
     if (!isLoaded) return <div>Loading map…</div>;
 
@@ -369,6 +395,26 @@ const MapContainer: React.FC<MapComponentProps> = ({
                     <ListIcon />
                 </Fab>
 
+                {/* Structure Mode switch */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: isTablet ? -3 : 5,
+                        right: isTablet ? 196 : 500,
+                    }}
+                >
+                    <ThemeProvider theme={lightTheme}>
+
+                        <Item elevation={8}>
+                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                                <Typography>Mode:</Typography>
+                                <Typography>{structureMode}</Typography>
+                                <Switch defaultChecked color="warning" onChange={onDisplayModeChange} />
+                            </Stack>
+                        </Item>
+                    </ThemeProvider>
+                </Box>
+
                 {/* Search bar - responsive width and positioning */}
                 {!isPortrait && (
                     <Paper
@@ -376,7 +422,7 @@ const MapContainer: React.FC<MapComponentProps> = ({
                         sx={{
                             position: 'absolute',
                             top: isTablet ? 8 : 16,
-                            right: isTablet ? 196 : 206,
+                            right: isTablet ? 196 : 195,
                             display: 'flex',
                             alignItems: 'center',
                             p: '8px 16px',
@@ -407,6 +453,8 @@ const MapContainer: React.FC<MapComponentProps> = ({
                         <SearchInput placeholder="Search here ..." fullWidth onChange={onTxtSearchInput} />
                     </Paper>
                 )}
+
+
             </Box>
 
             {!selectedStructure.name ? (

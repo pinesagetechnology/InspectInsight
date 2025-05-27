@@ -81,6 +81,10 @@ export function* userLogout() {
         yield put(setShowLoading(false));
     } catch (error) {
         console.error("Logout error: ", error);
+        // Clear localStorage first
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('loggedInUserId');
         yield put(setShowLoading(false));
     }
 }

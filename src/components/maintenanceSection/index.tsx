@@ -29,7 +29,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/MaintenanceAction/actions";
 import ImageUpload from '../imageUploadComponent';
 import { getIsUploadingFlag, getMaintenanceFormData, getMaintenanceValidationErrors } from '../../store/MaintenanceAction/selectors';
-import { getElementsCodeListData, getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
+import { getMMSActivities, getMMSActivityData } from "../../store/SystemData/selectors";
 
 interface MaintenanceSectionProps {
     maintenanceActionData: MaintenanceActionModel;

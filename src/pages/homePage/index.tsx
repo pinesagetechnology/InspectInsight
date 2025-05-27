@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import MapContainer from '../../components/mapContainer';
 import { Structure } from '../../entities/structure';
 import { useSelector } from 'react-redux';
-import { getStructures } from '../../store/Structure/selectors';
+import {
+  getStructureDisplayMode,
+  getStructures
+} from '../../store/Structure/selectors';
 import { useDispatch } from 'react-redux';
 import * as structureActions from "../../store/Structure/actions";
 import * as inspectionActions from "../../store/Inspection/actions";
@@ -33,11 +36,13 @@ const HomePage: React.FC = () => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   const dispatch = useDispatch();
+  const structures = useSelector(getStructures);
   const [structureList, setStructureList] = useState<Structure[]>([]);
   const [showIFCDownloadDialog, setShowIFCDownloadDialog] = useState(false);
   const [selectedForDownload, setSelectedForDownload] = useState<Structure | null>(null);
 
-  const structures = useSelector(getStructures);
+  const structureDataMode = useSelector(getStructureDisplayMode);
+
   const [isListView, setIsListView] = useState(false);
   const hasLocalData = useSelector(getLocalStorageFlag);
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -67,13 +72,17 @@ const HomePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setStructureList(structures);
+    setStructureList(
+      (structureDataMode === 'ifc') ?
+        structures?.filter(item => item.elementMetadata?.length > 0)
+        :
+        structures?.filter(item => item.elementsCodeData?.length > 0));
 
     dispatch({
       type: stepActions.SET_NEXT_HEADER_BUTTON,
       payload: true
     } as PayloadAction<boolean>)
-  }, [structures])
+  }, [structureDataMode, structures])
 
 
   const onSelectStructureHandler = (structure: Structure) => {
@@ -89,7 +98,11 @@ const HomePage: React.FC = () => {
     const isFilterEmpty = Object.values(filters).every(items => items.length === 0);
 
     if (isFilterEmpty) {
-      setStructureList(structures);
+      setStructureList(
+        (structureDataMode === 'ifc') ?
+          structures?.filter(item => item.elementMetadata?.length > 0)
+          :
+          structures?.filter(item => item.elementsCodeData?.length > 0));
       return;
     }
 
@@ -98,7 +111,7 @@ const HomePage: React.FC = () => {
       selected: items,
     }));
 
-    let filteredList: Structure[] = [...structures];
+    let filteredList: Structure[] = [...((structureDataMode === 'ifc') ? structures?.filter(item => item.elementMetadata?.length > 0) : structures?.filter(item => item.elementsCodeData?.length > 0))];
 
     selectedFilters.forEach(filter => {
       if (filter.selected && filter.selected.length > 0) {
@@ -192,9 +205,17 @@ const HomePage: React.FC = () => {
     setOpenSnackBar(false);
   };
 
+
+  const handleDisplayModeChange = (value: string) => {
+    dispatch({
+      type: structureActions.SET_STRUCTURE_DISPLAY_MODE,
+      payload: value
+    } as PayloadAction<string>);
+  }
+
   return (
     <div className={styles.homeContainer}>
-      {selectedForDownload && (
+      {(selectedForDownload && structureDataMode === 'ifc') && (
         <IFCDownloadDialog
           open={showIFCDownloadDialog}
           structureName={selectedForDownload.name}
@@ -240,6 +261,8 @@ const HomePage: React.FC = () => {
           applyFilter={applyFilter}
           setIsListView={setIsListViewHandler}
           onStartClickHandler={startInspectionHandler}
+          handleDisplayModeChange={handleDisplayModeChange}
+          structureMode={structureDataMode}
         />
       ) : (
         <ListModeStructure
