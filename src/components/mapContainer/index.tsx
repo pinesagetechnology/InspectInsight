@@ -32,7 +32,6 @@ import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Structure } from '../../entities/structure';
-import { FilterModel } from '../../models/map';
 import StructureDetailSection from './structureDetail';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentStructure, getStructureDisplayMode } from '../../store/Structure/selectors';
@@ -401,8 +400,8 @@ const MapContainer: React.FC<MapComponentProps> = ({
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: isTablet ? -3 : 5,
-                        right: isTablet ? 196 : 500,
+                        top: isTablet ? -6 : 5,
+                        right: isPortrait ? 160 : 500,
                     }}
                 >
                     <ThemeProvider theme={lightTheme}>
