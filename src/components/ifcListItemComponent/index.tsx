@@ -14,7 +14,7 @@ import {
     Skeleton,
     Stack,
 } from '@mui/material';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getVisibilityOffIcons, getGroupedElements } from '../../store/IFCViewer/selectors';
 import { StructureElement } from '../../entities/structure';
@@ -24,6 +24,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import * as actions from "../../store/IFCViewer/actions";
+import * as commonActions from "../../store/Common/actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import classNames from 'classnames';
 import styles from './style.module.scss';
@@ -33,12 +34,14 @@ interface IfcListItemComponentProps {
     handleListItemClick: (item: StructureElement) => void;
     handleFragmentVisibilityChange: (node: StructureElement, isCheck: boolean) => void;
     className?: string;
+    selectedElement: StructureElement | null;
 }
 
 const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
     handleListItemClick,
     handleFragmentVisibilityChange,
     className,
+    selectedElement,
 }) => {
     const dispatch = useDispatch();
     const theme = useTheme();
@@ -48,6 +51,45 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
+    const listContainerRef = useRef<HTMLDivElement>(null);
+    const selectedItemRef = useRef<HTMLLIElement>(null);
+
+    // Effect to handle selected element changes
+    useEffect(() => {
+        if (selectedElement?.data?.expressID) {
+            const selectionId = selectedElement.data.expressID.toString();
+            setCurrentSelection(selectionId);
+
+            // Find the group containing the selected element
+            const groupName = Object.entries(groupedElements).find(([_, items]) =>
+                items.some(item => item.data.expressID?.toString() === selectionId)
+            )?.[0];
+
+            if (groupName) {
+                setExpandedGroups(prev => new Set([...prev, groupName]));
+                
+                // Show loading overlay while scrolling
+                dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
+
+                // Scroll to selected item after a short delay to allow for expansion
+                setTimeout(() => {
+                    if (selectedItemRef.current) {
+                        selectedItemRef.current.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+
+                        // Hide loading overlay after scroll animation completes
+                        setTimeout(() => {
+                            dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+                        }, 500); // Match the scroll animation duration
+                    } else {
+                        dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+                    }
+                }, 100);
+            }
+        }
+    }, [selectedElement, groupedElements, dispatch]);
 
     // Memoized event handlers
     const onItemClickHandler = useCallback((item: StructureElement) => {
@@ -111,7 +153,6 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
         }
     }, [groupedElements]);
 
-
     const renderList = () => {
         if (isLoading) {
             return (
@@ -121,7 +162,6 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                     <Skeleton variant="rounded" height={60} />
                     <Skeleton variant="rounded" height={60} />
                     <Skeleton variant="rounded" height={60} />
-
                 </Stack>
             );
         } else if (!groupedElements) {
@@ -154,7 +194,7 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                         />
                     </Box>
 
-                    <Box className={styles.listContainer}>
+                    <Box className={styles.listContainer} ref={listContainerRef}>
                         <List sx={{ p: 0 }}>
                             {Object.entries(filteredGroups || {}).map(([groupName, items]) => (
                                 <React.Fragment key={groupName}>
@@ -180,6 +220,7 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                                         {items.map((item) => {
                                             const labelId = `checkbox-list-label-${item}`;
                                             const isHidden = visibilityOffList.includes(item.data.expressID?.toString() || "");
+                                            const isSelected = selectedElement?.data?.expressID?.toString() === item.data.expressID?.toString();
 
                                             return (
                                                 <ListItem
@@ -197,15 +238,25 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                                                     }
                                                     disablePadding
                                                     divider
+                                                    component="li"
+                                                    ref={isSelected ? selectedItemRef : undefined}
                                                 >
                                                     <ListItemButton
                                                         role={undefined}
                                                         onClick={() => onItemClickHandler(item)}
                                                         dense
-                                                        selected={currentSelection === (item.data.expressID?.toString() || item.data.Entity?.toString())}
+                                                        selected={isSelected}
                                                         className={classNames(styles.listItem, {
-                                                            [styles.selected]: currentSelection === (item.data.expressID?.toString() || item.data.Entity?.toString())
+                                                            [styles.selected]: isSelected
                                                         })}
+                                                        sx={{
+                                                            backgroundColor: isSelected ? theme.palette.action.selected : 'inherit',
+                                                            '&:hover': {
+                                                                backgroundColor: isSelected 
+                                                                    ? theme.palette.action.selected 
+                                                                    : theme.palette.action.hover
+                                                            }
+                                                        }}
                                                     >
                                                         <ListItemText
                                                             id={labelId}
@@ -214,10 +265,13 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                                                             primaryTypographyProps={{
                                                                 noWrap: true,
                                                                 variant: 'body2',
+                                                                fontWeight: isSelected ? 'bold' : 'normal',
+                                                                color: isSelected ? theme.palette.primary.main : 'inherit'
                                                             }}
                                                             secondaryTypographyProps={{
                                                                 noWrap: true,
                                                                 variant: 'caption',
+                                                                color: isSelected ? theme.palette.primary.main : 'inherit'
                                                             }}
                                                         />
                                                     </ListItemButton>

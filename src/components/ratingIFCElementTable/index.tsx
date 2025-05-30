@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
     Table,
@@ -68,38 +68,129 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
     whiteSpace: 'nowrap'
 }));
 
+const TableRowComponent = React.memo(({ 
+    element, 
+    selectedElement, 
+    isPortrait, 
+    handleRowClick, 
+    handleRowDoubleClick, 
+    handleOnRatingChange, 
+    handleSaveButton, 
+    addAssessmentOnClick, 
+    maintenanceActionList 
+}: {
+    element: StructureElement;
+    selectedElement: StructureElement | null;
+    isPortrait: boolean;
+    handleRowClick: (element: StructureElement) => void;
+    handleRowDoubleClick: (element: StructureElement) => void;
+    handleOnRatingChange: (value: string, elementId: number) => void;
+    handleSaveButton: (element: StructureElement) => void;
+    addAssessmentOnClick: (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => void;
+    maintenanceActionList: MaintenanceActionModel[];
+}) => (
+    <TableRow
+        key={element.data?.expressID}
+        onClick={() => handleRowClick(element)}
+        onDoubleClick={() => handleRowDoubleClick(element)}
+        style={{ cursor: 'pointer' }}
+        data-express-id={element.data?.expressID}
+        sx={{
+            backgroundColor: selectedElement?.data?.expressID === element.data?.expressID ?
+                'rgba(0, 0, 0, 0.04)' : 'inherit'
+        }}
+    >
+        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
+        <StyledTableCell>{element.data.Entity}</StyledTableCell>
+        <StyledTableCell>{element.data.Name}</StyledTableCell>
+        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
+            {element.children?.length > 0 && element.quantity}
+        </StyledTableCell>
+        <StyledTableCell>
+            {!element.children?.length && (
+                <RatingComponent
+                    rating={element.ifcElementRatingValue || ''}
+                    elementId={element.data.expressID}
+                    handleOnRatingChange={handleOnRatingChange}
+                />
+            )}
+        </StyledTableCell>
+        <StyledTableCell>
+            <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
+                {!element.children?.length && (
+                    <Stack direction="row" spacing={1}>
+                        <Tooltip title="Save condition rating">
+                            <IconButton
+                                color="success"
+                                onClick={() => handleSaveButton(element)}
+                                size={isPortrait ? 'small' : 'medium'}
+                                disabled={element.isSaved}
+                            >
+                                <SaveIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Add maintenance action">
+                            <Badge
+                                badgeContent={maintenanceActionList.filter(
+                                    (action) => action.elementId === element.data?.expressID.toString()
+                                ).length}
+                                color="primary"
+                                showZero={false}
+                                overlap="circular"
+                                sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
+                            >
+                                <IconButton
+                                    color="primary"
+                                    onClick={addAssessmentOnClick(element)}
+                                    size={isPortrait ? 'small' : 'medium'}
+                                >
+                                    <PostAddIcon />
+                                </IconButton>
+                            </Badge>
+                        </Tooltip>
+                    </Stack>
+                )}
+            </Stack>
+        </StyledTableCell>
+    </TableRow>
+));
+
 const StructureElementGrid: React.FC = () => {
     const { goTo } = useNavigationManager();
+    const dispatch = useDispatch();
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+    const hasExecutedRef = useRef<number | null>(null);
 
-    const [reviewedCount, setReviewedCount] = useState<number>(0);
-
-    const displayElements: StructureElement[] = useSelector(getDisplayElementList);
+    // Selectors
+    const displayElements = useSelector(getDisplayElementList);
     const originalStructureElements = useSelector(getOriginalConditionRating);
     const totalIFCElementQuantity = useSelector(getTotalIFCElementQuantity);
-    const elementHistory: StructureElement[][] = useSelector(getElementHistory);
+    const elementHistory = useSelector(getElementHistory);
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedElement = useSelector(getSelectedStructureElement);
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
     const ratedElements = useSelector(getRatedElements);
     const maintenanceActionList = useSelector(getMaintenanceActions);
 
-    const tableContainerRef = useRef<HTMLDivElement>(null);
-
+    // Local state
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
+    const [reviewedCount, setReviewedCount] = useState<number>(0);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:962px)');
     const isPortrait = useMediaQuery('(orientation: portrait)');
-    const hasExecutedRef = useRef<number | null>(null);
 
-    const filteredTreeData = searchQuery ? filterTree(displayElements, searchQuery) : displayElements;
+    // Memoized filtered data
+    const filteredTreeData = useMemo(() => 
+        searchQuery ? filterTree(displayElements, searchQuery) : displayElements,
+        [displayElements, searchQuery]
+    );
 
-    const dispatch = useDispatch();
-
+    // Effects
     useEffect(() => {
         setReviewedCount(ratedElements.length);
-    }, [ratedElements])
+    }, [ratedElements]);
 
     useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
@@ -119,14 +210,12 @@ const StructureElementGrid: React.FC = () => {
                     }
                 }
 
-                // After walking the path, scroll to the row
                 if (tableContainerRef.current && selectedElement?.data) {
                     const elementToScroll = tableContainerRef.current.querySelector(
                         `[data-express-id="${selectedElement.data.expressID}"]`
                     );
                     if (elementToScroll) {
                         elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Wait for scroll animation to complete
                         await new Promise(resolve => setTimeout(resolve, 500));
                     }
                 }
@@ -142,30 +231,31 @@ const StructureElementGrid: React.FC = () => {
     useEffect(() => {
         dispatch({
             type: actions.RESET_CONDITION_RATING_DISPLAY_TABLE
-        } as PayloadAction)
-    }, [])
+        } as PayloadAction);
+    }, []);
 
     useEffect(() => {
         setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
-    }, [elementHistory])
+    }, [elementHistory]);
 
-    const handleRowClick = (element: StructureElement) => {
+    // Handlers
+    const handleRowClick = useCallback((element: StructureElement) => {
         if (element.children?.length > 0) {
             dispatch({
                 payload: element,
                 type: actions.HANDLE_ROW_CLICK_SAGA
             } as PayloadAction<StructureElement>);
         }
-    }
+    }, [dispatch]);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         dispatch({
             type: maintenanceActions.SET_MAINTENANCE_ACTION_MODAL_FLAG,
             payload: false
-        } as PayloadAction<boolean>)
-    }
+        } as PayloadAction<boolean>);
+    }, [dispatch]);
 
-    const addAssessmentOnClick = (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const addAssessmentOnClick = useCallback((element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
 
         dispatch({
@@ -186,10 +276,10 @@ const StructureElementGrid: React.FC = () => {
         dispatch({
             type: maintenanceActions.ADD_NEW_ITEM,
             payload: newMaintenanceAction
-        } as PayloadAction<MaintenanceActionModel>)
-    }
+        } as PayloadAction<MaintenanceActionModel>);
+    }, [dispatch]);
 
-    const handleBack = () => {
+    const handleBack = useCallback(() => {
         dispatch({
             type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
             payload: {} as StructureElement
@@ -198,22 +288,18 @@ const StructureElementGrid: React.FC = () => {
         dispatch({
             type: actions.HANDLE_BACK_CLICK_SAGA
         } as PayloadAction);
-    }
+    }, [dispatch]);
 
     const handleOnRatingChange = useCallback((
         value: string,
         elementId: number
     ) => {
-        // Create rating array more efficiently
         const newRating = Array(4).fill(0);
         newRating[parseInt(value) - 1] = 1;
 
-        // Use findIndex for better performance than map when we need to update a single item
         const elementIndex = displayElements.findIndex(item => item.data.expressID === elementId);
-
         if (elementIndex === -1) return;
 
-        // Create new array with the updated item
         const newData = [...displayElements];
         newData[elementIndex] = {
             ...newData[elementIndex],
@@ -222,21 +308,13 @@ const StructureElementGrid: React.FC = () => {
             isSaved: false
         };
 
-        // Batch dispatch actions
         dispatch({
             payload: newData,
             type: actions.UPDATE_DISPLAY_LIST_ITEMS
         });
-
-        // dispatch({
-        //     type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
-        //     payload: newData[elementIndex]
-        // } as PayloadAction<StructureElement>);
-
     }, [displayElements, dispatch]);
 
-
-    const handleRowDoubleClick = (element: StructureElement) => {
+    const handleRowDoubleClick = useCallback((element: StructureElement) => {
         if (element.children?.length === 0) {
             dispatch({
                 type: actions.SET_SELECTED_STRUCTURE_ELEMENT,
@@ -245,31 +323,20 @@ const StructureElementGrid: React.FC = () => {
 
             goTo(RoutesValueEnum.IFCViewer);
         }
-    }
+    }, [dispatch, goTo]);
 
-    const handleSaveButton = (item: StructureElement) => {
+    const handleSaveButton = useCallback((item: StructureElement) => {
         dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
 
         dispatch({
             type: actions.SAVE_CONDITION_RATING_DATA,
             payload: { ...item, isSaved: true } as StructureElement
-        } as PayloadAction<StructureElement>)
+        } as PayloadAction<StructureElement>);
 
         setTimeout(() => {
             dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
-        }, 1000)
-    }
-
-    // const handleSaveAllButton = () => {
-    //     dispatch({ type: commonActions.SHOW_LOADING_OVERLAY } as PayloadAction);
-
-    //     dispatch({
-    //         type: actions.SAVE_ALL_CONDITION_RATING_DATA,
-    //         payload: () => {
-    //             dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
-    //         }
-    //     } as PayloadAction<VoidFunction>)
-    // }
+        }, 1000);
+    }, [dispatch]);
 
     return (
         <React.Fragment>
@@ -287,12 +354,12 @@ const StructureElementGrid: React.FC = () => {
                             <SearchBarComponent onSearchChange={setSearchQuery} searchQuery={searchQuery} />
                         </Box>
                     </Grid>
-                    <Grid size={isPortrait ? 12 : 4} >
+                    <Grid size={isPortrait ? 12 : 4}>
                         <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
                             <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={reviewedCount} label="progress" />
                         </Box>
                     </Grid>
-                    <Grid size={isPortrait ? 12 : 4} sx={{ display: 'flex', alignItems: 'center', justifyContent: isPortrait ? 'flex-start' : 'flex-end' }}>
+                    <Grid size={isPortrait ? 12 : 4}>
                         {elementHistory.length > 0 && (
                             <Button
                                 onClick={handleBack}
@@ -315,14 +382,14 @@ const StructureElementGrid: React.FC = () => {
                         overflow: 'auto'
                     }}
                 >
-                    <Table stickyHeader aria-label="collapsible table">
+                    <Table>
                         <TableHead>
                             <TableRow>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>ID</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }} >
+                                <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }}>
                                     Condition rating
                                     <Stack direction={'column'} sx={{ width: '250px' }}>
                                         <Stack direction="row" spacing={0} sx={{ width: '100%', justifyContent: 'space-between' }}>
@@ -336,94 +403,23 @@ const StructureElementGrid: React.FC = () => {
                                         </Stack>
                                     </Stack>
                                 </StyledTableHeaderCell>
-                                <StyledTableHeaderCell sx={{ py: 0.5, px: 1 }}>
-                                    <Stack direction="row" spacing={1} alignItems="center">
-                                        Action
-
-                                        {/* <Tooltip title="Save all condition ratings">
-                                            <IconButton
-                                                color="success"
-                                                onClick={handleSaveAllButton}
-                                                size="small"
-                                                sx={{ ml: 0.5 }}
-                                            >
-                                                <SaveIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip> */}
-                                    </Stack>
-                                </StyledTableHeaderCell>
+                                <StyledTableHeaderCell>Actions</StyledTableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredTreeData?.map((element: StructureElement) => (
-                                <TableRow
+                                <TableRowComponent
                                     key={element.data?.expressID}
-                                    onClick={() => handleRowClick(element)}
-                                    onDoubleClick={() => handleRowDoubleClick(element)}
-                                    style={{ cursor: 'pointer' }}
-                                    data-express-id={element.data?.expressID}
-                                    sx={{
-                                        backgroundColor: selectedElement?.data?.expressID === element.data?.expressID ?
-                                            'rgba(0, 0, 0, 0.04)' : 'inherit'
-                                    }}
-                                >
-                                    <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
-                                    <StyledTableCell>{element.data.Entity}</StyledTableCell>
-                                    <StyledTableCell>{element.data.Name}</StyledTableCell>
-                                    <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
-                                        {element.children?.length > 0 &&
-                                            (element.quantity)
-                                        }
-                                    </StyledTableCell>
-
-                                    <StyledTableCell sx={{ width: '250px', textAlign: 'center' }}>
-                                        {!element.children?.length && (
-                                            <RatingComponent
-                                                // isDisabled={false}
-                                                rating={element.ifcElementRatingValue || ''}
-                                                elementId={element.data.expressID}
-                                                handleOnRatingChange={handleOnRatingChange}
-                                            />
-                                        )}
-                                    </StyledTableCell>
-                                    <StyledTableCell>
-                                        <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
-                                            {!element.children?.length && (
-                                                <Stack direction="row" spacing={1}>
-                                                    <Tooltip title="Save condition rating">
-                                                        <IconButton
-                                                            color="success"
-                                                            onClick={() => handleSaveButton(element)}
-                                                            size={isPortrait ? 'small' : 'medium'}
-                                                            disabled={element.isSaved}
-                                                        >
-                                                            <SaveIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Add assessment">
-                                                        <Badge
-                                                            badgeContent={maintenanceActionList.filter(
-                                                                (action) => action.elementId === element.data?.expressID.toString()
-                                                            ).length}
-                                                            color="primary"
-                                                            showZero={false}
-                                                            overlap="circular"
-                                                            sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
-                                                        >
-                                                            <IconButton
-                                                                color="primary"
-                                                                onClick={addAssessmentOnClick(element)}
-                                                                size={isPortrait ? 'small' : 'medium'}
-                                                            >
-                                                                <PostAddIcon />
-                                                            </IconButton>
-                                                        </Badge>
-                                                    </Tooltip>
-                                                </Stack>
-                                            )}
-                                        </Stack>
-                                    </StyledTableCell>
-                                </TableRow>
+                                    element={element}
+                                    selectedElement={selectedElement}
+                                    isPortrait={isPortrait}
+                                    handleRowClick={handleRowClick}
+                                    handleRowDoubleClick={handleRowDoubleClick}
+                                    handleOnRatingChange={handleOnRatingChange}
+                                    handleSaveButton={handleSaveButton}
+                                    addAssessmentOnClick={addAssessmentOnClick}
+                                    maintenanceActionList={maintenanceActionList}
+                                />
                             ))}
                         </TableBody>
                     </Table>
@@ -438,4 +434,4 @@ const StructureElementGrid: React.FC = () => {
     );
 };
 
-export default StructureElementGrid;
+export default React.memo(StructureElementGrid);
