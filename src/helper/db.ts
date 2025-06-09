@@ -54,6 +54,14 @@ export interface IFCFile {
     size: number;
 }
 
+export interface IFCFileMetadata {
+    id: string;
+    structureId: string;
+    filename: string;
+    timestamp: number;
+    size: number;
+}
+
 export class AppDatabase extends Dexie {
     public reduxApplicationState!: Table<ReduxApplicationState, string>;
     public structureState!: Table<StructureState, string>;
@@ -203,6 +211,25 @@ export const deleteIFCFile = async (structureId: string): Promise<void> => {
         console.log(`IFC file deleted for structure: ${structureId}`);
     } catch (error) {
         console.error('Failed to delete IFC file:', error);
+    }
+}
+
+export const getIFCFileMetadata = async (structureId: string): Promise<IFCFileMetadata | undefined> => {
+    try {
+        const file = await db.ifcFiles.get(structureId);
+        if (!file) return undefined;
+        
+        // Return only the metadata without the blob
+        return {
+            id: file.id,
+            structureId: file.structureId,
+            filename: file.filename,
+            timestamp: file.timestamp,
+            size: file.size
+        };
+    } catch (error) {
+        console.error('Failed to retrieve IFC file metadata:', error);
+        return undefined;
     }
 }
 

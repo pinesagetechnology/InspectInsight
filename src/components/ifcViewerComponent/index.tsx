@@ -469,6 +469,7 @@ const IFCViewerComponent: React.FC = () => {
                                 <IfcListItemComponent
                                     handleListItemClick={handleListItemClick}
                                     handleFragmentVisibilityChange={handleFragmentVisibilityChange}
+                                    selectedElement={selectedStructureElement}
                                 />
                             )}
                         </Box>

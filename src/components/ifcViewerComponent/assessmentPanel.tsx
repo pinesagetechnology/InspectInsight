@@ -94,7 +94,11 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
                 <Stack spacing={2}>
                     <Typography variant='subtitle1'>Element Name</Typography>
                     <Typography variant='body1'>
-                        {selectedIFCElement?.data?.Name || 'No element selected'}
+                        {
+                            selectedIFCElement?.identityData?.names ||
+                            selectedIFCElement?.data?.Name ||
+                            'No element selected'
+                        }
                     </Typography>
                 </Stack>
 
