@@ -107,7 +107,7 @@ const TableRowComponent = React.memo(({
         }</StyledTableCell>
         <StyledTableCell>{
             element.identityData && element.identityData.names ?
-                element.identityData.names : 
+                element.identityData.names :
                 element.data.Name
         }</StyledTableCell>
         <StyledTableCell>{element.identityData?.section}</StyledTableCell>

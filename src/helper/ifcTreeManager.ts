@@ -20,7 +20,6 @@ const getDecompositionTree = async (
         data: {
             Entity: OBC.IfcCategoryMap[type],
             Name: entityAttrs.Name?.value,
-            modelID: model.uuid,
             expressID,
         },
     };
@@ -63,7 +62,6 @@ const getDecompositionTree = async (
             const row: BUI.TableGroupData = {
                 data: {
                     Entity: entity,
-                    modelID: model.uuid,
                     relations: JSON.stringify(relations),
                 },
                 children,
@@ -127,8 +125,7 @@ export const computeRowData = async (
 
 export const getRowFragmentIdMap = (model: FRAGS.FragmentsGroup,
     rowData: any) => {
-    const { modelID, expressID, relations } = rowData as {
-        modelID: string;
+    const { expressID, relations } = rowData as {
         expressID: number;
         relations: string;
     };
