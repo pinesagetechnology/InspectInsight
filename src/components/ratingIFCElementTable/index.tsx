@@ -111,7 +111,6 @@ const TableRowComponent = React.memo(({
                 element.data.Name
         }</StyledTableCell>
         <StyledTableCell>{element.identityData?.section}</StyledTableCell>
-        <StyledTableCell>{element.identityData?.structure}</StyledTableCell>
         <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
             {element.children?.length > 0 && element.quantity}
         </StyledTableCell>
@@ -397,7 +396,6 @@ const StructureElementGrid: React.FC = () => {
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>AssetID</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Section</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Structure</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }}>
                                     Condition rating
