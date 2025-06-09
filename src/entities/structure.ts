@@ -19,9 +19,9 @@ export interface Structure {
     elementMetadata: StructureElement[];
     elementsCodeData: ElementCodeData[];
     previousInspection?: InspectionEntity;
-    precinct?:string;
-    equipments?:string[];
-    ifcfileaddress?:string;
+    precinct?: string;
+    equipments?: string[];
+    ifcfileaddress?: string;
     urgency: string;
     ifcCalculatedElementCodeData?: ClaculatedIFCElementCodeData[];
     totalIFCElementQuantity?: number;
@@ -42,36 +42,20 @@ export interface Metadata {
 export interface ElementData {
     Entity: string;
     Name?: string;
-    modelID?: string;
     expressID: number;
     relations?: string;
 }
 
-export interface Property {
-    expressID: number;
-    type: number;
-    GlobalId?: { value: string; type: number; name: string };
-    OwnerHistory?: { value: number; type: number };
-    Name?: { value: string; type: number; name: string };
-    Description?: string | null;
-    ObjectType?: { value: string; type: number; name: string };
-    ObjectPlacement?: { value: number; type: number };
-    Representation?: { value: number; type: number };
-    Tag?: { value: string; type: number; name: string };
-    OverallHeight?: { value: number; type: number; name: string };
-    OverallWidth?: { value: number; type: number; name: string };
-}
-
 export interface StructureElement {
     data: ElementData;
+    identityData?: IdentityData;
     condition?: number[]
     children: StructureElement[];
-    properties?: Property;
     quantity: number;
     ifcElementRatingValue?: string;
-    isSplit?:boolean;
-    splitElements? : StructureElement[];
-    isSaved?:boolean;
+    isSplit?: boolean;
+    splitElements?: StructureElement[];
+    isSaved?: boolean;
 }
 
 export interface ElementCodeData {
@@ -84,7 +68,14 @@ export interface ElementCodeData {
     condition?: number[]
 }
 
-export interface ClaculatedIFCElementCodeData{
+export interface ClaculatedIFCElementCodeData {
     elementCode: string;
     totalQty: number;
+}
+
+export interface IdentityData {
+    assetId: string;
+    names: string;
+    section: string;
+    structure: string;
 }

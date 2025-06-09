@@ -260,8 +260,14 @@ const IfcListItemComponent: React.FC<IfcListItemComponentProps> = ({
                                                     >
                                                         <ListItemText
                                                             id={labelId}
-                                                            primary={item.data.Name?.toString()}
-                                                            secondary={item.data.Entity?.toString()}
+                                                            primary={
+                                                                item.identityData?.names?.toString() ||
+                                                                item.data.Name?.toString()
+                                                            }
+                                                            secondary={
+                                                                item.identityData?.section?.toString() ||
+                                                                item.identityData?.structure?.toString() ||
+                                                                item.data.Entity?.toString()}
                                                             primaryTypographyProps={{
                                                                 noWrap: true,
                                                                 variant: 'body2',

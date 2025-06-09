@@ -29,7 +29,7 @@ import styles from "./style.module.scss";
 import { getLocalStorageFlag } from '../../store/LocalStorage/selector';
 import * as localDataActions from "../../store/LocalStorage/actions";
 import IFCDownloadDialog from '../../components/ifcDownloadDialog';
-import { hasIFCFile } from '../../helper/db';
+import { deleteIFCFile, getIFCFile, getIFCFileMetadata, hasIFCFile } from '../../helper/db';
 
 const HomePage: React.FC = () => {
   const { goTo } = useNavigationManager();
@@ -188,9 +188,17 @@ const HomePage: React.FC = () => {
   };
 
   const checkAndPromptIFCDownload = async (structure: Structure) => {
-    if (structure.ifcfileaddress && navigator.onLine) {
+    if (structure.ifcfileaddress && navigator.onLine && structureDataMode === 'ifc') {
       const hasLocalFile = await hasIFCFile(structure.id);
-      if (!hasLocalFile) {
+      if (hasLocalFile) {
+        const ifcMetadata = await getIFCFileMetadata(structure.id);
+        if (ifcMetadata?.filename !== structure.ifcfileaddress) {
+          await deleteIFCFile(structure.id);
+          
+          setSelectedForDownload(structure);
+          setShowIFCDownloadDialog(true);
+        }
+      } else {
         setSelectedForDownload(structure);
         setShowIFCDownloadDialog(true);
       }
@@ -215,7 +223,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className={styles.homeContainer}>
-      {(selectedForDownload && structureDataMode === 'ifc') && (
+      {(selectedForDownload) && (
         <IFCDownloadDialog
           open={showIFCDownloadDialog}
           structureName={selectedForDownload.name}

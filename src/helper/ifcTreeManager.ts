@@ -156,6 +156,7 @@ export const filterTree = (nodes: StructureElement[], query: string): StructureE
         .map((node) => {
             const children = filterTree(node.children || [], query);
             const isMatch =
+                node.identityData?.names?.toString().toLowerCase().includes(query.toLowerCase()) ||
                 node.data.Entity?.toString().toLowerCase().includes(query.toLowerCase()) ||
                 node.data.Name?.toString().toLowerCase().includes(query.toLowerCase());
             if (isMatch || children.length > 0) {

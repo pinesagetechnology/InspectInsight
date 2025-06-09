@@ -68,16 +68,16 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
     whiteSpace: 'nowrap'
 }));
 
-const TableRowComponent = React.memo(({ 
-    element, 
-    selectedElement, 
-    isPortrait, 
-    handleRowClick, 
-    handleRowDoubleClick, 
-    handleOnRatingChange, 
-    handleSaveButton, 
-    addAssessmentOnClick, 
-    maintenanceActionList 
+const TableRowComponent = React.memo(({
+    element,
+    selectedElement,
+    isPortrait,
+    handleRowClick,
+    handleRowDoubleClick,
+    handleOnRatingChange,
+    handleSaveButton,
+    addAssessmentOnClick,
+    maintenanceActionList
 }: {
     element: StructureElement;
     selectedElement: StructureElement | null;
@@ -100,9 +100,18 @@ const TableRowComponent = React.memo(({
                 'rgba(0, 0, 0, 0.04)' : 'inherit'
         }}
     >
-        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{element.data.expressID}</StyledTableCell>
-        <StyledTableCell>{element.data.Entity}</StyledTableCell>
-        <StyledTableCell>{element.data.Name}</StyledTableCell>
+        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{
+            element.identityData && element.identityData.assetId ?
+                element.identityData.assetId :
+                element.data.expressID
+        }</StyledTableCell>
+        <StyledTableCell>{
+            element.identityData && element.identityData.names ?
+                element.identityData.names : 
+                element.data.Name
+        }</StyledTableCell>
+        <StyledTableCell>{element.identityData?.section}</StyledTableCell>
+        <StyledTableCell>{element.identityData?.structure}</StyledTableCell>
         <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
             {element.children?.length > 0 && element.quantity}
         </StyledTableCell>
@@ -182,7 +191,7 @@ const StructureElementGrid: React.FC = () => {
     const isPortrait = useMediaQuery('(orientation: portrait)');
 
     // Memoized filtered data
-    const filteredTreeData = useMemo(() => 
+    const filteredTreeData = useMemo(() =>
         searchQuery ? filterTree(displayElements, searchQuery) : displayElements,
         [displayElements, searchQuery]
     );
@@ -385,9 +394,10 @@ const StructureElementGrid: React.FC = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>ID</StyledTableHeaderCell>
-                                <StyledTableHeaderCell>Entity</StyledTableHeaderCell>
+                                <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>AssetID</StyledTableHeaderCell>
                                 <StyledTableHeaderCell>Name</StyledTableHeaderCell>
+                                <StyledTableHeaderCell>Section</StyledTableHeaderCell>
+                                <StyledTableHeaderCell>Structure</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>Quantity</StyledTableHeaderCell>
                                 <StyledTableHeaderCell sx={{ textAlign: 'center', width: '250px' }}>
                                     Condition rating
