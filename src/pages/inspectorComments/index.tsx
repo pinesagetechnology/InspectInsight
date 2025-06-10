@@ -18,12 +18,12 @@ import * as actions from "../../store/InspectionComment/actions";
 import AIChatBot from '../../components/aiChatBot';
 import { genAIService } from '../../services/genAIService';
 import { getInspection } from '../../store/Inspection/selectors';
-import { getCurrentStructure, getIFCCalculatedElementCodeData } from '../../store/Structure/selectors';
+import { getCurrentStructure, getIFCCalculatedElementCodeData, getStructureDisplayMode, getTotalElementCodeQuantity, getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 import { getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { getRatedElementCodeData, getRatedElements } from '../../store/ConditionRating/selectors';
 import * as commonActions from "../../store/Common/actions";
 import { InspectionReport } from '../../entities/genAIModel';
-import { IFCPopulatedConditionRating } from '../../entities/inspection';
+import { IFCPopulatedConditionRating, InspectionEntity } from '../../entities/inspection';
 import { getRatingDistribution } from '../../helper/ifcTreeManager';
 
 const InspectorCommentForm: React.FC = () => {
@@ -32,6 +32,9 @@ const InspectorCommentForm: React.FC = () => {
 
   const commentValue = useSelector(getInspectionComment);
   const validationError = useSelector(getInspectCommentFormValidation);
+  const structureDataMode = useSelector(getStructureDisplayMode);
+  const totalIFCElementQuantity = useSelector(getTotalIFCElementQuantity);
+  const totalElementCodeQuantity = useSelector(getTotalElementCodeQuantity);
 
   // Get inspection context for AI
   const currentInspection = useSelector(getInspection);
@@ -63,6 +66,15 @@ const InspectorCommentForm: React.FC = () => {
     dispatch({ type: commonActions.SHOW_LOADING_OVERLAY } as PayloadAction);
     setIsGeneratingAI(true);
     setAiError(null);
+
+    let inspectionRatingProgress = "";
+    if (structureDataMode === "ifc") {
+
+      inspectionRatingProgress = `${ratedIFCElements.length} of ${totalIFCElementQuantity} elements rated`;
+    } else {
+
+      inspectionRatingProgress = `${ratedElementCodeData.length} of ${totalElementCodeQuantity} elements rated`;
+    }
 
     try {
       // Prepare inspection context for AI
@@ -102,12 +114,31 @@ const InspectorCommentForm: React.FC = () => {
           probability: action.probability,
           consequence: action.consequenceOfInteraction,
           risk: action.activityInactionRisk
-        }))
+        })),
+        inspectionRatingProgress: inspectionRatingProgress
+      };
+
+      const previousInspectionJson = {
+        inspectionType: currentStructure.previousInspection?.inspectionType,
+        inspectionLevel: currentStructure.previousInspection?.inspectionLevel,
+        temperature: currentStructure.previousInspection?.temperature,
+        weather: currentStructure.previousInspection?.weather,
+        inspectorName: currentStructure.previousInspection?.inspectorName,
+        engineerName: currentStructure.previousInspection?.engineerName,
+        inspectionDate: currentStructure.previousInspection?.inspectionDate,
+        nextInspectionProposedDate: currentStructure.previousInspection?.nextInspectionProposedDate,
+        inspectionComment: currentStructure.previousInspection?.comment,
+        maintenanceActions: currentStructure.previousInspection?.maintenanceActions,
+        conditionRatings: currentStructure.previousInspection?.conditionRatings,
       };
 
       // Call the completion API
-      const contextJson = JSON.stringify(inspectionContext);
-      const aiComment: InspectionReport = await genAIService.getCompletion(contextJson);
+      const requestBody = {
+        contextJson: JSON.stringify(inspectionContext),
+        previousInspectionJson: JSON.stringify(previousInspectionJson)
+      };
+
+      const aiComment: InspectionReport = await genAIService.getCompletion(requestBody);
 
       // Update the comment field with AI generated content
       dispatch({

@@ -26,3 +26,8 @@ export interface ChatMessage {
 export interface Role {
     value: string;
 }
+
+export interface GenAIRequest {
+    contextJson: string;
+    previousInspectionJson: string;
+}

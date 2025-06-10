@@ -343,7 +343,7 @@ const StructureElementGrid: React.FC = () => {
 
         setTimeout(() => {
             dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
-        }, 1000);
+        }, 120);
     }, [dispatch]);
 
     return (

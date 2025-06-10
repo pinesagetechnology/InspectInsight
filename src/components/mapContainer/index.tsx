@@ -120,7 +120,6 @@ const MapContainer: React.FC<MapComponentProps> = ({
     handleDisplayModeChange,
     structureMode
 }) => {
-    console.log("structureMode", structureMode);
     const dispatch = useDispatch();
     const selectedStructure = useSelector(getCurrentStructure);
 

@@ -1,4 +1,4 @@
-import { ChatRequest, InspectionReport } from '../entities/genAIModel';
+import { ChatRequest, GenAIRequest, InspectionReport } from '../entities/genAIModel';
 import { setUpgenAIAPIEnv } from '../configuration';
 import { setAuthorize } from '../helper/genAPI';
 
@@ -10,7 +10,7 @@ class GenAIService {
 
     private readonly baseUrl = window.GEN_API_URL;
 
-    public async getCompletion(contextJson: string): Promise<InspectionReport> {
+    public async getCompletion(requestBody: GenAIRequest): Promise<InspectionReport> {
         await setAuthorize();
 
         try {
@@ -22,7 +22,7 @@ class GenAIService {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
                 },
-                body: JSON.stringify(contextJson)
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
