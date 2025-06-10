@@ -13,7 +13,8 @@ import {
     DialogContent,
     DialogActions,
     DialogTitle,
-    Typography
+    Typography,
+    Skeleton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -72,6 +73,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     const [cameraError, setCameraError] = useState<string | null>(null);
     const [images, setImages] = useState<MaintenanceImageFile[]>([]);
     const [aiApiResponse, setAiApiResponse] = useState<string | null>(null);
+    const [aiApiResponseLoading, setAiApiResponseLoading] = useState(false);
 
     useEffect(() => {
         setImages(formData.photos || []);
@@ -302,6 +304,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 // 🔽 Create a File object from the blob for FormData
                 const file = new File([blob], fileName, { type: 'image/jpeg' });
 
+                setAiApiResponseLoading(true);
                 // 🔽 Prepare the form data for the API call
                 const response: BridgeInspectionResponse = await getImageDescriptionFromAI(file);
 
@@ -309,6 +312,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 console.log("API result:", response.response);
 
                 setAiApiResponse(response.response);
+
+                setAiApiResponseLoading(false);
 
             } catch (error) {
                 console.error("Error capturing photo:", error);
@@ -402,15 +407,24 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                                 <canvas ref={canvasRef} />
                             </CameraPreviewContainer>
                             <Box sx={{ mt: 2, width: '80%', height: '40%' }}>
-                                {/* Replace this with actual response rendering when integrated */}
-                                <Typography variant="body2" color="text.secondary" align="center">
-                                    {/* Example: Azure AI analysis result will appear here after analyzing the photo */}
-                                    {aiApiResponse ? (
-                                        <span>AI Analysis: {aiApiResponse}</span>
-                                    ) : (
-                                        <span>AI analysis result will be shown here.</span>
-                                    )}
-                                </Typography>
+                                {aiApiResponseLoading ?
+                                    (
+                                        <React.Fragment>
+                                            <Skeleton />
+                                            <Skeleton animation="wave" />
+                                            <Skeleton animation={false} />
+                                        </React.Fragment>
+                                    ) :
+                                    (
+                                        <Typography variant="body2" color="text.secondary" align="center">
+                                            {aiApiResponse ? (
+                                                <span>AI Analysis: {aiApiResponse}</span>
+                                            ) : (
+                                                <span>AI analysis result will be shown here...</span>
+                                            )}
+                                        </Typography>
+                                    )
+                                }
                             </Box>
                         </Stack>
                     )}

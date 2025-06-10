@@ -100,7 +100,7 @@ export const getImageDescriptionFromAI = async (file: File) => {
     formData.append('image', file);
     console.log(genaiApiUrl);
     const response = await axios.post(
-        `${genaiApiUrl}/api/GenAI/analyze`,
+        `${genaiApiUrl}api/GenAI/analyze`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
     );
