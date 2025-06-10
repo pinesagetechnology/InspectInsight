@@ -12,7 +12,8 @@ import {
     Dialog,
     DialogContent,
     DialogActions,
-    DialogTitle
+    DialogTitle,
+    Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -25,6 +26,8 @@ import { useDispatch } from 'react-redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/MaintenanceAction/actions";
 import { deleteImage, saveCapturedImage } from '../../helper/db';
+import { getImageDescriptionFromAI } from '../../helper/genAPI';
+import { BridgeInspectionResponse } from '../../entities/genAIModel';
 
 interface ImageUploadProps {
     formData: MaintenanceActionModel;
@@ -68,6 +71,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     const [hasCameraSupport, setHasCameraSupport] = useState(true);
     const [cameraError, setCameraError] = useState<string | null>(null);
     const [images, setImages] = useState<MaintenanceImageFile[]>([]);
+    const [aiApiResponse, setAiApiResponse] = useState<string | null>(null);
 
     useEffect(() => {
         setImages(formData.photos || []);
@@ -269,6 +273,50 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         }
     };
 
+    const analyzePhoto = async () => {
+        if (!videoRef.current || !canvasRef.current) return;
+
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+
+        // Set canvas dimensions to match the video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw the current video frame to the canvas
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            try {
+                // Get the blob from canvas
+                const blob = await new Promise<Blob>((resolve, reject) => {
+                    canvas.toBlob(blob => {
+                        if (blob) resolve(blob);
+                        else reject(new Error("Failed to create blob"));
+                    }, 'image/jpeg', 0.8);
+                });
+
+                const fileName = `camera_${new Date().toISOString().replace(/:/g, '-')}.jpg`;
+
+                // 🔽 Create a File object from the blob for FormData
+                const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+                // 🔽 Prepare the form data for the API call
+                const response: BridgeInspectionResponse = await getImageDescriptionFromAI(file);
+
+                // ✅ Handle the analysis result
+                console.log("API result:", response.response);
+
+                setAiApiResponse(response.response);
+
+            } catch (error) {
+                console.error("Error capturing photo:", error);
+                // Handle error appropriately in the UI
+            }
+        }
+    };
+
     return (
         <div>
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -344,14 +392,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                             <p>Error: {cameraError}</p>
                         </Box>
                     ) : (
-                        <CameraPreviewContainer>
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                playsInline
-                            />
-                            <canvas ref={canvasRef} />
-                        </CameraPreviewContainer>
+                        <Stack direction="column" spacing={1}>
+                            <CameraPreviewContainer>
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                />
+                                <canvas ref={canvasRef} />
+                            </CameraPreviewContainer>
+                            <Box sx={{ mt: 2, width: '80%', height: '40%' }}>
+                                {/* Replace this with actual response rendering when integrated */}
+                                <Typography variant="body2" color="text.secondary" align="center">
+                                    {/* Example: Azure AI analysis result will appear here after analyzing the photo */}
+                                    {aiApiResponse ? (
+                                        <span>AI Analysis: {aiApiResponse}</span>
+                                    ) : (
+                                        <span>AI analysis result will be shown here.</span>
+                                    )}
+                                </Typography>
+                            </Box>
+                        </Stack>
                     )}
                 </DialogContent>
                 <DialogActions>
@@ -363,6 +424,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                         disabled={!stream}
                     >
                         Capture
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={analyzePhoto}
+                        disabled={!stream}
+                    >
+                        AI Analyze
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -31,3 +31,8 @@ export interface GenAIRequest {
     contextJson: string;
     previousInspectionJson: string;
 }
+
+export interface BridgeInspectionResponse {
+    response: string;
+    chatHistory: any[];
+}

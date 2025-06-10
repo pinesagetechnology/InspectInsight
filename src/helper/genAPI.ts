@@ -4,7 +4,7 @@ import { AuthResponse } from 'entities/auth';
 import authAPI from './authAPI';
 
 setUpgenAIAPIEnv();
-const genaiApiUrl = window.USER_API_URL;
+const genaiApiUrl = window.GEN_API_URL;
 let refreshRetryCount = 0;
 const MAX_RETRIES = 3;
 
@@ -93,6 +93,20 @@ genaiAPI.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export const getImageDescriptionFromAI = async (file: File) => {
+
+    const formData = new FormData();
+    formData.append('image', file);
+    console.log(genaiApiUrl);
+    const response = await axios.post(
+        `${genaiApiUrl}/api/GenAI/analyze`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    return response.data;
+};
 
 export const revokeAccess = () => {
     delete genaiAPI.defaults.headers.common.Authorization;
