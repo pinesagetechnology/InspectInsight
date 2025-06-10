@@ -443,7 +443,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                         variant="contained"
                         color="primary"
                         onClick={analyzePhoto}
-                        disabled={!stream}
+                        disabled={!stream || aiApiResponseLoading}
                     >
                         AI Analyze
                     </Button>
