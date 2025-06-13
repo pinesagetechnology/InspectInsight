@@ -11,3 +11,4 @@ export const getRatedElementCodeData = (state: RootState) => state.ConditionRati
 export const getSelectedElementCode = (state: RootState) => state.ConditionRatingState.selectedElementCode;
 export const getElementCodeDataList = (state: RootState) => state.ConditionRatingState.elementCodeDataList;
 export const getAutoTableElementFocus = (state: RootState) => state.ConditionRatingState.autoTableElementFocus;
+export const getSelectedHierarchyPath = (state: RootState) => state.ConditionRatingState.selectedHierarchyPath;

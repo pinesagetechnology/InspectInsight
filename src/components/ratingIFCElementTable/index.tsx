@@ -26,6 +26,7 @@ import {
     getDisplayElementList,
     getOriginalConditionRating,
     getRatedElements,
+    getSelectedHierarchyPath,
     getSelectedStructureElement
 } from '../../store/ConditionRating/selectors';
 import { useDispatch } from 'react-redux';
@@ -179,6 +180,7 @@ const StructureElementGrid: React.FC = () => {
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
     const ratedElements = useSelector(getRatedElements);
     const maintenanceActionList = useSelector(getMaintenanceActions);
+    const selectedHierarchyPath = useSelector(getSelectedHierarchyPath);
 
     // Local state
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -243,12 +245,18 @@ const StructureElementGrid: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
-    }, [elementHistory]);
+        if (selectedHierarchyPath.length > 0) { 
+            const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
+            const label = lastItem.split('|')[0];
+            console.log(label);
+            setGoBackLabel(label);
+        }
+    }, [selectedHierarchyPath]);
 
     // Handlers
     const handleRowClick = useCallback((element: StructureElement) => {
         if (element.children?.length > 0) {
+
             dispatch({
                 payload: element,
                 type: actions.HANDLE_ROW_CLICK_SAGA
