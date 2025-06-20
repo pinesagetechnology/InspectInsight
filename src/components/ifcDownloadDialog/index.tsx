@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import { saveIFCFile } from '../../helper/db';
+import LinearProgressWithLabel from '../linearProgressWithLabel';
 
 interface IFCDownloadDialogProps {
     open: boolean;
@@ -32,10 +33,12 @@ const IFCDownloadDialog: React.FC<IFCDownloadDialogProps> = ({
 }) => {
     const [downloading, setDownloading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [progress, setProgress] = useState(0);
 
     const handleDownload = async () => {
         setDownloading(true);
         setError(null);
+        setProgress(0);
 
         try {
             const url = `https://psiassetsapidev.blob.core.windows.net/${ifcPath}`;
@@ -45,8 +48,36 @@ const IFCDownloadDialog: React.FC<IFCDownloadDialogProps> = ({
                 throw new Error('Failed to download IFC file');
             }
 
-            const blob = await response.blob();
-            await saveIFCFile(structureId, ifcPath, blob);
+            const contentLength = response.headers.get('content-length');
+            const total = contentLength ? parseInt(contentLength, 10) : 0;
+            let loaded = 0;
+
+            if (response.body) {
+                const reader = response.body.getReader();
+                const chunks: Uint8Array[] = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    chunks.push(value);
+                    loaded += value.length;
+                    
+                    if (total > 0) {
+                        const progressValue = Math.round((loaded / total) * 100);
+                        setProgress(progressValue);
+                    }
+                }
+
+                const blob = new Blob(chunks);
+                await saveIFCFile(structureId, ifcPath, blob);
+            } else {
+                // Fallback for browsers that don't support ReadableStream
+                const blob = await response.blob();
+                await saveIFCFile(structureId, ifcPath, blob);
+                setProgress(100);
+            }
 
             onDownloadComplete();
             onClose();
@@ -76,7 +107,9 @@ const IFCDownloadDialog: React.FC<IFCDownloadDialogProps> = ({
                         <Typography variant="body1" sx={{ mt: 2 }}>
                             Downloading 3D model for {structureName}...
                         </Typography>
+                        <LinearProgressWithLabel value={progress} />
                     </Box>
+                    
                 ) : (
                     <>
                         <DialogContentText>
