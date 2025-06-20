@@ -71,37 +71,21 @@ const IFCViewerComponent: React.FC = () => {
         if (model && fragMgrRef.current && ratedElements.length > 0 && highlighterRef.current) {
             ratedElements.forEach((item) => {
                 if (item.ifcElementRatingValue) {
-                    let color: THREE.Color | undefined;
+                    const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
 
                     switch (item.ifcElementRatingValue) {
                         case "1":
-                            color = new THREE.Color(0x00ff00);
+                            highlighterRef.current?.highlightByID("c1RatedElements", fragmentIDMap, false, false);
                             break;
                         case "2":
-                            color = new THREE.Color(0xffff00);
+                            highlighterRef.current?.highlightByID("c2RatedElements", fragmentIDMap, false, false);
                             break;
                         case "3":
-                            color = new THREE.Color(0xff9900);
+                            highlighterRef.current?.highlightByID("c3RatedElements", fragmentIDMap, false, false);
                             break;
                         case "4":
-                            color = new THREE.Color(0xff0000);
+                            highlighterRef.current?.highlightByID("c4RatedElements", fragmentIDMap, false, false);
                             break;
-                    }
-
-                    const fragmentIDMap = getRowFragmentIdMap(model!, item.data);
-                    if (fragmentIDMap) {
-                        if (fragMgrRef.current?.list) {
-                            Object.keys(fragmentIDMap).forEach(fragmentId => {
-                                const fragment = fragMgrRef.current?.list.get(fragmentId);
-                                if (fragment && color) {
-                                    fragment.mesh.material[0] = new THREE.MeshBasicMaterial({
-                                        color: color,
-                                        transparent: true,
-                                        opacity: 0.5,
-                                    });
-                                }
-                            })
-                        }
                     }
                 }
             });
@@ -140,6 +124,11 @@ const IFCViewerComponent: React.FC = () => {
             const highlighter = components.get(OBF.Highlighter);
             highlighter.setup({ world });
             highlighter.zoomToSelection = true;
+            highlighter.add("c1RatedElements", new THREE.Color(0x00ff00));
+            highlighter.add("c2RatedElements", new THREE.Color(0xffff00));
+            highlighter.add("c3RatedElements", new THREE.Color(0xff9900));
+            highlighter.add("c4RatedElements", new THREE.Color(0xff0000));
+
             highlighterRef.current = highlighter;
             highlighter.events.select.onHighlight.add((fragMap) => {
                 const key = Object.keys(fragMap)[0];
@@ -240,7 +229,7 @@ const IFCViewerComponent: React.FC = () => {
                 });
                 console.log('Model classification complete');
 
-                if (selectedStructureElement) {
+                if (selectedStructureElement && selectedStructureElement?.data) {
                     const fragmentIDMap = getRowFragmentIdMap(model, selectedStructureElement?.data);
 
                     if (fragmentIDMap && !isMeasurementMode) {

@@ -12,6 +12,7 @@ export interface ConditionRatingState {
     ratedElementCodeData: ElementCodeData[];
     elementCodeDataList: ElementCodeData[];
     autoTableElementFocus: number;
+    selectedHierarchyPath: string[];
     error?: any;
 }
 
@@ -25,6 +26,7 @@ const initialState = {
     ratedElementCodeData: [],
     elementCodeDataList: [],
     autoTableElementFocus: -1,
+    selectedHierarchyPath: [],
 } as ConditionRatingState
 
 const ConditionRatingSlice = createSlice({
@@ -61,6 +63,9 @@ const ConditionRatingSlice = createSlice({
         setAutoTableElementFocus: (state, action: PayloadAction<number>) => {
             state.autoTableElementFocus = action.payload;
         },
+        setSelectedHierarchyPath: (state, action: PayloadAction<string[]>) => {
+            state.selectedHierarchyPath = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(resetStateAction, (state) => {
@@ -88,7 +93,8 @@ export const {
     setSelectedElementCode,
     setOriginalElementCodeDataList,
     setReatedElementCode,
-    setAutoTableElementFocus
+    setAutoTableElementFocus,
+    setSelectedHierarchyPath
 } = ConditionRatingSlice.actions;
 
 export default ConditionRatingSlice.reducer;

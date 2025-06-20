@@ -2,8 +2,8 @@ import { takeLatest, call, put, select } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ElementCodeData, StructureElement } from '../../entities/structure';
-import { getOriginalConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements } from './selectors';
-import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode, setAutoTableElementFocus } from './slice';
+import { getOriginalConditionRating, getDisplayElementList, getElementCodeDataList, getElementHistory, getRatedElementCodeData, getRatedElements, getSelectedHierarchyPath } from './selectors';
+import { setOriginalConditionRating, setDisplayConditionRatingElements, setElementHistory, setSelectedStructureElement, setConditionRatingError, setReatedElement, setSelectedElementCode, setOriginalElementCodeDataList, setReatedElementCode, setAutoTableElementFocus, setSelectedHierarchyPath } from './slice';
 import { InspectionModel, MaintenanceActionModel } from 'models/inspectionModel';
 import { getInspection } from '../Inspection/selectors';
 import { getMaintenanceActions } from '../MaintenanceAction/selectors';
@@ -29,7 +29,12 @@ export function* conditionRatingRootSaga() {
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
 
     if (action.payload.children && action.payload.children.length > 0) {
-        // 1- current diplay go to add history
+        //set hierarchy path
+        const selectedHierarchyPath: string[] = yield select(getSelectedHierarchyPath);
+        const newHierarchyPath = [...selectedHierarchyPath, `${action.payload.data.Entity}|${action.payload.data.expressID}`];
+        yield put(setSelectedHierarchyPath(newHierarchyPath));
+
+        // current diplay go to add history
         const currentDisplayItem: StructureElement[] = yield select(getDisplayElementList);
 
         //add element to History
@@ -46,19 +51,16 @@ export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
 
 export function* saveConditionRatingValue(action: PayloadAction<StructureElement>) {
     // update original list
-    yield call(updateOrginalElementList, action.payload);
+    yield call(updateOriginalElementList, action.payload);
 
     // update display
     yield call(updateDisplayElementList, action.payload);
-
-    //update historyList
-    yield call(updateHistoryElementList, action.payload);
 
     //upted RatedElement
     yield call(updateRatedElementList, action.payload);
 }
 
-function* updateOrginalElementList(updatedItem: StructureElement) {
+function* updateOriginalElementList(updatedItem: StructureElement) {
     const elementItems: StructureElement[] = yield select(getOriginalConditionRating);
 
     let reuslt: StructureElement[] = yield call(CheckHierarchyRecusrsivly, elementItems, updatedItem);
@@ -93,15 +95,19 @@ function* updateDisplayElementList(updatedItem: StructureElement) {
     yield put(setDisplayConditionRatingElements(updateDisplayItems));
 }
 
-function* updateHistoryElementList(updatedItem: StructureElement) {
-    const elementHistory: StructureElement[][] = yield select(getElementHistory);
+// function* updateHistoryElementList(updateDisplayItems: StructureElement[]) {
+//     const elementHistory: StructureElement[][] = yield select(getElementHistory);
+//     const selectedHierarchyPath: string[] = yield select(getSelectedHierarchyPath);
+//     const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
+//     const updatedItemExpressID = lastItem.split('|')[1];
 
-    const newElementHistory = elementHistory.map(elementSet => {
-        return CheckHierarchyRecusrsivly(elementSet, updatedItem);
-    });
 
-    yield put(setElementHistory(newElementHistory));
-}
+//     const newElementHistory = elementHistory.map(elementSet => {
+//         return CheckHierarchyRecusrsivly(elementSet, updatedItem);
+//     });
+
+//     yield put(setElementHistory(newElementHistory));
+// }
 
 function* updateRatedElementList(updatedItem: StructureElement) {
     const ratedElements: StructureElement[] = yield select(getRatedElements);
@@ -125,13 +131,32 @@ function* updateRatedElementList(updatedItem: StructureElement) {
 export function* handleBackClickSaga() {
     const elementHistory: StructureElement[][] = yield select(getElementHistory);
     if (elementHistory.length > 0) {
+
+        const selectedHierarchyPath: string[] = yield select(getSelectedHierarchyPath);
+        const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
+        const updatedItemExpressID = lastItem.split('|')[1];
+
         const lastArrayIndex = elementHistory.length - 1;
         const lastElementArray = elementHistory[lastArrayIndex];
 
-        //1- set displayElement to last item in history
-        yield put(setDisplayConditionRatingElements(lastElementArray));
+        //update children of the selected item with latest CurrentDisplay item 
+        const currentDisplayItem: StructureElement[] = yield select(getDisplayElementList);
 
-        //2- pop last history item 
+        const updatedLastElementArray = lastElementArray.map(item => {
+            if (item.data.expressID === Number(updatedItemExpressID)) {
+                console.log("handleBackClickSaga", item.data.expressID, updatedItemExpressID);
+                return { ...item, children: currentDisplayItem };
+            }
+            return item;
+        });
+
+        //1- set displayElement to last item in history
+        yield put(setDisplayConditionRatingElements(updatedLastElementArray));
+
+        //2- pop last history items
+        const newHierarchyPath = selectedHierarchyPath.slice(0, -1);
+        yield put(setSelectedHierarchyPath(newHierarchyPath));
+        
         const newElementHistory = elementHistory.slice(0, -1);
         yield put(setElementHistory(newElementHistory));
     }

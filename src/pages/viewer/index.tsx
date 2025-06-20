@@ -15,8 +15,6 @@ const Viewer: React.FC = () => {
     const dispatch = useDispatch();
 
     const handleClick = () => {
-        const randomNumber = Math.floor(Math.random() * 10) + 1;
-        dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: randomNumber } as PayloadAction<number>);
         goTo(RoutesValueEnum.ConditionRating);
     };
 

@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import styles from "./style.module.scss";
 import { useDispatch, useSelector } from 'react-redux';
-import { getSelectedStructureElement } from '../../store/ConditionRating/selectors';
+import { getRatedElements, getSelectedStructureElement } from '../../store/ConditionRating/selectors';
 import * as actions from "../../store/ConditionRating/actions";
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import PostAddIcon from '@mui/icons-material/PostAdd';
@@ -20,6 +20,8 @@ import RatingComponent from '../../components/ratingComponent';
 import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { MaintenanceActionModel } from 'models/inspectionModel';
 import { RMAModeEnum } from '../../enums';
+import { CircularProgressWithLabel } from '../../components/circularProgressWithLableComponent';
+import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 
 interface AssessmentPanelProps {
     isTablet: boolean;
@@ -32,7 +34,9 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
     const maintenanceActionModalFlag = useSelector(getMaintenanceActionModalFlag);
     const selectedIFCElement = useSelector(getSelectedStructureElement);
     const maintenanceActionList = useSelector(getMaintenanceActions);
-    
+    const totalIFCElementQuantity = useSelector(getTotalIFCElementQuantity);
+    const ratedElements = useSelector(getRatedElements);
+
     const addAssessmentOnClick = () => {
         if (!selectedIFCElement) return;
         const newMaintenanceAction = {
@@ -67,8 +71,9 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
         const updatedElement = {
             ...selectedIFCElement,
             condition: newRating,
-            ifcElementRatingValue: value
-        };
+            ifcElementRatingValue: value,
+            isSaved: true
+        } as StructureElement;
 
         dispatch({
             type: actions.SAVE_CONDITION_RATING_DATA,
@@ -133,7 +138,17 @@ const AssessmentPanel: React.FC<AssessmentPanelProps> = ({
                         {isTablet ? 'Add assessment' : 'Add maintenance action'}
                     </Button>
                 </Badge>
+
+                <Divider orientation="horizontal" flexItem />
+                <CircularProgressWithLabel
+                    totalQuantity={totalIFCElementQuantity || 0}
+                    reviewedCount={ratedElements?.length || 0} 
+                    label="progress" />
+
+
             </Stack>
+
+
 
             <RMADialog
                 handleClose={handleClose}

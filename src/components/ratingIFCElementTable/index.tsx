@@ -26,6 +26,7 @@ import {
     getDisplayElementList,
     getOriginalConditionRating,
     getRatedElements,
+    getSelectedHierarchyPath,
     getSelectedStructureElement
 } from '../../store/ConditionRating/selectors';
 import { useDispatch } from 'react-redux';
@@ -179,11 +180,11 @@ const StructureElementGrid: React.FC = () => {
     const autoTableElementFocus = useSelector(getAutoTableElementFocus);
     const ratedElements = useSelector(getRatedElements);
     const maintenanceActionList = useSelector(getMaintenanceActions);
+    const selectedHierarchyPath = useSelector(getSelectedHierarchyPath);
 
     // Local state
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
-    const [reviewedCount, setReviewedCount] = useState<number>(0);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:962px)');
@@ -194,11 +195,6 @@ const StructureElementGrid: React.FC = () => {
         searchQuery ? filterTree(displayElements, searchQuery) : displayElements,
         [displayElements, searchQuery]
     );
-
-    // Effects
-    useEffect(() => {
-        setReviewedCount(ratedElements.length);
-    }, [ratedElements]);
 
     useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
@@ -243,12 +239,18 @@ const StructureElementGrid: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setGoBackLabel(elementHistory.length > 0 ? elementHistory[elementHistory.length - 1][0].data.Entity : '');
-    }, [elementHistory]);
+        if (selectedHierarchyPath.length > 0) { 
+            const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
+            const label = lastItem.split('|')[0];
+            console.log(label);
+            setGoBackLabel(label);
+        }
+    }, [selectedHierarchyPath]);
 
     // Handlers
     const handleRowClick = useCallback((element: StructureElement) => {
         if (element.children?.length > 0) {
+
             dispatch({
                 payload: element,
                 type: actions.HANDLE_ROW_CLICK_SAGA
@@ -364,7 +366,7 @@ const StructureElementGrid: React.FC = () => {
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4}>
                         <Box sx={{ width: '100%', maxWidth: isPortrait ? '100%' : '400px', display: 'flex', alignItems: 'center', justifyContent: isTablet ? 'flex-end' : 'center' }}>
-                            <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={reviewedCount} label="progress" />
+                            <CircularProgressWithLabel totalQuantity={totalIFCElementQuantity || 0} reviewedCount={ratedElements?.length || 0} label="progress" />
                         </Box>
                     </Grid>
                     <Grid size={isPortrait ? 12 : 4}>
