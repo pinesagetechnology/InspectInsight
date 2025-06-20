@@ -12,7 +12,6 @@ import {
     CircularProgress,
     Snackbar,
     SnackbarCloseReason,
-    Button,
 } from '@mui/material';
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
