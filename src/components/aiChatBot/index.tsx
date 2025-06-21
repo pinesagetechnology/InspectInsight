@@ -13,17 +13,28 @@ import {
     CircularProgress,
     Fab,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    FormControl,
+    FormControlLabel,
+    Radio,
+    RadioGroup,
+    Chip,
+    Alert,
+    AlertTitle,
 } from '@mui/material';
 import {
     Chat as ChatIcon,
     Close as CloseIcon,
     Send as SendIcon,
     SmartToy as BotIcon,
-    Person as PersonIcon
+    Person as PersonIcon,
+    Computer as ComputerIcon,
+    Cloud as CloudIcon,
+    Wifi as WifiIcon,
+    WifiOff as WifiOffIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { genAIService } from '../../services/genAIService';
+import { unifiedAIService, AISource, AIResponse } from '../../services/unifiedAIService';
 import { InspectionReport } from '../../entities/genAIModel';
 
 interface Message {
@@ -31,6 +42,8 @@ interface Message {
     content: string;
     role: 'user' | 'assistant';
     timestamp: Date;
+    source?: AISource;
+    modelName?: string;
 }
 
 interface AIChatBotProps {
@@ -41,8 +54,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
     position: 'fixed',
     bottom: 80,
     right: 20,
-    width: 350,
-    maxHeight: 500,
+    width: 400, // Increased width to accommodate radio buttons
+    maxHeight: 600, // Increased height
     boxShadow: theme.shadows[8],
     transition: 'all 0.3s ease-in-out',
     zIndex: 1000,
@@ -55,7 +68,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const ChatContainer = styled(Box)(({ theme }) => ({
-    height: 300,
+    height: 350, // Increased height
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
@@ -114,9 +127,37 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [aiSource, setAiSource] = useState<AISource>('online');
+    const [aiStatus, setAiStatus] = useState<{
+        local: { available: boolean; modelName?: string; webGPUSupported: boolean };
+        online: { available: boolean; authenticated: boolean };
+    } | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Load AI source preference from localStorage
+    useEffect(() => {
+        const savedSource = localStorage.getItem('ai-chat-source') as AISource;
+        if (savedSource && (savedSource === 'local' || savedSource === 'online')) {
+            setAiSource(savedSource);
+            unifiedAIService.setSource(savedSource);
+        }
+    }, []);
+
+    // Check AI status when component mounts or AI source changes
+    useEffect(() => {
+        checkAIStatus();
+    }, [aiSource]);
+
+    const checkAIStatus = async () => {
+        try {
+            const status = await unifiedAIService.getStatus();
+            setAiStatus(status);
+        } catch (error) {
+            console.error('Error checking AI status:', error);
+        }
+    };
 
     useEffect(() => {
         scrollToBottom();
@@ -135,6 +176,14 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
     const handleToggleChat = () => {
         setIsOpen(!isOpen);
         setError(null);
+    };
+
+    const handleAISourceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newSource = event.target.value as AISource;
+        setAiSource(newSource);
+        unifiedAIService.setSource(newSource);
+        localStorage.setItem('ai-chat-source', newSource);
+        checkAIStatus(); // Re-check status when source changes
     };
 
     const handleSendMessage = async () => {
@@ -165,21 +214,23 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                 content: inputValue
             });
 
-            // Call the chat API endpoint with conversation context
+            // Call the unified AI service
             const contextJson = JSON.stringify(conversationContext);
-            const response = await genAIService.sendChatMessage(inputValue, contextJson);
+            const response: AIResponse = await unifiedAIService.sendChatMessage(inputValue, contextJson);
 
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 content: response.response,
                 role: 'assistant',
                 timestamp: new Date(),
+                source: response.source,
+                modelName: response.modelName,
             };
 
             setMessages(prev => [...prev, assistantMessage]);
         } catch (error) {
             console.error('Error sending message:', error);
-            setError('Failed to send message. Please try again.');
+            setError(`Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`);
 
             // Add error message to chat
             const errorMessage: Message = {
@@ -199,6 +250,14 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
             event.preventDefault();
             handleSendMessage();
         }
+    };
+
+    const getSourceIcon = (source: AISource) => {
+        return source === 'local' ? <ComputerIcon fontSize="small" /> : <CloudIcon fontSize="small" />;
+    };
+
+    const getSourceColor = (source: AISource) => {
+        return source === 'local' ? 'success' : 'primary';
     };
 
     return (
@@ -230,12 +289,91 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                     />
 
                     <CardContent sx={{ pt: 0 }}>
+                        {/* AI Source Selection */}
+                        <Box sx={{ mb: 2 }}>
+                            <FormControl component="fieldset" size="small">
+                                <RadioGroup
+                                    row
+                                    value={aiSource}
+                                    onChange={handleAISourceChange}
+                                    sx={{ justifyContent: 'space-between' }}
+                                >
+                                    <FormControlLabel
+                                        value="online"
+                                        control={<Radio size="small" />}
+                                        label={
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <CloudIcon fontSize="small" />
+                                                <Typography variant="body2">Online</Typography>
+                                                {aiStatus?.online.available ? (
+                                                    <WifiIcon fontSize="small" color="success" />
+                                                ) : (
+                                                    <WifiOffIcon fontSize="small" color="error" />
+                                                )}
+                                            </Stack>
+                                        }
+                                        disabled={!aiStatus?.online.available}
+                                    />
+                                    <FormControlLabel
+                                        value="local"
+                                        control={<Radio size="small" />}
+                                        label={
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <ComputerIcon fontSize="small" />
+                                                <Typography variant="body2">Local</Typography>
+                                                {aiStatus?.local.available ? (
+                                                    <Chip 
+                                                        label={aiStatus.local.modelName || 'Ready'} 
+                                                        size="small" 
+                                                        color="success" 
+                                                        variant="outlined"
+                                                    />
+                                                ) : (
+                                                    <Chip 
+                                                        label="Not Ready" 
+                                                        size="small" 
+                                                        color="error" 
+                                                        variant="outlined"
+                                                    />
+                                                )}
+                                            </Stack>
+                                        }
+                                        disabled={!aiStatus?.local.available}
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Box>
+
+                        {/* Status Alerts */}
+                        {aiSource === 'local' && aiStatus && !aiStatus.local.available && (
+                            <Alert severity="warning" sx={{ mb: 2 }}>
+                                <AlertTitle>Local AI Not Available</AlertTitle>
+                                {!aiStatus.local.webGPUSupported 
+                                    ? 'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+.'
+                                    : 'No local model is ready. Please download a model from settings.'
+                                }
+                            </Alert>
+                        )}
+
+                        {aiSource === 'online' && aiStatus && !aiStatus.online.available && (
+                            <Alert severity="warning" sx={{ mb: 2 }}>
+                                <AlertTitle>Online AI Not Available</AlertTitle>
+                                {!aiStatus.online.authenticated 
+                                    ? 'Please log in to use online AI.'
+                                    : 'No internet connection. Please check your network.'
+                                }
+                            </Alert>
+                        )}
+
                         <ChatContainer>
                             {messages.length === 0 && (
                                 <Box sx={{ textAlign: 'center', py: 4 }}>
                                     <BotIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
                                     <Typography variant="body2" color="text.secondary">
                                         Hello! I'm here to help with your inspections.
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                                        Using {aiSource === 'local' ? 'local AI' : 'online AI'}
                                     </Typography>
                                 </Box>
                             )}
@@ -260,6 +398,14 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                                                 <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                                                     {message.content}
                                                 </Typography>
+                                                {message.source && (
+                                                    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 1 }}>
+                                                        {getSourceIcon(message.source)}
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {message.modelName || (message.source === 'local' ? 'Local AI' : 'Online AI')}
+                                                        </Typography>
+                                                    </Stack>
+                                                )}
                                             </Box>
                                         </>
                                     )}
@@ -272,7 +418,12 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                                         <BotIcon />
                                     </Avatar>
                                     <Box className="message-content">
-                                        <CircularProgress size={20} />
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <CircularProgress size={20} />
+                                            <Typography variant="body2" color="text.secondary">
+                                                Thinking...
+                                            </Typography>
+                                        </Stack>
                                     </Box>
                                 </MessageBubble>
                             )}
@@ -295,13 +446,13 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={handleKeyPress}
-                                disabled={isLoading}
+                                disabled={isLoading || (aiSource === 'local' && !aiStatus?.local.available) || (aiSource === 'online' && !aiStatus?.online.available)}
                                 multiline
                                 maxRows={3}
                             />
                             <IconButton
                                 onClick={handleSendMessage}
-                                disabled={!inputValue.trim() || isLoading}
+                                disabled={!inputValue.trim() || isLoading || (aiSource === 'local' && !aiStatus?.local.available) || (aiSource === 'online' && !aiStatus?.online.available)}
                                 color="primary"
                             >
                                 <SendIcon />

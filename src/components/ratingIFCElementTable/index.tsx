@@ -45,7 +45,7 @@ import { RMAModeEnum, RoutesValueEnum } from '../../enums';
 import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
 import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
-import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
+import { CircularProgressWithLabel } from '../progressWithLableComponent';
 import SaveIcon from '@mui/icons-material/Save';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
