@@ -20,7 +20,9 @@ import {
     Stack,
     Alert,
     AlertTitle,
+    IconButton,
 } from '@mui/material';
+
 import {
     Settings as SettingsIcon,
     Info as InfoIcon,
@@ -70,6 +72,7 @@ interface SettingsProps {
     onSwitchModel: (modelId: string, onProgress?: (progress: WebLLMProgress) => void) => Promise<void>;
     onGuidelinesUpload: (file: File) => Promise<void>;
     onClearChat?: () => void;
+    onDeleteModel: (modelId: string) => Promise<void>;
 }
 
 const AppSettingsComponent: React.FC<SettingsProps> = ({
@@ -84,12 +87,25 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
     onSwitchModel,
     onGuidelinesUpload,
     onClearChat,
+    onDeleteModel,
 }) => {
 
     const [downloadingModel, setDownloadingModel] = useState<string | null>(null);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [switchingModel, setSwitchingModel] = useState<string | null>(null);
     const [uploadingGuidelines, setUploadingGuidelines] = useState(false);
+    const [deletingModel, setDeletingModel] = useState<string | null>(null);
+
+    const handleModelDelete = async (modelId: string) => {
+        setDeletingModel(modelId);
+        try {
+            await onDeleteModel(modelId);
+        } catch (error) {
+            console.error('Model deletion failed:', error);
+        } finally {
+            setDeletingModel(null);
+        }
+    };
 
     const handleModelDownload = async (modelId: string) => {
         if (downloadingModel) return;
@@ -168,7 +184,7 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
     return (
         <React.Fragment>
             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column'}}>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* Header */}
                     <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -292,17 +308,45 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                                                         {switchingModel === model.modelId ? 'Switching...' : 'Switch'}
                                                                     </Button>
                                                                 )}
+                                                                <IconButton
+                                                                    color="error"
+                                                                    size="small"
+                                                                    onClick={() => handleModelDelete(model.modelId)}
+                                                                    disabled={deletingModel !== null || currentModel === model.modelId}
+                                                                    title="Delete model"
+                                                                >
+                                                                    {deletingModel === model.modelId ? (
+                                                                        <CachedIcon sx={{ animation: 'spin 1s linear infinite' }} />
+                                                                    ) : (
+                                                                        <DeleteIcon />
+                                                                    )}
+                                                                </IconButton>
                                                             </>
                                                         ) : (
-                                                            <Button
-                                                                variant="contained"
-                                                                size="small"
-                                                                startIcon={<DownloadIcon />}
-                                                                onClick={() => handleModelDownload(model.modelId)}
-                                                                disabled={downloadingModel !== null || !webGPUSupported}
-                                                            >
-                                                                {downloadingModel === model.modelId ? 'Downloading...' : 'Download'}
-                                                            </Button>
+                                                            <>
+                                                                <Button
+                                                                    variant="contained"
+                                                                    size="small"
+                                                                    startIcon={<DownloadIcon />}
+                                                                    onClick={() => handleModelDownload(model.modelId)}
+                                                                    disabled={downloadingModel !== null || !webGPUSupported}
+                                                                >
+                                                                    {downloadingModel === model.modelId ? 'Downloading...' : 'Download'}
+                                                                </Button>
+                                                                <IconButton
+                                                                    color="error"
+                                                                    size="small"
+                                                                    onClick={() => handleModelDelete(model.modelId)}
+                                                                    disabled={deletingModel !== null}
+                                                                    title="Delete model"
+                                                                >
+                                                                    {deletingModel === model.modelId ? (
+                                                                        <CachedIcon sx={{ animation: 'spin 1s linear infinite' }} />
+                                                                    ) : (
+                                                                        <DeleteIcon />
+                                                                    )}
+                                                                </IconButton>
+                                                            </>
                                                         )}
                                                     </Stack>
                                                 </Box>
@@ -332,6 +376,16 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                                         <CachedIcon sx={{ animation: 'spin 1s linear infinite' }} color="primary" />
                                                         <Typography variant="caption" color="primary">
                                                             Switching to this model...
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+
+                                                {/* Delete Progress */}
+                                                {deletingModel === model.modelId && (
+                                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <CachedIcon sx={{ animation: 'spin 1s linear infinite' }} color="error" />
+                                                        <Typography variant="caption" color="error">
+                                                            Deleting model...
                                                         </Typography>
                                                     </Box>
                                                 )}

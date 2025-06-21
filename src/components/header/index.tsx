@@ -55,6 +55,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
     setConfig,
     // Actions
     downloadModel,
+    deleteModel,
     switchModel,
     handleGuidelinesUpload,
     // Getters
@@ -197,6 +198,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
           isModelReady={state.isReady}
           webGPUSupported={webGPUSupported}
           onDownloadModel={downloadModel}
+          onDeleteModel={deleteModel}
           onSwitchModel={switchModel}
           onGuidelinesUpload={handleGuidelinesUpload}
         />

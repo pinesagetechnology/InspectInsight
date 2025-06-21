@@ -4,6 +4,7 @@ import { webllmService } from '../services/webllm';
 import { aiStorageService } from '../helper/aiDb';
 import { modelManager } from '../services/modelManager';
 import { MessageUtils } from '../helper/messageUtils';
+import { notificationService } from '../services/notificationService';
 
 export const useAIAssistant = () => {
     // State management
@@ -80,7 +81,7 @@ export const useAIAssistant = () => {
                 setWebGPUSupported(supported);
 
                 if (!supported) {
-                    console.log('assistant',
+                    notificationService.warning(
                         'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+ to run AI models locally.'
                     );
                     return;
@@ -95,7 +96,7 @@ export const useAIAssistant = () => {
                 console.log('AI Assistant initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize AI Assistant:', error);
-                console.log('assistant',
+                notificationService.error(
                     'Failed to initialize the AI assistant. Please refresh the page and try again.'
                 );
             }
@@ -137,7 +138,7 @@ export const useAIAssistant = () => {
         try {
             // Check if WebGPU is supported
             if (!webGPUSupported) {
-                console.log('assistant',
+                notificationService.warning(
                     'WebGPU is required but not supported in this browser. Please use Chrome 113+ or Edge 113+ for local AI functionality.'
                 );
                 return;
@@ -147,13 +148,13 @@ export const useAIAssistant = () => {
             if (!webllmService.isReady()) {
                 const selectedModel = modelManager.getModel(config.selectedModel);
                 if (!selectedModel?.isDownloaded) {
-                    console.log('assistant',
+                    notificationService.warning(
                         'Please download and initialize a model first from the settings panel.'
                     );
                     return;
                 }
 
-                console.log('assistant',
+                notificationService.warning(
                     'Model is not ready. Please wait for initialization to complete or try switching models.'
                 );
                 return;
@@ -169,9 +170,7 @@ export const useAIAssistant = () => {
             addMessage('assistant', response);
         } catch (error) {
             console.error('Failed to generate response:', error);
-            console.log('assistant',
-                `I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`
-            );
+            notificationService.error('I encountered an error. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -183,16 +182,35 @@ export const useAIAssistant = () => {
         onProgress?: (progress: WebLLMProgress) => void
     ) => {
         if (!webGPUSupported) {
+            notificationService.error('WebGPU is required but not supported');
             throw new Error('WebGPU is required but not supported');
         }
 
         try {
             await modelManager.downloadModel(modelId, onProgress);
+            notificationService.success(
+                `Model ${modelManager.getModel(modelId)?.displayName || modelId} downloaded successfully and is ready for use!`
+            );
         } catch (error) {
             console.error('Model download failed:', error);
+            notificationService.error('Failed to download model');
             throw error;
         }
     }, [webGPUSupported]);
+
+    // Delete model
+    const deleteModel = useCallback(async (modelId: string) => {
+        try {
+            await modelManager.deleteModel(modelId);
+            notificationService.success(
+                `Model ${modelManager.getModel(modelId)?.displayName || modelId} deleted successfully`
+            );
+        } catch (error) {
+            console.error('Model deletion failed:', error);
+            notificationService.error('Failed to delete model');
+            throw error;
+        }
+    }, []);
 
     // Switch model
     const switchModel = useCallback(async (
@@ -210,9 +228,10 @@ export const useAIAssistant = () => {
             setConfig(prev => ({ ...prev, selectedModel: modelId }));
 
             const modelName = modelManager.getModel(modelId)?.displayName || modelId;
-            console.log('assistant', `Switched to ${modelName}. I'm ready to help!`);
+            notificationService.success(`Switched to ${modelName}. I'm ready to help!`);
         } catch (error) {
             console.error('Model switch failed:', error);
+            notificationService.error('Failed to switch to model');
             throw error;
         } finally {
             setIsInitializing(false);
@@ -243,8 +262,8 @@ export const useAIAssistant = () => {
                 guidelineDocument: content,
             }));
 
-            console.log('assistant',
-                `Guidelines document "${file.name}" uploaded successfully! I'll follow these guidelines in my responses.`
+            notificationService.success(
+                `Guidelines document "${file.name}" uploaded successfully!`
             );
         } catch (error) {
             console.error('Failed to upload guidelines:', error);
@@ -258,6 +277,7 @@ export const useAIAssistant = () => {
         try {
             await webllmService.resetChat();
             await aiStorageService.saveChatHistory([]);
+            console.log('Chat history cleared successfully');
         } catch (error) {
             console.warn('Failed to clear chat storage:', error);
         }
@@ -276,6 +296,8 @@ export const useAIAssistant = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        notificationService.success('Chat exported successfully');
     }, [messages]);
 
     // Get application state
@@ -304,6 +326,7 @@ export const useAIAssistant = () => {
         // Actions
         sendMessage,
         downloadModel,
+        deleteModel,
         switchModel,
         handleGuidelinesUpload,
         clearChat,
