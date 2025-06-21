@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Message, AppConfig, WebLLMProgress } from '../models/webllm';
 import { webllmService } from '../services/webllm';
 import { aiStorageService } from '../helper/aiDb';
@@ -25,37 +25,11 @@ export const useAIAssistant = () => {
         },
     });
 
-    // Initialize the application
-    useEffect(() => {
-        const initialize = async () => {
-            try {
-                // Check WebGPU support
-                const supported = await webllmService.checkWebGPUSupport();
-                setWebGPUSupported(supported);
-
-                if (!supported) {
-                    addMessage('assistant',
-                        'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+ to run AI models locally.'
-                    );
-                    return;
-                }
-
-                // Initialize model manager
-                await modelManager.initialize();
-
-                // Load saved data
-                await loadSavedData();
-
-                console.log('AI Assistant initialized successfully');
-            } catch (error) {
-                console.error('Failed to initialize AI Assistant:', error);
-                addMessage('assistant',
-                    'Failed to initialize the AI assistant. Please refresh the page and try again.'
-                );
-            }
-        };
-
-        initialize();
+    // Add message helper - memoized to prevent dependency issues
+    const addMessage = useCallback((role: 'user' | 'assistant' | 'system', content: string) => {
+        const newMessage = MessageUtils.createMessage(role, content);
+        setMessages(prev => [...prev, newMessage]);
+        return newMessage;
     }, []);
 
     // Load saved data from storage
@@ -75,6 +49,15 @@ export const useAIAssistant = () => {
                 }));
             }
 
+            // Load current model from storage
+            const currentModelId = await aiStorageService.loadCurrentModel();
+            if (currentModelId) {
+                setConfig(prev => ({
+                    ...prev,
+                    selectedModel: currentModelId
+                }));
+            }
+
             // Load chat history if auto-save is enabled
             if (config.settings.autoSave) {
                 const savedMessages = await aiStorageService.loadChatHistory();
@@ -86,6 +69,40 @@ export const useAIAssistant = () => {
             console.warn('Failed to load saved data:', error);
         }
     }, [config.settings.autoSave]);
+
+    // Initialize the application
+    useEffect(() => {
+        const initialize = async () => {
+            console.log('Initializing AI Assistant');
+            try {
+                // Check WebGPU support
+                const supported = await webllmService.checkWebGPUSupport();
+                setWebGPUSupported(supported);
+
+                if (!supported) {
+                    console.log('assistant',
+                        'WebGPU is not supported in this browser. Please use Chrome 113+ or Edge 113+ to run AI models locally.'
+                    );
+                    return;
+                }
+
+                // Initialize model manager
+                await modelManager.initialize();
+
+                // Load saved data
+                await loadSavedData();
+
+                console.log('AI Assistant initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize AI Assistant:', error);
+                console.log('assistant',
+                    'Failed to initialize the AI assistant. Please refresh the page and try again.'
+                );
+            }
+        };
+
+        initialize();
+    }, []);
 
     // Save chat history when messages change
     useEffect(() => {
@@ -102,13 +119,6 @@ export const useAIAssistant = () => {
             return () => clearTimeout(timeoutId);
         }
     }, [messages, config.settings.autoSave]);
-
-    // Add message helper
-    const addMessage = useCallback((role: 'user' | 'assistant' | 'system', content: string) => {
-        const newMessage = MessageUtils.createMessage(role, content);
-        setMessages(prev => [...prev, newMessage]);
-        return newMessage;
-    }, []);
 
     // Handle sending messages
     const sendMessage = useCallback(async (messageContent?: string) => {
@@ -127,7 +137,7 @@ export const useAIAssistant = () => {
         try {
             // Check if WebGPU is supported
             if (!webGPUSupported) {
-                addMessage('assistant',
+                console.log('assistant',
                     'WebGPU is required but not supported in this browser. Please use Chrome 113+ or Edge 113+ for local AI functionality.'
                 );
                 return;
@@ -137,13 +147,13 @@ export const useAIAssistant = () => {
             if (!webllmService.isReady()) {
                 const selectedModel = modelManager.getModel(config.selectedModel);
                 if (!selectedModel?.isDownloaded) {
-                    addMessage('assistant',
+                    console.log('assistant',
                         'Please download and initialize a model first from the settings panel.'
                     );
                     return;
                 }
 
-                addMessage('assistant',
+                console.log('assistant',
                     'Model is not ready. Please wait for initialization to complete or try switching models.'
                 );
                 return;
@@ -159,7 +169,7 @@ export const useAIAssistant = () => {
             addMessage('assistant', response);
         } catch (error) {
             console.error('Failed to generate response:', error);
-            addMessage('assistant',
+            console.log('assistant',
                 `I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`
             );
         } finally {
@@ -178,17 +188,11 @@ export const useAIAssistant = () => {
 
         try {
             await modelManager.downloadModel(modelId, onProgress);
-            addMessage('assistant',
-                `Model ${modelManager.getModel(modelId)?.displayName || modelId} downloaded successfully and is ready for use!`
-            );
         } catch (error) {
             console.error('Model download failed:', error);
-            addMessage('assistant',
-                `Failed to download model: ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
             throw error;
         }
-    }, [webGPUSupported, addMessage]);
+    }, [webGPUSupported]);
 
     // Switch model
     const switchModel = useCallback(async (
@@ -202,20 +206,18 @@ export const useAIAssistant = () => {
         setIsInitializing(true);
         try {
             await modelManager.switchToModel(modelId, onProgress);
+            // Update local config state to reflect the new model
             setConfig(prev => ({ ...prev, selectedModel: modelId }));
 
             const modelName = modelManager.getModel(modelId)?.displayName || modelId;
-            addMessage('assistant', `Switched to ${modelName}. I'm ready to help!`);
+            console.log('assistant', `Switched to ${modelName}. I'm ready to help!`);
         } catch (error) {
             console.error('Model switch failed:', error);
-            addMessage('assistant',
-                `Failed to switch to model: ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
             throw error;
         } finally {
             setIsInitializing(false);
         }
-    }, [addMessage]);
+    }, []);
 
     // Handle file upload for guidelines
     const handleGuidelinesUpload = useCallback(async (file: File) => {
@@ -241,14 +243,14 @@ export const useAIAssistant = () => {
                 guidelineDocument: content,
             }));
 
-            addMessage('assistant',
+            console.log('assistant',
                 `Guidelines document "${file.name}" uploaded successfully! I'll follow these guidelines in my responses.`
             );
         } catch (error) {
             console.error('Failed to upload guidelines:', error);
             throw new Error('Failed to upload guidelines file');
         }
-    }, [addMessage]);
+    }, []);
 
     // Clear chat history
     const clearChat = useCallback(async () => {

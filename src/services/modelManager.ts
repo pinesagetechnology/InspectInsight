@@ -43,6 +43,19 @@ export class ModelManager {
                 isDownloaded: modelStates[model.modelId] || false
             }));
 
+            // Load and set the current model
+            const currentModelId = await aiStorageService.loadCurrentModel();
+            if (currentModelId) {
+                const currentModel = this.getModel(currentModelId);
+                if (currentModel?.isDownloaded) {
+                    // Initialize the WebLLM service with the current model
+                    await webllmService.initialize(currentModelId);
+                    console.log(`Initialized with saved current model: ${currentModelId}`);
+                } else {
+                    console.warn(`Saved current model ${currentModelId} is not downloaded, will use default`);
+                }
+            }
+
             console.log('Model manager initialized');
         } catch (error) {
             console.error('Failed to initialize model manager:', error);
@@ -104,7 +117,10 @@ export class ModelManager {
             // Mark as downloaded
             await this.markModelAsDownloaded(modelId);
 
-            console.log(`Model ${modelId} downloaded successfully`);
+            // Auto-switch to the newly downloaded model
+            await this.switchToModel(modelId);
+
+            console.log(`Model ${modelId} downloaded and activated successfully`);
         } catch (error) {
             console.error(`Failed to download model ${modelId}:`, error);
             this.updateModelProgress(modelId, undefined);
@@ -132,6 +148,9 @@ export class ModelManager {
 
             // Update last used timestamp
             this.updateModelLastUsed(modelId);
+
+            // Save the current model to persistent storage
+            await aiStorageService.saveCurrentModel(modelId);
 
             console.log(`Switched to model: ${modelId}`);
         } catch (error) {

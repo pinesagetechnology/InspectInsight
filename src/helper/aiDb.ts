@@ -354,6 +354,69 @@ class AIStorageService implements StorageInterface {
             throw new Error('Failed to import data');
         }
     }
+
+    async saveCurrentModel(modelId: string): Promise<void> {
+        try {
+            // Save to localStorage for quick access
+            localStorage.setItem('ai-current-model', modelId);
+
+            // Also save to IndexedDB for durability
+            const db = await this.initDB();
+            const transaction = db.transaction(['models'], 'readwrite');
+            const store = transaction.objectStore('models');
+
+            // Update the model's lastUsed timestamp
+            const modelData = {
+                modelId,
+                isDownloaded: true, // Current model should be downloaded
+                timestamp: Date.now(),
+                lastUsed: Date.now(),
+                isCurrent: true
+            };
+
+            await new Promise<void>((resolve, reject) => {
+                const request = store.put(modelData);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+
+            console.log(`Current model saved: ${modelId}`);
+        } catch (error) {
+            console.error('Failed to save current model:', error);
+            throw new Error('Failed to save current model to database');
+        }
+    }
+
+    async loadCurrentModel(): Promise<string | null> {
+        try {
+            // First try localStorage
+            const currentModel = localStorage.getItem('ai-current-model');
+            if (currentModel) {
+                return currentModel;
+            }
+
+            // Fallback to IndexedDB - find the model marked as current
+            const db = await this.initDB();
+            const transaction = db.transaction(['models'], 'readonly');
+            const store = transaction.objectStore('models');
+
+            return new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    const results = request.result;
+                    const currentModel = results.find((model: any) => model.isCurrent);
+                    resolve(currentModel?.modelId || null);
+                };
+                request.onerror = () => {
+                    console.warn('Failed to load current model from IndexedDB:', request.error);
+                    resolve(null);
+                };
+            });
+        } catch (error) {
+            console.warn('Failed to load current model:', error);
+            return null;
+        }
+    }
 }
 
 export const aiStorageService = new AIStorageService();

@@ -10,12 +10,12 @@ import {
     Alert,
     Backdrop,
     CircularProgress,
-    Snackbar,
     SnackbarCloseReason,
 } from '@mui/material';
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
+import SnackNotifyComponent, { SnackNotifyType } from './components/snackNotifyComponent';
 
 export const MainComponent: React.FunctionComponent = () => {
     const dispatch = useDispatch();
@@ -24,7 +24,7 @@ export const MainComponent: React.FunctionComponent = () => {
     const showLoading = useSelector(getShowOverlayFlag);
     const [openSnack, setOpenSnack] = useState<boolean>(false);
     const [snackMessage, setSnackMessage] = useState<string>('');
-    const [snackSeverity, setSnackSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('info');
+    const [snackSeverity, setSnackSeverity] = useState<SnackNotifyType>('info');
 
     useEffect(() => {
         setOpenSnack(true);
@@ -76,7 +76,7 @@ export const MainComponent: React.FunctionComponent = () => {
                 }>
                     <div className="d-flex flex-column min-vh-100">
                         <Header headerValue="Inspection App" />
-                        <Snackbar
+                        {/* <Snackbar
                             open={openSnack}
                             autoHideDuration={6000}
                             onClose={handleSnackClose}
@@ -90,7 +90,13 @@ export const MainComponent: React.FunctionComponent = () => {
                             >
                                 {snackMessage}
                             </Alert>
-                        </Snackbar>
+                        </Snackbar> */}
+                        <SnackNotifyComponent
+                            open={openSnack}
+                            message={snackMessage}
+                            type={snackSeverity}
+                            onClose={handleSnackClose}
+                        />
                         <AppRouter />
                     </div>
                 </Suspense>

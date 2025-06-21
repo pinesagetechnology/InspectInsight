@@ -120,10 +120,6 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
         setSwitchingModel(modelId);
         try {
             await onSwitchModel(modelId);
-            setConfig({
-                ...config,
-                selectedModel: modelId
-            });
         } catch (error) {
             console.error('Model switch failed:', error);
         } finally {
@@ -170,12 +166,9 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
     }, 0);
 
     return (
-        <Box>
-            <DialogTitle id="responsive-dialog-title">
-                App Settings
-            </DialogTitle>
+        <React.Fragment>
             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column'}}>
                     {/* Header */}
                     <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -196,23 +189,23 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                     System Status
                                 </Typography>
 
-                                <Stack spacing={1}>
+                                <Stack direction="row" spacing={1}>
                                     {/* WebGPU Status */}
-                                    <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Stack direction="row" spacing={1} alignItems="center">
+                                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+                                        <Stack direction="row" spacing={2} alignItems="center">
                                             {getWebGPUStatusIcon()}
                                             <Typography variant="body2" fontWeight="medium">
                                                 WebGPU
                                             </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {getWebGPUStatusText()}
+                                            </Typography>
                                         </Stack>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {getWebGPUStatusText()}
-                                        </Typography>
                                     </Paper>
 
                                     {/* Network Status */}
-                                    <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Stack direction="row" spacing={1} alignItems="center">
+                                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+                                        <Stack direction="row" spacing={2} alignItems="center">
                                             {navigator.onLine ? (
                                                 <WifiIcon color="success" />
                                             ) : (
@@ -221,15 +214,15 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                             <Typography variant="body2" fontWeight="medium">
                                                 Network
                                             </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {navigator.onLine ? 'Online' : 'Offline'}
+                                            </Typography>
                                         </Stack>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {navigator.onLine ? 'Online' : 'Offline'}
-                                        </Typography>
                                     </Paper>
 
                                     {/* Current Model */}
-                                    <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Stack direction="row" spacing={1} alignItems="center">
+                                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+                                        <Stack direction="row" spacing={2} alignItems="center">
                                             {isModelReady ? (
                                                 <CheckCircleIcon color="success" />
                                             ) : (
@@ -238,14 +231,14 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                             <Typography variant="body2" fontWeight="medium">
                                                 Active Model
                                             </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {currentModel ? (
+                                                    availableModels.find(m => m.modelId === currentModel)?.displayName || currentModel
+                                                ) : (
+                                                    'None'
+                                                )}
+                                            </Typography>
                                         </Stack>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {currentModel ? (
-                                                availableModels.find(m => m.modelId === currentModel)?.displayName || currentModel
-                                            ) : (
-                                                'None'
-                                            )}
-                                        </Typography>
                                     </Paper>
                                 </Stack>
                             </Box>
@@ -325,9 +318,9 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                                                                 {Math.round(downloadProgress[model.modelId])}%
                                                             </Typography>
                                                         </Box>
-                                                        <LinearProgress 
-                                                            variant="determinate" 
-                                                            value={downloadProgress[model.modelId]} 
+                                                        <LinearProgress
+                                                            variant="determinate"
+                                                            value={downloadProgress[model.modelId]}
                                                             sx={{ height: 8, borderRadius: 4 }}
                                                         />
                                                     </Box>
@@ -508,7 +501,7 @@ const AppSettingsComponent: React.FC<SettingsProps> = ({
                     Close
                 </Button>
             </DialogActions>
-        </Box>
+        </React.Fragment>
     );
 };
 

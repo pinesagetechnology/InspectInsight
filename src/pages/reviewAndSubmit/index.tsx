@@ -42,6 +42,7 @@ import { SubmitDatapayload } from '../../models/submitDataModel';
 import ImageIcon from '@mui/icons-material/Image';
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import ImageCarousel from '../../components/imageCarousel';
+import { useAIAssistant } from '../../customHook/useAIAssistant';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -92,6 +93,9 @@ const ReviewInspectionPage: React.FC = () => {
   const isOnline = useOfflineSync();
   const { goTo } = useNavigationManager();
 
+  // Get the clearChat function from useAIAssistant hook
+  const { clearChat } = useAIAssistant();
+
   const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
@@ -127,14 +131,29 @@ const ReviewInspectionPage: React.FC = () => {
     goTo(route);
   }
 
-  const handleSubmitOnclick = () => {
-    dispatch({
-      type: reviewActions.SUBMIT_DATA,
-      payload: {
-        ifcPopulatedConditionRating: ifcPopulatedConditionRating,
-        callback: () => goTo(RoutesValueEnum.Home)
-      }
-    } as PayloadAction<SubmitDatapayload>);
+  const handleSubmitOnclick = async () => {
+    try {
+      // Clear chat history before submitting data
+      await clearChat();
+      
+      dispatch({
+        type: reviewActions.SUBMIT_DATA,
+        payload: {
+          ifcPopulatedConditionRating: ifcPopulatedConditionRating,
+          callback: () => goTo(RoutesValueEnum.Home)
+        }
+      } as PayloadAction<SubmitDatapayload>);
+    } catch (error) {
+      console.error('Failed to clear chat history:', error);
+      // Continue with submission even if chat clearing fails
+      dispatch({
+        type: reviewActions.SUBMIT_DATA,
+        payload: {
+          ifcPopulatedConditionRating: ifcPopulatedConditionRating,
+          callback: () => goTo(RoutesValueEnum.Home)
+        }
+      } as PayloadAction<SubmitDatapayload>);
+    }
   }
 
   const handleImageClick = (images: string[]) => {

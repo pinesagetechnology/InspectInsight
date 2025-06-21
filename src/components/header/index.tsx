@@ -13,8 +13,6 @@ import {
   Stack,
   Toolbar,
   Typography,
-  useMediaQuery,
-  useTheme
 } from '@mui/material';
 import { useNavigationManager } from '../../navigation';
 import { RoutesValueEnum } from "../../enums";
@@ -44,8 +42,6 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
   const menuOpen = Boolean(anchorEl);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const logedInEmail = useSelector(getEmail);
   const userId = useSelector(getUserId);
@@ -54,23 +50,13 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
 
   const {
     // State
-    messages,
-    currentMessage,
-    setCurrentMessage,
-    isLoading,
-    isInitializing,
     webGPUSupported,
     config,
     setConfig,
-
     // Actions
-    sendMessage,
     downloadModel,
     switchModel,
     handleGuidelinesUpload,
-    clearChat,
-    exportChat,
-
     // Getters
     getState,
   } = useAIAssistant();
@@ -199,10 +185,9 @@ const Header: React.FunctionComponent<HeaderProps> = ({ headerValue }) => {
         </Stack>
       </Toolbar>
       <Dialog
-        fullScreen={fullScreen}
         open={dialogOpen}
         onClose={handleDialogClose}
-        aria-labelledby="responsive-dialog-title"
+        maxWidth={'lg'}
       >
         <AppSettingsComponent handleDialogClose={handleDialogClose}
           config={config}
