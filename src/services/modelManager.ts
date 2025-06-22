@@ -6,27 +6,45 @@ import { aiStorageService } from '../helper/aiDb';
 export class ModelManager {
     private availableModels: ModelConfig[] = [
         {
-            modelId: 'SmolLM-1.7B-Instruct-q4f16_1-MLC',
-            displayName: 'SmolLM 1.7B (Fastest)',
-            size: '~1.2GB',
-            isDownloaded: false
-        },
-        {
-            modelId: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
-            displayName: 'Phi-3.5 Mini',
-            size: '~2.4GB',
+            modelId: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
+            displayName: 'Llama 3.2 3B (Large Context - Recommended)',
+            size: '~3.2GB',
             isDownloaded: false
         },
         {
             modelId: 'Llama-3.2-1B-Instruct-q4f32_1-MLC',
-            displayName: 'Llama 3.2 1B',
+            displayName: 'Llama 3.2 1B (Large Context)',
             size: '~1.8GB',
             isDownloaded: false
         },
         {
-            modelId: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
-            displayName: 'Llama 3.2 3B (Recommended)',
-            size: '~3.2GB',
+            modelId: 'Llama-2-7b-chat-hf-q4f16_1-MLC',
+            displayName: 'Llama 2 7B Chat (4-bit quantized)',
+            size: '~3.5GB',
+            isDownloaded: false
+        },
+        {
+            modelId: 'Mistral-7B-Instruct-v0.2-q4f16_1-MLC',
+            displayName: 'Mistral 7B Instruct v0.2 (4-bit quantized)',
+            size: '~3.5GB',
+            isDownloaded: false
+        },
+        {
+            modelId: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
+            displayName: 'Phi-3.5 Mini (4-bit quantized - Fast)',
+            size: '~2.1GB',
+            isDownloaded: false
+        },
+        {
+            modelId: 'Qwen2.5-7B-Instruct-q4f16_1-MLC',
+            displayName: 'Qwen 2.5 7B Instruct (4-bit quantized)',
+            size: '~3.8GB',
+            isDownloaded: false
+        },
+        {
+            modelId: 'gemma-2-2b-it-q4f16_1-MLC',
+            displayName: 'Gemma 2 2B (4-bit quantized - Fast)',
+            size: '~1.2GB',
             isDownloaded: false
         }
     ];
@@ -35,6 +53,9 @@ export class ModelManager {
 
     async initialize(): Promise<void> {
         try {
+            // These models are already built into WebLLM, no need to register them as custom
+            console.log('Model manager initializing - using built-in WebLLM models');
+
             // Load model states from storage
             const modelStates = await aiStorageService.getAllModelStates();
 
@@ -57,6 +78,9 @@ export class ModelManager {
             }
 
             console.log('Model manager initialized');
+            
+            // Test model availability (for debugging)
+            await this.testModelAvailability();
         } catch (error) {
             console.error('Failed to initialize model manager:', error);
         }
@@ -258,24 +282,80 @@ export class ModelManager {
         compatible: ModelConfig[];
         incompatible: ModelConfig[];
         warnings: string[];
+        customModels: ModelConfig[];
     } {
         const warnings: string[] = [];
         const compatible: ModelConfig[] = [];
         const incompatible: ModelConfig[] = [];
+        const customModels: ModelConfig[] = [];
 
         this.availableModels.forEach(model => {
             // Check if model is in WebLLM's supported list
             const supportedModels = webllmService.getAvailableModels();
 
             if (supportedModels.includes(model.modelId)) {
-                compatible.push(model);
+                // Check if it's a custom model (should be empty now since we're using built-in models)
+                const customModelInfo = webllmService.getCustomModelInfo(model.modelId);
+                if (customModelInfo) {
+                    customModels.push(model);
+                } else {
+                    compatible.push(model);
+                }
             } else {
                 incompatible.push(model);
                 warnings.push(`Model ${model.displayName} may not be supported in current WebLLM version`);
             }
         });
 
-        return { compatible, incompatible, warnings };
+        return { compatible, incompatible, warnings, customModels };
+    }
+
+    // Add method to test model availability
+    async testModelAvailability(): Promise<void> {
+        try {
+            console.log('Testing model availability...');
+            
+            // Check if models are available in WebLLM
+            const availableModels = webllmService.getAvailableModels();
+            console.log('Total available models in WebLLM:', availableModels.length);
+            
+            // Check our specific models
+            const ourModels = this.availableModels.map(m => m.modelId);
+            console.log('Our configured models:', ourModels);
+            
+            // Check which of our models are available
+            const availableOurModels = ourModels.filter(modelId => availableModels.includes(modelId));
+            const unavailableOurModels = ourModels.filter(modelId => !availableModels.includes(modelId));
+            
+            console.log('✅ Available models from our list:', availableOurModels);
+            if (unavailableOurModels.length > 0) {
+                console.log('❌ Unavailable models from our list:', unavailableOurModels);
+            }
+            
+            // Validate compatibility
+            const compatibility = this.validateModelCompatibility();
+            console.log('Model compatibility:', compatibility);
+            
+            console.log('Model availability test completed successfully');
+        } catch (error) {
+            console.error('Model availability test failed:', error);
+        }
+    }
+
+    // Add method to get detailed model information
+    getModelDetails(modelId: string): {
+        model: ModelConfig | undefined;
+        isCustom: boolean;
+        customInfo?: {model_id: string, model_url: string, display_name: string, size: string};
+    } {
+        const model = this.getModel(modelId);
+        const customInfo = webllmService.getCustomModelInfo(modelId);
+        
+        return {
+            model,
+            isCustom: !!customInfo,
+            customInfo
+        };
     }
 }
 

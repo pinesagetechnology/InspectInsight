@@ -34,8 +34,9 @@ import {
     WifiOff as WifiOffIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { unifiedAIService, AISource, AIResponse } from '../../services/unifiedAIService';
+import { chatAIServiceAdapter } from '../../services/chatAIServiceAdapter';
 import { InspectionReport } from '../../entities/genAIModel';
+import { AIResponse, AISource } from '../../models/webllm';
 
 interface Message {
     id: string;
@@ -44,10 +45,6 @@ interface Message {
     timestamp: Date;
     source?: AISource;
     modelName?: string;
-}
-
-interface AIChatBotProps {
-    onGetCompletion?: (contextJson: string) => Promise<InspectionReport>;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -117,11 +114,7 @@ const FloatingChatButton = styled(Fab)(({ theme }) => ({
     },
 }));
 
-const AIChatBot: React.FC<AIChatBotProps> = ({
-    onGetCompletion
-}) => {
-    const theme = useTheme();
-
+const AIChatBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
@@ -141,7 +134,7 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
         const savedSource = localStorage.getItem('ai-chat-source') as AISource;
         if (savedSource && (savedSource === 'local' || savedSource === 'online')) {
             setAiSource(savedSource);
-            unifiedAIService.setSource(savedSource);
+            chatAIServiceAdapter.setSource(savedSource);
         }
     }, []);
 
@@ -152,7 +145,7 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
 
     const checkAIStatus = async () => {
         try {
-            const status = await unifiedAIService.getStatus();
+            const status = await chatAIServiceAdapter.getStatus();
             setAiStatus(status);
         } catch (error) {
             console.error('Error checking AI status:', error);
@@ -181,7 +174,7 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
     const handleAISourceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newSource = event.target.value as AISource;
         setAiSource(newSource);
-        unifiedAIService.setSource(newSource);
+        chatAIServiceAdapter.setSource(newSource);
         localStorage.setItem('ai-chat-source', newSource);
         checkAIStatus(); // Re-check status when source changes
     };
@@ -214,9 +207,9 @@ const AIChatBot: React.FC<AIChatBotProps> = ({
                 content: inputValue
             });
 
-            // Call the unified AI service
+            // Call the AI service adapter
             const contextJson = JSON.stringify(conversationContext);
-            const response: AIResponse = await unifiedAIService.sendChatMessage(inputValue, contextJson);
+            const response: AIResponse = await chatAIServiceAdapter.sendChatMessage(inputValue, contextJson);
 
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),

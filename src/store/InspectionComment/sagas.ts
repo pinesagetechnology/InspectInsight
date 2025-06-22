@@ -1,7 +1,7 @@
 import { takeLatest, put, select, call } from 'redux-saga/effects';
 import * as actions from "./actions";
 import { PayloadAction } from '@reduxjs/toolkit';
-import { setInspectionComment, setInspectionCommentError, setValidationErrorFlag } from './slice';
+import { setAiSource, setAiSourceStatus, setInspectionComment, setInspectionCommentError, setValidationErrorFlag } from './slice';
 import { InspectionModel, MaintenanceActionModel } from '../../models/inspectionModel';
 import { ConditionRatingEntity, InspectionEntity } from '../../entities/inspection';
 import { getInspection } from '../Inspection/selectors';
@@ -10,9 +10,12 @@ import { getOriginalConditionRating } from '../ConditionRating/selectors';
 import { getInspectionComment } from './selectors';
 import * as services from "../../services/inspectionService";
 import { InspectionStatusEnum } from '../../enums';
+import { AISource, AISourceStatus } from '../../models/webllm';
 
 export function* inspectionCommentRootSaga() {
     yield takeLatest(actions.SET_INSPECTION_COMMENT_DATA, setInspectionCommentValue);
+    yield takeLatest(actions.SET_AI_SOURCE, setAiSourceSaga);
+    yield takeLatest(actions.SET_AI_SOURCE_STATUS, setAiSourceStatusSaga);
 }
 
 export function* setInspectionCommentValue(action: PayloadAction<string>) {
@@ -58,4 +61,12 @@ function* saveInspectionCommentData() {
 
         }
     }
+}
+
+export function* setAiSourceSaga(action: PayloadAction<AISource>) {
+    yield put(setAiSource(action.payload));
+}
+
+export function* setAiSourceStatusSaga(action: PayloadAction<AISourceStatus>) {
+    yield put(setAiSourceStatus(action.payload));
 }

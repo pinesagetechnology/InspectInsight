@@ -1,14 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { resetStateAction } from '../Common/actions';
+import { AISource, AISourceStatus } from '../../models/webllm';
 
 export interface InspectionCommentState {
     inspectionComment: string;
     validationErrorsFlag: boolean;
     error: any;
+    aiSourceStatus: AISourceStatus;
+    aiSource: AISource;
 }
 
 const initialState = {
-    inspectionComment: ""
+    inspectionComment: "",
+    aiSourceStatus: {},
+    aiSource: 'online'
 } as InspectionCommentState
 
 const InspectionCommentSlice = createSlice({
@@ -23,6 +28,12 @@ const InspectionCommentSlice = createSlice({
         },
         setValidationErrorFlag: (state, action: PayloadAction<boolean>) => {
             state.validationErrorsFlag = action.payload;
+        },
+        setAiSourceStatus: (state, action: PayloadAction<AISourceStatus>) => {
+            state.aiSourceStatus = action.payload;
+        },
+        setAiSource: (state, action: PayloadAction<AISource>) => {
+            state.aiSource = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -30,6 +41,8 @@ const InspectionCommentSlice = createSlice({
             state.inspectionComment = "";
             state.validationErrorsFlag = false;
             state.error = "";
+            state.aiSourceStatus = {} as AISourceStatus;
+            state.aiSource = 'online';
         });
     }
 });
@@ -38,6 +51,8 @@ export const {
     setInspectionComment,
     setValidationErrorFlag,
     setInspectionCommentError,
+    setAiSourceStatus,
+    setAiSource
 } = InspectionCommentSlice.actions;
 
 export default InspectionCommentSlice.reducer;

@@ -14,7 +14,7 @@ export const useAIAssistant = () => {
     const [currentMessage, setCurrentMessage] = useState('');
     const [webGPUSupported, setWebGPUSupported] = useState<boolean | null>(null);
     const [config, setConfig] = useState<AppConfig>({
-        selectedModel: 'SmolLM-1.7B-Instruct-q4f16_1-MLC',
+        selectedModel: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
         guidelineDocument: '',
         guidelines: {
             content: '',
@@ -122,59 +122,59 @@ export const useAIAssistant = () => {
     }, [messages, config.settings.autoSave]);
 
     // Handle sending messages
-    const sendMessage = useCallback(async (messageContent?: string) => {
-        const content = messageContent || currentMessage.trim();
-        if (!content) return;
+    // const sendMessage = useCallback(async (messageContent?: string) => {
+    //     const content = messageContent || currentMessage.trim();
+    //     if (!content) return;
 
-        // Clear input if using current message
-        if (!messageContent) {
-            setCurrentMessage('');
-        }
+    //     // Clear input if using current message
+    //     if (!messageContent) {
+    //         setCurrentMessage('');
+    //     }
 
-        // Add user message
-        addMessage('user', content);
-        setIsLoading(true);
+    //     // Add user message
+    //     addMessage('user', content);
+    //     setIsLoading(true);
 
-        try {
-            // Check if WebGPU is supported
-            if (!webGPUSupported) {
-                notificationService.warning(
-                    'WebGPU is required but not supported in this browser. Please use Chrome 113+ or Edge 113+ for local AI functionality.'
-                );
-                return;
-            }
+    //     try {
+    //         // Check if WebGPU is supported
+    //         if (!webGPUSupported) {
+    //             notificationService.warning(
+    //                 'WebGPU is required but not supported in this browser. Please use Chrome 113+ or Edge 113+ for local AI functionality.'
+    //             );
+    //             return;
+    //         }
 
-            // Check if model is ready
-            if (!webllmService.isReady()) {
-                const selectedModel = modelManager.getModel(config.selectedModel);
-                if (!selectedModel?.isDownloaded) {
-                    notificationService.warning(
-                        'Please download and initialize a model first from the settings panel.'
-                    );
-                    return;
-                }
+    //         // Check if model is ready
+    //         if (!webllmService.isReady()) {
+    //             const selectedModel = modelManager.getModel(config.selectedModel);
+    //             if (!selectedModel?.isDownloaded) {
+    //                 notificationService.warning(
+    //                     'Please download and initialize a model first from the settings panel.'
+    //                 );
+    //                 return;
+    //             }
 
-                notificationService.warning(
-                    'Model is not ready. Please wait for initialization to complete or try switching models.'
-                );
-                return;
-            }
+    //             notificationService.warning(
+    //                 'Model is not ready. Please wait for initialization to complete or try switching models.'
+    //             );
+    //             return;
+    //         }
 
-            // Generate response
-            const currentMessages = [...messages, MessageUtils.createMessage('user', content)];
-            const response = await webllmService.generateResponse(
-                currentMessages,
-                config.guidelines.content
-            );
+    //         // Generate response
+    //         const currentMessages = [...messages, MessageUtils.createMessage('user', content)];
+    //         const response = await webllmService.generateResponse(
+    //             currentMessages,
+    //             config.guidelines.content
+    //         );
 
-            addMessage('assistant', response);
-        } catch (error) {
-            console.error('Failed to generate response:', error);
-            notificationService.error('I encountered an error. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [currentMessage, messages, webGPUSupported, config, addMessage]);
+    //         addMessage('assistant', response);
+    //     } catch (error) {
+    //         console.error('Failed to generate response:', error);
+    //         notificationService.error('I encountered an error. Please try again.');
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }, [currentMessage, messages, webGPUSupported, config, addMessage]);
 
     // Download model
     const downloadModel = useCallback(async (
@@ -324,7 +324,7 @@ export const useAIAssistant = () => {
         setConfig,
 
         // Actions
-        sendMessage,
+        // sendMessage,
         downloadModel,
         deleteModel,
         switchModel,
