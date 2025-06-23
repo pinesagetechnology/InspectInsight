@@ -258,7 +258,7 @@ const AIChatBot: React.FC = () => {
             {!isOpen && (
                 <FloatingChatButton
                     onClick={handleToggleChat}
-                    aria-label="Open AI Chat"
+                    aria-label="AI Chat"
                 >
                     <ChatIcon />
                 </FloatingChatButton>
