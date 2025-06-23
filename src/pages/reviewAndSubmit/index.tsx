@@ -43,6 +43,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import ImageCarousel from '../../components/imageCarousel';
 import { useAIAssistant } from '../../customHook/useAIAssistant';
+import { MaintenanceImageFile } from 'models/inspectionModel';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -97,7 +98,7 @@ const ReviewInspectionPage: React.FC = () => {
   const { clearChat } = useAIAssistant();
 
   const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<MaintenanceImageFile[]>([]);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
 
   const isAllCompleted = useSelector(isAllStepsCompleted);
@@ -156,7 +157,7 @@ const ReviewInspectionPage: React.FC = () => {
     }
   }
 
-  const handleImageClick = (images: string[]) => {
+  const handleImageClick = (images: MaintenanceImageFile[]) => {
     if (images && images.length > 0) {
       setSelectedImages(images);
       setIsCarouselOpen(true);
@@ -379,7 +380,7 @@ const ReviewInspectionPage: React.FC = () => {
                       <StyledTableCell>{row.activityInactionRisk}</StyledTableCell>
                       <StyledTableCell align="center">
                         <IconButton
-                          onClick={() => handleImageClick(row.photos?.map(photo => photo.url) || [])}
+                          onClick={() => handleImageClick(row.photos || [])}
                           disabled={!row.photos || row.photos.length === 0}
                           sx={{
                             color: row.photos && row.photos.length > 0 ? 'primary.main' : 'action.disabled'
