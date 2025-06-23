@@ -76,7 +76,7 @@ class ChatAIServiceAdapter extends AIBaseServiceAdapter {
             return {
                 response: result.response,
                 source: 'online',
-                modelName: 'Azure OpenAI'
+                modelName: ''
             };
         } catch (error) {
             console.error('Error with online AI:', error);
