@@ -14,13 +14,14 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { getImageFromDB } from '../../helper/db';
+import { getImageById } from '../../helper/db';
 import { downloadImages } from '../../services/assetManagementService';
+import { MaintenanceImageFile } from '../../models/inspectionModel';
 
 interface ImageCarouselProps {
     open: boolean;
     onClose: () => void;
-    images: string[];
+    images: MaintenanceImageFile[];
     imageIds?: string[];
     isFromPreviousInspection?: boolean;
 }
@@ -33,15 +34,15 @@ function getFileNameFromUrl(url: string) {
     }
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ 
-    open, 
-    onClose, 
-    images, 
+const ImageCarousel: React.FC<ImageCarouselProps> = ({
+    open,
+    onClose,
+    images,
     imageIds,
-    isFromPreviousInspection 
+    isFromPreviousInspection
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [loadedImages, setLoadedImages] = useState<string[]>(images);
+    const [loadedImages, setLoadedImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const theme = useTheme();
@@ -58,16 +59,29 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         const loadImages = async () => {
             setLoading(true);
             try {
+                console.log("images", images);
                 if (isFromPreviousInspection && imageIds && imageIds.length > 0) {
-                    // Load images from API using the service
                     const fetchedImages = await downloadImages(imageIds);
                     setLoadedImages(fetchedImages);
-                } else if (images.length === 0) {
-                    // Load images from IndexedDB
-                    const dbImages = await getImageFromDB();
-                    setLoadedImages(dbImages);
                 } else {
-                    setLoadedImages(images);
+                    // Load images from IndexedDB
+                    const populateImagesData = async () => {
+                        const imagesData = await Promise.all(
+                            images.map(async (image) => {
+                                const dbImages = await getImageById(image.dbId);
+                                if (dbImages) {
+                                    return URL.createObjectURL(dbImages.blob);
+                                } else {
+                                    return '';
+                                }
+                            })
+                        );
+                        const filteredImagesData = imagesData.filter(url => url !== '');
+
+                        setLoadedImages([...filteredImagesData]);
+                    }
+
+                    populateImagesData();
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to load images');
@@ -84,8 +98,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
     // Cleanup URLs when component unmounts or images change
     useEffect(() => {
+        console.log("loadedImages", loadedImages);
         return () => {
-            loadedImages.forEach(url => {
+            loadedImages?.forEach(url => {
                 if (url.startsWith('blob:')) {
                     URL.revokeObjectURL(url);
                 }
@@ -173,11 +188,11 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
                 </IconButton>
 
                 {loading ? (
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center', 
-                        height: '100%' 
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%'
                     }}>
                         <CircularProgress sx={{ color: 'white' }} />
                     </Box>

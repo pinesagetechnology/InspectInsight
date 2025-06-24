@@ -10,22 +10,27 @@ import {
     Alert,
     Backdrop,
     CircularProgress,
-    Snackbar,
     SnackbarCloseReason,
-    Button,
 } from '@mui/material';
 import { useOfflineSync } from './systemAvailability/useOfflineSync';
 import { useSelector } from 'react-redux';
 import { getShowOverlayFlag } from './store/Common/selectors';
+import SnackNotifyComponent, { SnackNotifyType } from './components/snackNotifyComponent';
+import { useNotification } from './customHook/useNotification';
 
 export const MainComponent: React.FunctionComponent = () => {
     const dispatch = useDispatch();
 
     const isOnline = useOfflineSync();
     const showLoading = useSelector(getShowOverlayFlag);
+    
+    // Network status notifications
     const [openSnack, setOpenSnack] = useState<boolean>(false);
     const [snackMessage, setSnackMessage] = useState<string>('');
-    const [snackSeverity, setSnackSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('info');
+    const [snackSeverity, setSnackSeverity] = useState<SnackNotifyType>('info');
+
+    // AI Assistant notifications
+    const aiNotification = useNotification();
 
     useEffect(() => {
         setOpenSnack(true);
@@ -77,21 +82,23 @@ export const MainComponent: React.FunctionComponent = () => {
                 }>
                     <div className="d-flex flex-column min-vh-100">
                         <Header headerValue="Inspection App" />
-                        <Snackbar
+                        
+                        {/* Network Status Notifications */}
+                        <SnackNotifyComponent
                             open={openSnack}
-                            autoHideDuration={6000}
+                            message={snackMessage}
+                            type={snackSeverity}
                             onClose={handleSnackClose}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        >
-                            <Alert
-                                onClose={handleSnackClose}
-                                severity={snackSeverity}
-                                variant="filled"
-                                sx={{ width: '100%' }}
-                            >
-                                {snackMessage}
-                            </Alert>
-                        </Snackbar>
+                        />
+                        
+                        {/* AI Assistant Notifications */}
+                        <SnackNotifyComponent
+                            open={aiNotification.open}
+                            message={aiNotification.message}
+                            type={aiNotification.type}
+                            onClose={aiNotification.onClose}
+                        />
+                        
                         <AppRouter />
                     </div>
                 </Suspense>

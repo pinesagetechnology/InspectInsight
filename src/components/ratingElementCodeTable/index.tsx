@@ -36,7 +36,7 @@ import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { RMAModeEnum } from '../../enums';
 import { getTotalElementCodeQuantity } from '../../store/Structure/selectors';
-import { CircularProgressWithLabel } from '../circularProgressWithLableComponent';
+import { CircularProgressWithLabel } from '../progressWithLableComponent';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',

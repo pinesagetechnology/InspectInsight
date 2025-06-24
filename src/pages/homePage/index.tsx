@@ -22,14 +22,13 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import styles from "./style.module.scss";
 import { getLocalStorageFlag } from '../../store/LocalStorage/selector';
 import * as localDataActions from "../../store/LocalStorage/actions";
 import IFCDownloadDialog from '../../components/ifcDownloadDialog';
 import { deleteIFCFile, getIFCFile, getIFCFileMetadata, hasIFCFile } from '../../helper/db';
+import SnackNotifyComponent from '../../components/snackNotifyComponent'; 
 
 const HomePage: React.FC = () => {
   const { goTo } = useNavigationManager();
@@ -284,7 +283,7 @@ const HomePage: React.FC = () => {
           structureMode={structureDataMode}
         />
       )}
-      <Snackbar
+      {/* <Snackbar
         open={openSnackBar}
         autoHideDuration={3000}
         onClose={handleClose}
@@ -293,7 +292,14 @@ const HomePage: React.FC = () => {
         <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
           Download successful!
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
+
+      <SnackNotifyComponent
+        open={openSnackBar}
+        message="Download successful!"
+        type="success"
+        onClose={handleClose}
+      />
     </div>
   );
 };

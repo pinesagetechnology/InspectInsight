@@ -20,7 +20,7 @@ import RatingComponent from '../../components/ratingComponent';
 import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
 import { MaintenanceActionModel } from 'models/inspectionModel';
 import { RMAModeEnum } from '../../enums';
-import { CircularProgressWithLabel } from '../../components/circularProgressWithLableComponent';
+import { CircularProgressWithLabel } from '../progressWithLableComponent';
 import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 
 interface AssessmentPanelProps {
