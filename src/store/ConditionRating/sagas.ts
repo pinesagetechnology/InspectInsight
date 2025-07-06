@@ -20,10 +20,8 @@ export function* conditionRatingRootSaga() {
     yield takeLatest(actions.RESET_CONDITION_RATING_DISPLAY_TABLE, resetConditionRatingDisplayTableSaga);
     yield takeLatest(actions.SET_SELECTED_IFC_ELEMENT_ID, setSelectedElementIdSaga);
     yield takeLatest(actions.SET_SELECTED_ELEMENT_CODE, setSelectedElementCodeSaga);
-    // yield takeLatest(actions.UPDATE_ELEMENT_CODE_LIST, updateElementCodeListSaga);
     yield takeLatest(actions.SAVE_ELEMENT_CODE_LIST, saveElementCodeListSaga);
     yield takeLatest(actions.SET_AUTO_TABLE_ELEMENT_FOCUS, setAutoTableElementFocusSaga);
-    // yield takeLatest(actions.SAVE_ALL_CONDITION_RATING_DATA, saveAllConditionRatingData);
 }
 
 export function* handleRowClickSaga(action: PayloadAction<StructureElement>) {
@@ -95,20 +93,6 @@ function* updateDisplayElementList(updatedItem: StructureElement) {
     yield put(setDisplayConditionRatingElements(updateDisplayItems));
 }
 
-// function* updateHistoryElementList(updateDisplayItems: StructureElement[]) {
-//     const elementHistory: StructureElement[][] = yield select(getElementHistory);
-//     const selectedHierarchyPath: string[] = yield select(getSelectedHierarchyPath);
-//     const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
-//     const updatedItemExpressID = lastItem.split('|')[1];
-
-
-//     const newElementHistory = elementHistory.map(elementSet => {
-//         return CheckHierarchyRecusrsivly(elementSet, updatedItem);
-//     });
-
-//     yield put(setElementHistory(newElementHistory));
-// }
-
 function* updateRatedElementList(updatedItem: StructureElement) {
     const ratedElements: StructureElement[] = yield select(getRatedElements);
 
@@ -144,7 +128,6 @@ export function* handleBackClickSaga() {
 
         const updatedLastElementArray = lastElementArray.map(item => {
             if (item.data.expressID === Number(updatedItemExpressID)) {
-                console.log("handleBackClickSaga", item.data.expressID, updatedItemExpressID);
                 return { ...item, children: currentDisplayItem };
             }
             return item;
@@ -156,7 +139,7 @@ export function* handleBackClickSaga() {
         //2- pop last history items
         const newHierarchyPath = selectedHierarchyPath.slice(0, -1);
         yield put(setSelectedHierarchyPath(newHierarchyPath));
-        
+
         const newElementHistory = elementHistory.slice(0, -1);
         yield put(setElementHistory(newElementHistory));
     }
@@ -201,7 +184,9 @@ export function* resetConditionRatingDisplayTableSaga() {
     const elementHistory: StructureElement[][] = yield select(getElementHistory);
     if (elementHistory?.length > 0) {
         //1- set displayElement to first item in the hitory
-        yield put(setDisplayConditionRatingElements(elementHistory[0]));
+        const elementItems: StructureElement[] = yield select(getOriginalConditionRating);
+
+        yield put(setDisplayConditionRatingElements(elementItems));
 
         //2- clear history
         yield put(setElementHistory([] as StructureElement[][]));
@@ -209,9 +194,10 @@ export function* resetConditionRatingDisplayTableSaga() {
 }
 
 const findElement = (elements: StructureElement[], id: number): StructureElement | undefined => {
-    for (const item of elements) {
+    for (let i = 0; i < elements.length; i++) {
+        const item = elements[i];
         if (item.data.expressID === id) {
-            return item;
+            return { ...item, originalIndex: i };
         }
 
         if (item.children && item.children.length > 0) {
@@ -226,23 +212,18 @@ const findElement = (elements: StructureElement[], id: number): StructureElement
 
 export function* setSelectedElementIdSaga(action: PayloadAction<number | undefined>) {
     const ratedElements: StructureElement[] = yield select(getRatedElements);
-    let selectedElement = findElement(ratedElements, action.payload!);
+    let selectedElement = ratedElements?.find(element => element.data.expressID === action.payload);
 
     if (!selectedElement) {
         const originalConditionRating: StructureElement[] = yield select(getOriginalConditionRating);
         selectedElement = findElement(originalConditionRating, action.payload!);
     }
-
     yield put(setSelectedStructureElement(selectedElement || ({} as StructureElement)));
 }
 
 export function* setSelectedElementCodeSaga(action: PayloadAction<ElementCodeData>) {
     yield put(setSelectedElementCode(action.payload));
 }
-
-// export function* updateElementCodeListSaga(action: PayloadAction<ElementCodeData[]>) {
-//     yield put(setOriginalElementCodeDataList(action.payload));
-// }
 
 export function* saveElementCodeListSaga(action: PayloadAction<ElementCodeData>) {
     const originalElementCodeData: ElementCodeData[] = yield select(getElementCodeDataList);
@@ -275,23 +256,3 @@ export function* setAutoTableElementFocusSaga(action: PayloadAction<number>) {
     yield put(setAutoTableElementFocus(action.payload));
 }
 
-// export function* saveAllConditionRatingData(action: PayloadAction<VoidFunction>) {
-//     const displayElements: StructureElement[] = yield select(getDisplayElementList);
-
-//     const elementsToSave: StructureElement[] = displayElements.filter(element => !element.isSaved);
-
-//     for (const element of elementsToSave) {
-//         // update original list
-//         yield call(updateOrginalElementList, element);
-
-//         //update historyList
-//         yield call(updateHistoryElementList, element);
-
-//         //upted RatedElement
-//         yield call(updateRatedElementList, element);
-//     }
-
-//     if (action.payload) {
-//         yield call(action.payload);
-//     }
-// }

@@ -59,7 +59,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         const loadImages = async () => {
             setLoading(true);
             try {
-                console.log("images", images);
                 if (isFromPreviousInspection && imageIds && imageIds.length > 0) {
                     const fetchedImages = await downloadImages(imageIds);
                     setLoadedImages(fetchedImages);
@@ -98,7 +97,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
     // Cleanup URLs when component unmounts or images change
     useEffect(() => {
-        console.log("loadedImages", loadedImages);
         return () => {
             loadedImages?.forEach(url => {
                 if (url.startsWith('blob:')) {

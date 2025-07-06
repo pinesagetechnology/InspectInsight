@@ -6,10 +6,8 @@ import { AIResponse, Message } from '../models/webllm';
 import { InspectionReport } from '../entities/genAIModel';
 
 class AISummaryServiceAdapter extends AIBaseServiceAdapter {
-    
+
     async sendGetCompletion(inspectionContext: any, previousInspectionJson: any): Promise<AIResponse> {
-        console.log('inspectionContext', inspectionContext);
-        console.log('previousInspectionJson', previousInspectionJson);
         try {
             if (this.currentSource === 'local') {
                 return await this.sendLocalGetCompletion(inspectionContext, previousInspectionJson);
@@ -32,15 +30,15 @@ class AISummaryServiceAdapter extends AIBaseServiceAdapter {
         try {
             // Optimize context data to reduce token usage
             const optimizedCurrentInspection = inspectionContext;
-            const optimizedPreviousInspection = previousInspectionJson ? previousInspectionJson: null;
-            
+            const optimizedPreviousInspection = previousInspectionJson ? previousInspectionJson : null;
+
             // Create context object and convert to string for parsing
             const contextObj = {
                 currentInspection: optimizedCurrentInspection,
                 previousInspection: optimizedPreviousInspection
             };
             const contextString = JSON.stringify(contextObj);
-            
+
             // Create a simple message for WebLLM
             const messages: Message[] = [{
                 id: Date.now().toString(),
@@ -78,10 +76,10 @@ class AISummaryServiceAdapter extends AIBaseServiceAdapter {
             const requestBody = {
                 contextJson: JSON.stringify(inspectionContext),
                 previousInspectionJson: JSON.stringify(previousInspectionJson)
-              };
+            };
 
             const result: InspectionReport = await genAIService.getCompletion(requestBody);
-            
+
             return {
                 response: result.response,
                 source: 'online',
