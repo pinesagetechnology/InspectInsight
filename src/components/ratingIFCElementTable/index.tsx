@@ -11,13 +11,12 @@ import {
     Button,
     Stack,
     styled,
-    IconButton,
-    Tooltip,
     Grid2 as Grid,
     useMediaQuery,
     Box,
     Typography,
-    Badge
+    Badge,
+    TablePagination
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { StructureElement } from '../../entities/structure';
@@ -32,12 +31,10 @@ import {
 import { useDispatch } from 'react-redux';
 import * as actions from "../../store/ConditionRating/actions";
 import RMADialog from '../maintenanceActionsDialog/rmaDialog';
-import PostAddIcon from '@mui/icons-material/PostAdd';
 import SearchBarComponent from '../ifcTreeComponent.tsx/searchBar';
 import { getElementHistory } from '../../store/ConditionRating/selectors';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { filterTree, findPathToNode } from '../../helper/ifcTreeManager';
-import RatingComponent from '../../components/ratingComponent';
 import * as maintenanceActions from "../../store/MaintenanceAction/actions";
 import { MaintenanceActionModel } from '../../models/inspectionModel';
 import { getMaintenanceActionModalFlag, getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
@@ -46,7 +43,7 @@ import { useNavigationManager } from '../../navigation';
 import * as commonActions from "../../store/Common/actions";
 import { getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 import { CircularProgressWithLabel } from '../progressWithLableComponent';
-import SaveIcon from '@mui/icons-material/Save';
+import TableRowComponent from './tableRow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -69,101 +66,6 @@ const StyledTableHeaderCell = styled(StyledTableCell)(({ theme }) => ({
     whiteSpace: 'nowrap'
 }));
 
-const TableRowComponent = React.memo(({
-    element,
-    selectedElement,
-    isPortrait,
-    handleRowClick,
-    handleRowDoubleClick,
-    handleOnRatingChange,
-    handleSaveButton,
-    addAssessmentOnClick,
-    maintenanceActionList
-}: {
-    element: StructureElement;
-    selectedElement: StructureElement | null;
-    isPortrait: boolean;
-    handleRowClick: (element: StructureElement) => void;
-    handleRowDoubleClick: (element: StructureElement) => void;
-    handleOnRatingChange: (value: string, elementId: number) => void;
-    handleSaveButton: (element: StructureElement) => void;
-    addAssessmentOnClick: (element: StructureElement) => (e: React.MouseEvent<HTMLButtonElement>) => void;
-    maintenanceActionList: MaintenanceActionModel[];
-}) => (
-    <TableRow
-        key={element.data?.expressID}
-        onClick={() => handleRowClick(element)}
-        onDoubleClick={() => handleRowDoubleClick(element)}
-        style={{ cursor: 'pointer' }}
-        data-express-id={element.data?.expressID}
-        sx={{
-            backgroundColor: selectedElement?.data?.expressID === element.data?.expressID ?
-                'rgba(0, 0, 0, 0.04)' : 'inherit'
-        }}
-    >
-        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>{
-            element.identityData && element.identityData.assetId ?
-                element.identityData.assetId :
-                element.data.expressID
-        }</StyledTableCell>
-        <StyledTableCell>{
-            element.identityData && element.identityData.names ?
-                element.identityData.names :
-                element.data.Name
-        }</StyledTableCell>
-        <StyledTableCell>{element.identityData?.section}</StyledTableCell>
-        <StyledTableCell sx={{ display: isPortrait ? 'none' : 'table-cell' }}>
-            {element.children?.length > 0 && element.quantity}
-        </StyledTableCell>
-        <StyledTableCell>
-            {!element.children?.length && (
-                <RatingComponent
-                    rating={element.ifcElementRatingValue || ''}
-                    elementId={element.data.expressID}
-                    handleOnRatingChange={handleOnRatingChange}
-                />
-            )}
-        </StyledTableCell>
-        <StyledTableCell>
-            <Stack direction={isPortrait ? 'column' : 'row'} spacing={1}>
-                {!element.children?.length && (
-                    <Stack direction="row" spacing={1}>
-                        <Tooltip title="Save condition rating">
-                            <IconButton
-                                color="success"
-                                onClick={() => handleSaveButton(element)}
-                                size={isPortrait ? 'small' : 'medium'}
-                                disabled={element.isSaved}
-                            >
-                                <SaveIcon />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Add maintenance action">
-                            <Badge
-                                badgeContent={maintenanceActionList.filter(
-                                    (action) => action.elementId === element.data?.expressID.toString()
-                                ).length}
-                                color="primary"
-                                showZero={false}
-                                overlap="circular"
-                                sx={{ '& .MuiBadge-badge': { fontSize: '0.7rem', minWidth: 16, height: 16 } }}
-                            >
-                                <IconButton
-                                    color="primary"
-                                    onClick={addAssessmentOnClick(element)}
-                                    size={isPortrait ? 'small' : 'medium'}
-                                >
-                                    <PostAddIcon />
-                                </IconButton>
-                            </Badge>
-                        </Tooltip>
-                    </Stack>
-                )}
-            </Stack>
-        </StyledTableCell>
-    </TableRow>
-));
-
 const StructureElementGrid: React.FC = () => {
     const { goTo } = useNavigationManager();
     const dispatch = useDispatch();
@@ -185,6 +87,10 @@ const StructureElementGrid: React.FC = () => {
     // Local state
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [goBackLabel, setGoBackLabel] = useState<string>('');
+    const [hasManyChildren, setHasManyChildren] = useState<boolean>(false);
+    const [paginatedChildren, setPaginatedChildren] = useState<StructureElement[]>([]);
+    const [childPage, setChildPage] = useState(0);
+    const [childRowsPerPage, setChildRowsPerPage] = useState(20);
 
     // Responsive breakpoints
     const isTablet = useMediaQuery('(max-width:962px)');
@@ -197,6 +103,14 @@ const StructureElementGrid: React.FC = () => {
     );
 
     useEffect(() => {
+        setHasManyChildren(filteredTreeData && filteredTreeData.length > 20);
+        const startIndex = hasManyChildren ? childPage * childRowsPerPage : 0;
+        const endIndex = hasManyChildren ? startIndex + childRowsPerPage : filteredTreeData?.length || 0;
+
+        setPaginatedChildren(hasManyChildren ? filteredTreeData.slice(startIndex, endIndex) : filteredTreeData);
+    }, [filteredTreeData, hasManyChildren, childPage, childRowsPerPage]);
+
+    useEffect(() => {
         if (autoTableElementFocus < 0 || !selectedElement?.data) return;
         if (hasExecutedRef.current === autoTableElementFocus) return;
 
@@ -204,7 +118,6 @@ const StructureElementGrid: React.FC = () => {
         dispatch({ type: commonActions.SHOW_LOADING_OVERLAY });
 
         const pathList = findPathToNode(originalStructureElements, selectedElement.data.Name || '');
-
         const walkPath = async () => {
             try {
                 for (const element of pathList) {
@@ -213,24 +126,46 @@ const StructureElementGrid: React.FC = () => {
                         await new Promise(resolve => setTimeout(resolve, 120));
                     }
                 }
-
-                if (tableContainerRef.current && selectedElement?.data) {
-                    const elementToScroll = tableContainerRef.current.querySelector(
-                        `[data-express-id="${selectedElement.data.expressID}"]`
-                    );
-                    if (elementToScroll) {
-                        elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    }
-                }
+            } catch (error) {
+                console.error('Error in walkPath:', error);
             } finally {
-                dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
                 dispatch({ type: actions.SET_AUTO_TABLE_ELEMENT_FOCUS, payload: -1 });
             }
         };
 
-        walkPath();
-    }, [autoTableElementFocus, selectedElement?.data, originalStructureElements]);
+        // Execute walkPath and then your other function
+        (async () => {
+            try {
+                await walkPath();
+
+                if (selectedElement?.originalIndex !== -1) {
+                    if (selectedElement?.originalIndex !== undefined) {
+                        const targetPage = Math.floor(selectedElement?.originalIndex / childRowsPerPage);
+
+                        setChildPage(targetPage);
+
+                        setTimeout(() => {
+                            if (tableContainerRef.current && selectedElement?.data) {
+                                const elementToScroll = tableContainerRef.current.querySelector(
+                                    `[data-express-id="${selectedElement.data.expressID}"]`
+                                );
+                                if (elementToScroll) {
+                                    elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }
+
+                            dispatch({ type: commonActions.CLOSE_LOADING_OVERLAY });
+
+                        }, 800);
+                    }
+                }
+            } catch (error) {
+                console.error('Error in walkPath:', error);
+            }
+        })();
+
+
+    }, [autoTableElementFocus, selectedElement?.data, originalStructureElements, filteredTreeData, childRowsPerPage]);
 
     useEffect(() => {
         dispatch({
@@ -239,10 +174,9 @@ const StructureElementGrid: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedHierarchyPath.length > 0) { 
+        if (selectedHierarchyPath.length > 0) {
             const lastItem = selectedHierarchyPath[selectedHierarchyPath.length - 1];
             const label = lastItem.split('|')[0];
-            console.log(label);
             setGoBackLabel(label);
         }
     }, [selectedHierarchyPath]);
@@ -348,6 +282,16 @@ const StructureElementGrid: React.FC = () => {
         }, 120);
     }, [dispatch]);
 
+
+    const handleChildPageChange = (event: unknown, newPage: number) => {
+        setChildPage(newPage);
+    };
+
+    const handleChildRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setChildRowsPerPage(parseInt(event.target.value, 10));
+        setChildPage(0);
+    };
+
     return (
         <React.Fragment>
             <Stack direction={'column'}>
@@ -417,7 +361,7 @@ const StructureElementGrid: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredTreeData?.map((element: StructureElement) => (
+                            {paginatedChildren?.map((element: StructureElement) => (
                                 <TableRowComponent
                                     key={element.data?.expressID}
                                     element={element}
@@ -433,6 +377,18 @@ const StructureElementGrid: React.FC = () => {
                             ))}
                         </TableBody>
                     </Table>
+                    {hasManyChildren && (
+                        <TablePagination
+                            rowsPerPageOptions={[10, 20, 50]}
+                            component="div"
+                            count={filteredTreeData.length}
+                            rowsPerPage={childRowsPerPage}
+                            page={childPage}
+                            onPageChange={handleChildPageChange}
+                            onRowsPerPageChange={handleChildRowsPerPageChange}
+                            size="small"
+                        />
+                    )}
                 </TableContainer>
             </Stack>
             <RMADialog

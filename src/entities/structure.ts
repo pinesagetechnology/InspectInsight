@@ -56,6 +56,7 @@ export interface StructureElement {
     isSplit?: boolean;
     splitElements?: StructureElement[];
     isSaved?: boolean;
+    originalIndex?: number;
 }
 
 export interface ElementCodeData {
