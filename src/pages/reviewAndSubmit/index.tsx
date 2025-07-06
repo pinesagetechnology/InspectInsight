@@ -15,7 +15,8 @@ import {
   AccordionSummary,
   AccordionDetails,
   styled,
-  Stack
+  Stack,
+  TablePagination
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import FormPageWrapper from '../../components/formPageWrapper';
@@ -100,6 +101,8 @@ const ReviewInspectionPage: React.FC = () => {
   const [ifcPopulatedConditionRating, setIFCPopulatedConditionRating] = useState<IFCPopulatedConditionRating[]>([]);
   const [selectedImages, setSelectedImages] = useState<MaintenanceImageFile[]>([]);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const isAllCompleted = useSelector(isAllStepsCompleted);
   const inspection = useSelector(getInspection);
@@ -111,7 +114,7 @@ const ReviewInspectionPage: React.FC = () => {
 
   useEffect(() => {
     if (ifcCalculatedElementCodeData) {
-      
+
       setIFCPopulatedConditionRating(getRatingDistribution(ifcCalculatedElementCodeData, ratedIFCElements));
     }
 
@@ -136,7 +139,7 @@ const ReviewInspectionPage: React.FC = () => {
     try {
       // Clear chat history before submitting data
       await clearChat();
-      
+
       dispatch({
         type: reviewActions.SUBMIT_DATA,
         payload: {
@@ -162,6 +165,15 @@ const ReviewInspectionPage: React.FC = () => {
       setSelectedImages(images);
       setIsCarouselOpen(true);
     }
+  };
+
+  const handlePageChange = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -288,43 +300,59 @@ const ReviewInspectionPage: React.FC = () => {
                 </Table>
               )}
               {ratedIFCElements?.length > 0 && (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableHeaderCell>Code</StyledTableHeaderCell>
-                      <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
-                      <StyledTableHeaderCell align='center'>
-                        Condition rating
-                        <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
-                          {[1, 2, 3, 4].map((rating) => (
-                            <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
-                              <Typography variant="caption">
-                                CS{rating}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Stack>
-                      </StyledTableHeaderCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {ifcPopulatedConditionRating?.map((row, index) => (
-                      <TableRow key={index}>
-                        <StyledTableCell>{row.elementCode}</StyledTableCell>
-                        <StyledTableCell>{row.totalQty}</StyledTableCell>
-                        <StyledTableCell>
+                <>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableHeaderCell>Code</StyledTableHeaderCell>
+                        <StyledTableHeaderCell>Total Qty</StyledTableHeaderCell>
+                        <StyledTableHeaderCell align='center'>
+                          Condition rating
                           <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
-                            {row.condition?.map((value, i) => (
-                              <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
-                                {value}
+                            {[1, 2, 3, 4].map((rating) => (
+                              <Box key={rating} sx={{ width: '25%', textAlign: 'center' }}>
+                                <Typography variant="caption">
+                                  CS{rating}
+                                </Typography>
                               </Box>
                             ))}
                           </Stack>
-                        </StyledTableCell>
+                        </StyledTableHeaderCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHead>
+                    <TableBody>
+                      {ifcPopulatedConditionRating
+                        ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        ?.map((row, index) => (
+                          <TableRow key={index}>
+                            <StyledTableCell>{row.elementCode}</StyledTableCell>
+                            <StyledTableCell>{row.totalQty}</StyledTableCell>
+                            <StyledTableCell>
+                              <Stack direction={'row'} spacing={0} sx={{ justifyContent: 'space-between', width: '100%' }}>
+                                {row.condition?.map((value, i) => (
+                                  <Box key={i} sx={{ width: '25%', textAlign: 'center' }}>
+                                    {value}
+                                  </Box>
+                                ))}
+                              </Stack>
+                            </StyledTableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                  {ifcPopulatedConditionRating && ifcPopulatedConditionRating.length > 0 && (
+                    <TablePagination
+                      rowsPerPageOptions={[10, 25, 50]}
+                      component="div"
+                      count={ifcPopulatedConditionRating.length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      onPageChange={handlePageChange}
+                      onRowsPerPageChange={handleRowsPerPageChange}
+                      size="small"
+                    />
+                  )}
+                </>
               )}
             </TableContainer>
           </AccordionDetails>
