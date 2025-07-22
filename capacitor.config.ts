@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.inspectinsight',
-  appName: 'InspectInsight',
+  appId: 'com.InspectInfra',
+  appName: 'InspectInfra',
   webDir: 'build',
   server: {
     androidScheme: 'https'

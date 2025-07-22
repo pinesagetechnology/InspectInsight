@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
-  TextField,
   Button,
   Box,
   Grid2 as Grid,
@@ -28,6 +27,7 @@ import { useDispatch } from 'react-redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as actions from "../../store/InspectionComment/actions";
 import AIChatBot from '../../components/aiChatBot';
+import AIStyledTextArea from '../../components/aiStyledTextArea';
 import { getInspection } from '../../store/Inspection/selectors';
 import { getCurrentStructure, getIFCCalculatedElementCodeData, getStructureDisplayMode, getTotalElementCodeQuantity, getTotalIFCElementQuantity } from '../../store/Structure/selectors';
 import { getMaintenanceActions } from '../../store/MaintenanceAction/selectors';
@@ -59,6 +59,7 @@ const InspectorCommentForm: React.FC = () => {
   // Local state for AI operations
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [showAIResponse, setShowAIResponse] = useState(false);
   const aiSource = useSelector(getAiSource);
   const aiStatus = useSelector(getAiSourceStatus);
 
@@ -85,10 +86,10 @@ const InspectorCommentForm: React.FC = () => {
     }
   }, [ratedIFCElements, ifcCalculatedElementCodeData]);
 
-  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCommentChange = (value: string) => {
     dispatch({
       type: actions.SET_INSPECTION_COMMENT_DATA,
-      payload: e.target.value
+      payload: value
     } as PayloadAction<string>)
   };
 
@@ -173,6 +174,9 @@ const InspectorCommentForm: React.FC = () => {
         type: actions.SET_INSPECTION_COMMENT_DATA,
         payload: aiResponse.response
       } as PayloadAction<string>);
+
+      // Automatically show AI response view when AI generates content
+      setShowAIResponse(true);
 
     } catch (error) {
       console.error('Error generating AI comment:', error);
@@ -296,17 +300,18 @@ const InspectorCommentForm: React.FC = () => {
             )}
 
             <Grid size={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={20}
-                variant="outlined"
-                placeholder="Enter your comment here..."
+              <AIStyledTextArea
                 value={commentValue}
                 onChange={handleCommentChange}
+                placeholder="Enter your comment here..."
+                rows={20}
                 error={validationError}
                 helperText={(validationError) ? "please fill in inspection comment" : ""}
                 disabled={isGeneratingAI}
+                aiSource={aiSource}
+                aiModelName={aiSource === 'local' ? aiStatus?.local?.modelName : 'Azure AI'}
+                showAIResponse={showAIResponse}
+                onToggleAIView={() => setShowAIResponse(!showAIResponse)}
               />
             </Grid>
           </Grid>

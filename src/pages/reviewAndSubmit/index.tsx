@@ -45,6 +45,7 @@ import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import ImageCarousel from '../../components/imageCarousel';
 import { useAIAssistant } from '../../customHook/useAIAssistant';
 import { MaintenanceImageFile } from 'models/inspectionModel';
+import AIResponseDisplay from '../../components/aiResponseDisplay';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -445,9 +446,18 @@ const ReviewInspectionPage: React.FC = () => {
           </SectionHeader>
           <AccordionDetails>
             <Box sx={{ py: 1 }}>
-              <Typography variant="body1">
-                {comments}
-              </Typography>
+              {comments && comments.trim().length > 0 ? (
+                <AIResponseDisplay
+                  content={comments}
+                  source="online"
+                  modelName="Azure AI"
+                  timestamp={new Date()}
+                />
+              ) : (
+                <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                  No comments provided
+                </Typography>
+              )}
             </Box>
           </AccordionDetails>
         </ReportSection>

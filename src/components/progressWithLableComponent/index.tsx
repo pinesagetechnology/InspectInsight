@@ -22,17 +22,8 @@ export const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps>
     };
 
     return (
-        <Stack direction="row" spacing={1}>
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                {label && (
-                    <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                        {label}
-                    </Typography>
-                )}
-                <Typography variant="caption" color="textSecondary">
-                    {reviewedCount} / {totalQuantity}
-                </Typography>
-            </Box>
+        <Stack direction="column" spacing={1}>
+
             <Box display="flex" flexDirection="column" alignItems="center" minWidth={120} width={180}>
                 <Typography variant="h6" color="textPrimary" sx={{ mb: 0.5 }}>
                     {percent}%
@@ -43,6 +34,16 @@ export const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps>
                     color={getColor() as any}
                     sx={{ height: 10, borderRadius: 5, width: '100%', transition: 'all 0.3s ease' }}
                 />
+            </Box>
+            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" alignContent={'center'}>
+                {label && (
+                    <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1, mr: 1 }}>
+                        {label}
+                    </Typography>
+                )}
+                <Typography variant="caption" color="textSecondary">
+                    {reviewedCount} / {totalQuantity}
+                </Typography>
             </Box>
         </Stack>
     );

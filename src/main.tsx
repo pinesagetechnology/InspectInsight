@@ -81,7 +81,7 @@ export const MainComponent: React.FunctionComponent = () => {
                     </div>
                 }>
                     <div className="d-flex flex-column min-vh-100">
-                        <Header headerValue="Inspection App" />
+                        <Header headerValue="InspectInfra App" />
                         
                         {/* Network Status Notifications */}
                         <SnackNotifyComponent

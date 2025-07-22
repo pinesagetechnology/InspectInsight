@@ -25,6 +25,7 @@ import { FormatDateOnly } from '../../helper/util';
 import ImageIcon from '@mui/icons-material/Image';
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import ImageCarousel from '../../components/imageCarousel';
+import AIResponseDisplay from '../../components/aiResponseDisplay';
 
 // Styled components
 const ReportSection = styled(Accordion)(({ theme }) => ({
@@ -79,7 +80,7 @@ const PreviousInspectionPage: React.FC = () => {
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
 
   const handleOpenCarousel = (imageIds: string[]) => {
-    
+
     setSelectedImageIds(imageIds);
     setIsCarouselOpen(true);
   };
@@ -280,9 +281,18 @@ const PreviousInspectionPage: React.FC = () => {
           </SectionHeader>
           <AccordionDetails>
             <Box sx={{ py: 1 }}>
-              <Typography variant="body1">
-                {previousInspect?.comment}
-              </Typography>
+              {previousInspect?.comment && previousInspect?.comment.trim().length > 0 ? (
+                <AIResponseDisplay
+                  content={previousInspect?.comment}
+                  source="online"
+                  modelName="Azure AI"
+                  timestamp={new Date()}
+                />
+              ) : (
+                <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                  No comments provided
+                </Typography>
+              )}
             </Box>
           </AccordionDetails>
         </ReportSection>
